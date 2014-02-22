@@ -25,11 +25,39 @@ Current Scripts
 * **NPC Generator:** v1.6 released on Nexus Mods February 3, 2014.
 * **Armor Mod Builder:** v1.3 released on Nexus Mods February 3, 2014.
 * **QuickDisplay:** v1.4 released on Nexus Mods February 3, 2014.
-* **Full Name Manipulation Script:** Beta 1.0 is functional.
-* **CCOR Compatibility Script:** Beta 0.5 is functional.
-* **Re-Evaluator:** Beta 0.3 is functional.
-* **Break it Down:** Beta 0.4 is functional.
-* **NPC Transmogrifier:** Alpha 0.1 is non-functional.
+* **Full Name Manipulation Script:** Beta v1.0 is functional.
+* **CCOR Compatibility Script:** Beta v0.5 is functional.
+* **Re-Evaluator:** Beta v0.3 is functional.
+* **Break it Down:** Beta v0.4 is functional.
+* **NPC Transmogrifier:** Alpha v0.1 is non-functional.
+
+
+Script Installation and Usage
+==================================
+
+To install scripts you need to put the .pas files and all associated text 
+files into 
+
+  {Skyrim Directory}\TES5Edit\Edit Scripts\
+
+From there you can execute the scripts from within TES5Edit, or another 
+version of Edit which supports them.  Executing scripts in Edit is easy, 
+if the script has a process function you'll start by selecting the objects 
+you want to apply the script to, right click on one of the objects, and 
+click apply script.  Choose the script you want to apply from the dropdown 
+list and click OK.
+
+If the script doesn't have a process function you can simply right click 
+anywhere and apply it.  You can see individual script documentation for 
+further instructions.
+
+
+How Can I Help?
+==================================
+
+I'm always welcome to ideas for scripts which will save a large range of 
+people a fair amount of time.  If you have an idea for a script that falls 
+in the scope of this project, contact me on Nexus Mods or here on GitHub.
 
 
 License
