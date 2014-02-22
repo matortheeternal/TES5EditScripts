@@ -1,0 +1,15 @@
+Immersive Darkwater crossing.esp
+Immersive Dawnstar.esp
+Immersive Dragon Bridge.esp
+Immersive Falkreath.esp
+Immersive Ivarstead.esp
+Immersive Karthwasten.esp
+Immersive Kynesgrove.esp
+Immersive Morthal.esp
+Immersive Orc Strongholds.esp
+Immersive Riverwood.esp
+Immersive Rorikstead.esp
+Immersive Shors stone.esp
+Immersive Stonehills.esp
+Immersive Whiterun.esp
+Immersive Solstheim.esp
