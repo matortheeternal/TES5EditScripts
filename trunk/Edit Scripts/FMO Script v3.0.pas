@@ -37,19 +37,20 @@ const
   overridekwda = false; // set to true to process all items regardless of their keywords
   noreprint = false; // set this to true to not print prefixes a second time
   PreMin = 3; // minimum number of items with a prefix to add that prefix
-  ogs = ' +'; // suffix on sub-categories for opening groups
-  cgs = ' -'; // suffix on sub-categories for closing groups
+  openSuffix = ' +'; // suffix on sub-categories for opening groups
+  closeSuffix = ' -'; // suffix on sub-categories for closing groups
 
 var
-  slBenches, slExcept, slFileExcept, slCobjForms, slForms, slModels, slTex, 
-  slTexN, slNames, slKeywords, slKForms, slFlags, slPre, slPreNWS, slPreModels,
-  slPreTex, slPreTexN, slPreKwords, slPreKForms, slAAForms, slDAForms, slAACobj,
-  slPreFind, slPreAssoc, slMasters, slCobjFiles: TSTringList;
+  slBenches, slExcept, slFileExcept, slPre, slPreNWS, slCobj, slCnam, 
+  slNames, slDA, slAA, slAACobj, slPreFind, slPreAssoc, slPreTemplate, 
+  slExisting, slMasters: TSTringList;
   frm: TForm;
   tvList: TTreeView;
   panel: TPanel;
   btnAdd, btnRemove, btnOk, btnCancel: TButton;
   unsortedGroup: TTreeNode;
+  fmoFile: IInterface;
+  endscript: boolean;
   
 //=====================================================================
 // recursive function for finding prefixes
@@ -157,75 +158,6 @@ begin
   
   // if all checks passed
   Result := True;
-end;
-
-
-//=====================================================================
-// function gives model path
-function ModelPath(e: IInterface): String;
-var
-  cnam: IInterface;
-  fwm, mwm, edid: string;
-begin
-  cnam := LinksTo(ElementByPath(e, 'CNAM'));
-  edid := genv(cnam, 'EDID');
-
-  // if armor begin logic for choosing to use female world model or male world model
-  if (Signature(cnam) = 'ARMO') then begin
-    fwm := geev(cnam, 'Female world model\MOD4');
-    mwm := geev(cnam, 'Male world model\MOD2');
-    
-    // if female world model is blank and male world model isn't, use male world model
-    if (fwm = '') and (mwm <> '') then begin
-      if mpdebug then AddMessage('    ModelPath: Female world model is blank, using male world model: '+mwm);
-      Result := mwm;
-      exit;
-    end;
-    // if male world model is blank and female world model isn't, use female world model
-    if (mwm = '') and (fwm <> '') then begin
-      if mpdebug then AddMessage('    ModelPath: Male world model is blank, using female world model: '+fwm);
-      Result := fwm;
-      exit;
-    end;
-    // if female and male world models are the same then use male world model
-    if (fwm = mwm) then begin
-      if mpdebug then AddMessage('    ModelPath: Male and female world models are the same, using: '+mwm);
-      Result := mwm;
-      exit;
-    end;
-    // if different models are used for male/female world models prompt use for choice
-    if (fwm <> mwm) then begin
-      if choice = 10 then begin
-        if mpdebug then AddMessage('    ModelPath: Using male world model as per YesToAll choice: '+mwm);
-        Result := mwm;
-        exit;
-      end;
-      if choice = 9 then begin
-        if mpdebug then AddMessage('    ModelPath: Using female world model as per NoToAll choice: '+fwm);
-        Result := fwm;
-        exit;
-      end;
-      choice := MessageDlg(genv(cnam, 'FULL')+' uses different female and male world models. '+
-      'Would you like to use the male world model?  If you click no the female world model will be used.'+#13#10#13#10+'Male world model: '+#13#10+mwm+#13#10+
-      'Female world model: '+#13#10+fwm, mtConfirmation, [mbYes, mbNo, mbYesToAll, mbNoToAll], 0);
-      if (choice = 6) or (choice = 10) then begin
-        if mpdebug then AddMessage('    ModelPath: Using male world model: '+mwm);
-        Result := mwm;
-        exit;
-      end;
-      if (choice = 7) or (choice = 9) then begin
-        if mpdebug then AddMessage('    ModelPath: Using female world model: '+fwm);
-        Result := fwm;
-        exit;
-      end;
-    end;    
-  end;
-  
-  // if not armor, just load from Model\MODL
-  if not (Signature(cnam) = 'ARMO') then begin
-    if mpdebug then AddMessage('    ModelPath: '+edid+' is not an armor, using model: '+geev(cnam, 'Model\MODL'));
-    Result := geev(cnam, 'Model\MODL');
-  end;
 end;
 
 //=====================================================================
@@ -363,8 +295,12 @@ begin
       if slPreAssoc[i] = '' then
         tvList.Items.AddChild(unsortedGroup, slNames[i]);
     end;
-   
-    frm.ShowModal;
+    
+    // load changes to treeview if OK is clicked, else 
+    endscript := true;
+    if frm.ShowModal = mrOk then begin
+      endscript := false;
+    end;
   finally
     frm.Free;
   end;
@@ -378,7 +314,7 @@ function Initialize: integer;
 var
   i, j, n, k, m, p, p1, p2, q, x, y: integer;
   e, f, cobjs, cobj, kwda, baserecord, DA,
-  conditions, condition, retex, cnam, master, masters: IInterface;
+  conditions, condition, retex, cnam, master, masters, group, template: IInterface;
   s, s1, s2: string;
   AAExists, subprefix: boolean;
 begin
@@ -402,21 +338,16 @@ begin
   slPreNWS := TStringList.Create; // list of prefixes with no whitespace (spaces)
   slCobj := TStringList.Create; // list of Cobjs
   slCnam := TStringList.Create; // list of created objects
-  slModels := TStringList.Create; // list of model paths
-  slTex := TStringList.Create; // list of alternate textures
-  slFlags := TStringList.Create; // list of item flags
-  slPreModels := TStringList.Create; // list of model paths associated with prefixes
-  slPreTex := TStringList.Create; // list of alternate textures associated with prefixes
   slNames := TStringList.Create; // list of full names
-  slKeywords := TStringList.Create; // list of material keywords
-  slPreKeywords := TStringList.Create; // list of material keywords associated with prefixes
-  slDAForms := TStringList.Create; // dactivator form ids
-  slAAForms := TStringList.Create; // aactivator form ids
+  slDA := TStringList.Create; // dactivator form ids
+  slAA := TStringList.Create; // aactivator form ids
   slAACobj := TStringList.Create; // aactivator form ids associated with cobj recipes
+  slExisting := TStringList.Create; // list for existing ARMO/WEAP/MISC records in fmoFile
   slPreFind := TStringList.Create; // list for finding prefixes
   slPreFind.Sorted := True;
   slPreFind.Duplicates := dupIgnore;
   slPreAssoc := TStringList.Create; // list that assocaites items with prefixes
+  slPreTemplate := TStringList.Create;
   slMasters := TStringList.Create; // master files stringlist
   slMasters.Sorted := True;
   slMasters.Duplicates := dupIgnore;
@@ -453,7 +384,7 @@ begin
       
       // skip recipes already processed and create cnam list
       if (slCnam.IndexOf(Name(cnam)) <> -1) then Continue;
-      slCnam.Add(Name(cnam), TObject(cnam));
+      slCnam.AddObject(Name(cnam), TObject(cnam));
       
       // make slNames list
       // if name is already in use in slNames list then adjust it to be unique (just for the list)
@@ -466,20 +397,16 @@ begin
       slNames.Add(s);
       
       // create cobj list
-      slCobj.Add(Name(cobj), TObject(cobj));
+      slCobj.AddObject(Name(cobj), TObject(cobj));
     end;
   end;
   
   // debug messages
   if debug then begin
     AddMessage(#13#10 + 'Current stringlist counts: ');
-    AddMessage('  slForms: '+IntToStr(slForms.Count));
+    AddMessage('  slCnam: '+IntToStr(slCnam.Count));
     AddMessage('  slNames: '+IntToStr(slNames.Count));
     AddMessage('  slCobj: '+IntToStr(slCobj.Count));
-    AddMessage('  slCobjFiles: '+IntToStr(slCobjFiles.Count));
-    AddMessage('  slModels: '+IntToStr(slModels.Count));
-    AddMessage('  slFlags: '+IntToStr(slFlags.Count));
-    AddMessage('  slKeywords: '+IntToStr(slKeywords.Count));
     AddMessage('  slMasters: '+IntToStr(slMasters.Count)+#13#10);
   end;
     
@@ -495,7 +422,7 @@ begin
   
   // print found prefixes
   j := 0;
-  AddMessage(#13#10 + 'Found the following prefixes: ');
+  AddMessage('Found the following prefixes: ');
   s := StringReplace(slPre.Text, #13#10, ', ', [rfReplaceAll]);
   for i := 0 to Length(s) - 1 do begin
     if (i > j + 50) then begin
@@ -553,7 +480,7 @@ begin
   if debug then begin 
     AddMessage('Item prefix assocaition: ');
     for i := 0 to slNames.Count - 1 do
-      AddMessage('    '+slNames[i]+' is associated with the prefix:    '+slPreAssoc[i]);
+      AddMessage('    '+slNames[i]+'   :   '+slPreAssoc[i]);
     AddMessage(' ');
   end;
   
@@ -565,8 +492,9 @@ begin
     end;
   end;
   
-  // create prefixes no whitespace list
+  // create prefixes no whitespace list, fill slPreTemplate with 0s
   for i := 0 to slPre.Count - 1 do begin
+    slPreTemplate.AddObject('0', nil);
     s := StringReplace(Trim(slPre[i]), ' ', '', [rfReplaceAll]);
     s := StringReplace(s, '-', '', [rfReplaceAll]);
     s := StringReplace(s, '(', '', [rfReplaceAll]);
@@ -579,15 +507,14 @@ begin
   end;
   
   // create prefix template stringlist
-  AddMessage('');
-  if debug then AddMessage('Assigning model and keyword information to prefixes...');
+  if debug then AddMessage('Assigning category template records...');
   // try to use a Cuirass for template
   for i := 0 to slCnam.Count - 1 do begin
     cnam := ObjectToElement(slCnam.Objects[i]);
     j := slPre.IndexOf(slPreAssoc[i]);
     if j = -1 then Continue;
-    if HasKeyword(cnam, 'ArmorCuirass') and (slPreModels[j] = '0') then begin
-      if debug then AddMessage('    Assigning '+slPre[j]+' model and keyword information from:    '+slNames[i]);
+    if HasKeyword(cnam, 'ArmorCuirass') and (slPreTemplate[j] = '0') then begin
+      if debug then AddMessage('    '+slPre[j]+'   :   '+slNames[i]);
       slPreTemplate[j] := Name(cnam);
       slPreTemplate.Objects[j] := TObject(cnam);
     end;
@@ -597,8 +524,8 @@ begin
     cnam := ObjectToElement(slCnam.Objects[i]);
     j := slPre.IndexOf(slPreAssoc[i]);
     if j = -1 then Continue;
-    if HasKeyword(cnam, 'WeapTypeGreatsword') and (slPreModels[j] = '0') then begin
-      if debug then AddMessage('    Assigning '+slPre[j]+' model and keyword information from:    '+slNames[i]);
+    if HasKeyword(cnam, 'WeapTypeGreatsword') and (slPreTemplate[j] = '0') then begin
+      if debug then AddMessage('    '+slPre[j]+'   :   '+slNames[i]);
       slPreTemplate[j] := Name(cnam);
       slPreTemplate.Objects[j] := TObject(cnam);
     end;
@@ -608,8 +535,8 @@ begin
     cnam := ObjectToElement(slCnam.Objects[i]);
     j := slPre.IndexOf(slPreAssoc[i]);
     if j = -1 then Continue;
-    if (slPreModels[j] = '0') then begin
-      if debug then AddMessage('    Assigning '+slPre[j]+' model and keyword information from:    '+slNames[i]);
+    if (slPreTemplate[j] = '0') then begin
+      if debug then AddMessage('    '+slPre[j]+'   :   '+slNames[i]);
       slPreTemplate[j] := Name(cnam);
       slPreTemplate.Objects[j] := TObject(cnam);
     end;
@@ -619,7 +546,7 @@ begin
   // select FMO patch file
   j := 0;
   AddMessage('Preparing patch file...');
-  fmoFile := FileSelect('Choose the file you want to use as your FMO patch file below:');
+  fmoFile := FileSelect('Choose the file you want to use as your FMO patch file '+#13#10+'below:');
   if not Assigned(fmoFile) then begin
     AddMessage('    No FMO patch file assigned.  Terminating script.' + #13#10);
     exit;
@@ -634,73 +561,89 @@ begin
       AddMasterIfMissing(fmoFile, s);
   end;
   
+  // create ARMO and WEAP groups if they don't already exist
+  Add(fmoFile, 'ARMO', True);
+  Add(fmoFile, 'WEAP', True);
+  // create list of ARMO, and WEAP records in fmo patch file
+  group := GroupBySignature(fmoFile, 'ARMO');
+  for j := 0 to ElementCount(group) - 1 do begin
+    e := ElementByIndex(group, j);
+    slExisting.Add(geev(e, 'EDID'), TObject(e));
+  end;
+  group := GroupBySignature(fmoFile, 'WEAP');
+  for j := 0 to ElementCount(group) - 1 do begin
+    e := ElementByIndex(group, j);
+    slExisting.Add(geev(e, 'EDID'), TObject(e));
+  end;
+  
   // create AActivators and DActivators
   AddMessage(#13#10 + 'Creating AActivators and DActivators...');
   for i := 0 to slPre.Count - 1 do begin
-    if (slPreNWS[i] = '') then Continue;
+    // skip if slPreNWS is empty
+    if (slPreNWS[i] = '') then 
+      Continue;
+      
+    // skip if AActivator/DActivator already exists
+    if (slExisting.IndexOf(slPreNWS[i] + 'AActivator') > -1)
+    or (slExisting.IndexOf(slPreNWS[i] + 'DActivator') > -1) then
+      Continue;
     
-    // if AActivator already exists, use it
-    group := GroupBySignature(fmoFile, 'ARMO');
-    for j := 0 to ElementCount(group) - 1 do begin
-      e := ElementByIndex(group, j);
-      s := geev(e, 'EDID');
-      if (s = slPreNWS[i] + 'AActivator') then
-        Break;
-    end;
-    // else make it
-    if (s <> slPreNWS[i] + 'AActivator') then begin
-      e := Add(GroupBySignature(fmoFile, 'COBJ'), 'COBJ', True);
-      Add(e, 'EDID', True);
-      Add(e, 'FULL', True);
-      Add(e, 'KWDA', True);
-    end;
+    // make AActivator if signature is WEAP or ARMO
+    template := ObjectToElement(slPreTemplate.Objects[i]);
+    s := Signature(template);
+    if (s = 'ARMO') then
+      e := Add(GroupBySignature(fmoFile, 'ARMO'), 'ARMO', True)
+    else if (s = 'WEAP') then
+      e := Add(GroupBySignature(fmoFile, 'WEAP'), 'WEAP', True)
+    else
+      Continue;
+    // create missing elements
+    Add(e, 'EDID', True);
+    Add(e, 'FULL', True);
+    Add(e, 'DATA', True); // for WEAP records
     
     // set values for copied record for AActivator
-    template := ObjectToElement(slPreTemplate.Objects[i]);
     senv(e, 'Record Header\Record Flags', 4);
     senv(e, 'Record Header\Record Flags\NotPlayable', True);
     seev(e, 'EDID', slPreNWS[i] + 'AActivator');
-    seev(e, 'FULL', slPre[i] + ogs);
+    seev(e, 'FULL', slPre[i] + openSuffix);
     seev(e, 'OBND\X1', 0);
     seev(e, 'OBND\Y1', 0);
     seev(e, 'OBND\Z1', 0);
     seev(e, 'OBND\X2', 0);
     seev(e, 'OBND\Y2', 0);
     seev(e, 'OBND\Z2', 0);
-    seev(e, 'DATA\Value', '0');
-    seev(e, 'DATA\Weight', '0');
-    // copy model from PreTemplate
-    if Assigned(ElementByPath(template, 'Male world model')) then
-      wbCopyElementToRecord(ElementByPath(template, 'Male world model'), e, True, True);
-    if Assigned(ElementByPath(template, 'Female world model')) then
-      wbCopyElementToRecord(ElementByPath(template, 'Female world model'), e, True, True);
-    // copy keywords from PreTemplate
-    wbCopyElementToRecod(ElementByPath(template, 'KSIZ'), e, True, True);
-    wbCopyElementToRecod(ElementByPath(template, 'KWDA'), e, True, True);
+    seev(e, 'DATA\Value', 0);
+    seev(e, 'DATA\Weight', 0);
+    
+    // copy model elements from template record
+    if (s = 'ARMO') then begin
+      if Assigned(ElementByPath(template, 'Male world model')) then
+        wbCopyElementToRecord(ElementByPath(template, 'Male world model'), e, True, True);
+      if Assigned(ElementByPath(template, 'Female world model')) then
+        wbCopyElementToRecord(ElementByPath(template, 'Female world model'), e, True, True);
+    end
+    else if (s = 'WEAP') then
+      wbCopyElementToRecord(ElementByPath(template, 'Model'), e, True, True);
+    // copy keyword elements from template record
+    wbCopyElementToRecord(ElementByPath(template, 'KSIZ'), e, True, True);
+    wbCopyElementToRecord(ElementByPath(template, 'KWDA'), e, True, True);
+    
     // store AActivator
     slAA[i] := Name(e);
     slAA.Objects[i] := TObject(e);
 
-    // if DActivator already exists, use it
-    for j := 0 to ElementCount(group) - 1 do begin
-      e := ElementByIndex(group, j);
-      s := geev(e, 'EDID');
-      if (s = slPreNWS[i] + 'DActivator') then
-        Break;
-    end;
-    // else make it from AActivator
-    if (s <> slPreNWS[i] + 'DActivator') then
-      e := wbCopyElementToFile(ObjectToElement(slAA.Objects[slAA.Count - 1]), fmoFile, True, True);
-      
-    // set DActivator values
-    seev(e, 'FULL', slPre[i] + cgs);
+    // make DActivator from AActivator
+    e := wbCopyElementToFile(e, fmoFile, True, True);
+    seev(e, 'FULL', slPre[i] + closeSuffix);
     seev(e, 'EDID', slPreNWS[i] + 'DActivator');
+    
     // store DActivator
     slDA[i] := Name(e);
     slDA.Objects[i] := TObject(e);
   end;
   
-  // set size of slAACobj list to size of slCobjForms
+  // set size of slAACobj list to size of slCobj
   for i := 0 to slCobj.Count - 1 do 
     slAACobj.AddObject('0', TObject(nil));
   
@@ -733,69 +676,74 @@ begin
       if AAExists then begin
         if debug then AddMessage('    The category recipe for '+slPre[i]+' already exists.');
         for k := 0 to slNames.Count - 1 do begin
-          if (slPreAssoc[j] = slPreAssoc[k]) then slAACobj[k] := slAAForms[i];
+          if (slPreAssoc[j] = slPreAssoc[k]) then slAACobj[k] := slAA[i];
         end;
         Break;
       end;
       
       // create new recipe from base recipe
       if Assigned(cobj) then 
-        e := wbCopyElementToFile(cobj, f, True, True);
+        e := wbCopyElementToFile(cobj, fmoFile, True, True)
+      else
+        Continue;
       // set values for copied recipe for DActivator recipe
       senv(e, 'EDID', 'Recipe' + slPreNWS[i] + 'DActivator');
-      m := genv(e, 'COCT');
+      m := geev(e, 'COCT');
       for k := 0 to m - 2 do 
-        RemoveElement(e, 'Items\Item');
-      senv(e, 'COCT', 1);
-      senv(e, 'Items\Item\CNTO\Item', slAAForms[i]);
-      senv(e, 'Items\Item\CNTO\Count', 1);
-      senv(e, 'CNAM', slDAForms[i]);
-      senv(e, 'NAM1', 1);
+        Remove(ElementByPath(e, 'Items\Item'));
+      seev(e, 'COCT', '1');
+      seev(e, 'Items\Item\CNTO\Item', slAA[i]);
+      seev(e, 'Items\Item\CNTO\Count', 1);
+      seev(e, 'CNAM', slDA[i]);
+      seev(e, 'NAM1', 1);
       conditions := ElementByPath(e, 'Conditions');
       if ElementCount(conditions) > 0 then begin
         condition := ElementAssign(conditions, HighInteger, nil, False); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
-        senv(condition, 'CTDA\Inventory Object', slAAForms[i]);
+        seev(condition, 'CTDA\Inventory Object', slAA[i]);
         seev(condition, 'CTDA\Comparison Value', '1.000000');
         seev(condition, 'CTDA\Type', '11000000');
-      end;
-      if ElementCount(conditions) = 0 then begin
+      end
+      else begin
         Add(e, 'Conditions', True);
         seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
-        senv(e, 'Conditions\Condition\CTDA\Inventory Object', slAAForms[i]);
+        seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAA[i]);
         seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
         seev(e, 'Conditions\Condition\CTDA\Type', '11000000');
       end;
   
       // create new recipe (AActivator) from base recipe
-      e := wbCopyElementToFile(cobj, f, True, True);
+      e := wbCopyElementToFile(cobj, fmoFile, True, True);
       // set values for copied recipe for AActivator recipe
-      senv(e, 'EDID', 'Recipe' + slPreNWS[i] + 'AActivator');
-      m := genv(e, 'COCT');
-      for k := 0 to m - 1 do 
-        RemoveElement(e, 'Items\Item');
-      senv(e, 'COCT', 0);
-      senv(e, 'CNAM', slAAForms[i]);
-      senv(e, 'NAM1', 1);
+      seev(e, 'EDID', 'Recipe' + slPreNWS[i] + 'AActivator');
+      m := geev(e, 'COCT');
+      for k := 0 to m - 2 do 
+        Remove(ElementByPath(e, 'Items\Item'));
+      seev(e, 'COCT', '1');
+      seev(e, 'Items\Item\CNTO\Item', slDA[i]);
+      seev(e, 'Items\Item\CNTO\Count', '1');
+      seev(e, 'COCT', 0);
+      seev(e, 'CNAM', slAA[i]);
+      seev(e, 'NAM1', 1);
       conditions := ElementByPath(e, 'Conditions');
       if ElementCount(conditions) > 0 then begin
         condition := ElementAssign(conditions, HighInteger, nil, False); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
-        senv(condition, 'CTDA\Inventory Object', slAAForms[i]);
+        seev(condition, 'CTDA\Inventory Object', slDA[i]);
         seev(condition, 'CTDA\Comparison Value', '0.000000');
-        seev(condition, 'CTDA\Type', '10000000');
+        seev(condition, 'CTDA\Type', '11000000');
       end;
       if ElementCount(conditions) = 0 then begin
         Add(e, 'Conditions', True);
         seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
-        senv(e, 'Conditions\Condition\CTDA\Inventory Object', slAAForms[i]);
+        seev(e, 'Conditions\Condition\CTDA\Inventory Object', slDA[i]);
         seev(e, 'Conditions\Condition\CTDA\Comparison Value', '0.000000');
-        seev(e, 'Conditions\Condition\CTDA\Type', '10000000');
+        seev(e, 'Conditions\Condition\CTDA\Type', '11000000');
       end;
       // go through all the COBJ recipes and find ones which match the prefix we are currently processing
       for k := 0 to slNames.Count - 1 do begin
         if (slPreAssoc[j] = slPreAssoc[k]) then begin
-          slAACobj[k] := slAAForms[i];
+          slAACobj[k] := slAA[i];
         end;
       end;
       
@@ -804,22 +752,9 @@ begin
     end;
   end;
   
-  if debug then begin
-    AddMessage(' ');
-    for i := 0 to slNames.Count - 1 do begin
-      if (slAACobj[i] = '00000000') or (slAACobj[i] = '') then
-        AddMessage(slNames[i]+' is not assocaited with any category.')
-      else begin
-        s := genv(RecordByFormID(f, '$'+slAACobj[i], True), 'EDID');
-        AddMessage(slNames[i]+' is associated with the category item:    '+s);
-      end;
-    end;
-    AddMessage(' ');
-  end;
-  
   // modify existing COBJ recipes to require AActivators
   AddMessage('Modifying recipes to require AActivators...');
-  for i := 0 to slCobjForms.Count - 1 do begin
+  for i := 0 to slCobj.Count - 1 do begin
     if (slAACobj[i] = '00000000') or (slAACobj[i] = '') then Continue;
     if i = 0 then begin 
       AddMessage('   This is the longest step, so please be patient.');
@@ -828,66 +763,67 @@ begin
         if ('hothtrooper44_ArmorCompilation.esp' = GetFileName(FileByIndex(j))) then begin
           AddMessage('   Applying Immersive Armors fix.');
           baserecord := RecordByFormID(FileByIndex(j), $00000031, True);
-          DA := wbCopyElementToFile(baserecord, f, False, True);
+          e := wbCopyElementToFile(baserecord, fmoFile, False, True);
           Break;
         end;
       end;
     end;
-    if (i = (slCobjForms.Count - 1) div 4) then AddMessage('   25% complete...');
-    if (i = (slCobjForms.Count - 1) div 2) then AddMessage('   50% complete...');
-    if (i = ((slCobjForms.Count - 1) div 4) * 3) then AddMessage('   75% complete...');
-    if (i = slCobjForms.Count - 1) then AddMessage('   100% complete...');
+    if (i = (slCobj.Count - 1) div 4) then AddMessage('   25% complete...');
+    if (i = (slCobj.Count - 1) div 2) then AddMessage('   50% complete...');
+    if (i = ((slCobj.Count - 1) div 4) * 3) then AddMessage('   75% complete...');
+    if (i = slCobj.Count - 1) then AddMessage('   100% complete...');
     
     // skip if record already exists
-    baserecord := RecordByFormID(FileByIndex(StrToInt(slCobjFiles[i])), StrToInt64('$' + slCobjForms[i]), True);
-    for j := 0 to ElementCount(GroupBySignature(f, 'COBJ')) - 1 do begin
-      s := genv(ElementByIndex(GroupBySignature(f, 'COBJ'), j), 'EDID');
-      if (s = genv(baserecord, 'EDID')) then Continue;
+    baserecord := ObjectToElement(slCobj.Objects[i]);
+    for j := 0 to ElementCount(GroupBySignature(fmoFile, 'COBJ')) - 1 do begin
+      s := geev(ElementByIndex(GroupBySignature(fmoFile, 'COBJ'), j), 'EDID');
+      if (s = geev(baserecord, 'EDID')) then Continue;
     end;
+    
+    // skip if no prefix associated with cobj
+    if slPreAssoc[i] = '' then 
+      Continue;
     
     // create overwrite record    
     if Assigned(baserecord) then 
-      DA := wbCopyElementToFile(baserecord, f, False, True);
-    conditions := ElementByPath(DA, 'Conditions');
+      e := wbCopyElementToFile(baserecord, fmoFile, False, True);
+    conditions := ElementByPath(e, 'Conditions');
     if (ElementCount(conditions) > 0) then begin
       condition := ElementAssign(conditions, HighInteger, nil, False); 
       seev(condition, 'CTDA\Function', 'GetItemCount');
-      senv(condition, 'CTDA\Inventory Object', slAACobj[i]);
+      seev(condition, 'CTDA\Inventory Object', slAACobj[i]);
       seev(condition, 'CTDA\Comparison Value', '1.000000');
       seev(condition, 'CTDA\Type', '11000000');
     end;
     if (ElementCount(conditions) = 0) then begin
-      Add(DA, 'Conditions', True);
-      seev(DA, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
-      senv(DA, 'Conditions\Condition\CTDA\Inventory Object', slAACobj[i]);
-      seev(DA, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
-      seev(DA, 'Conditions\Condition\CTDA\Type', '11000000');
+      Add(e, 'Conditions', True);
+      seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
+      seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAACobj[i]);
+      seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
+      seev(e, 'Conditions\Condition\CTDA\Type', '11000000');
     end;
   end;
   
   // Patch is complete
-  i := ElementCount(GroupBySignature(f, 'COBJ')) + ElementCount(GroupBySignature(f, 'MISC'));  
   AddMessage(#13#10#13#10 + '-------------------------------------------------------------------------');
   AddMessage('FMO patch is ready.');
-  AddMessage('It contains ' + IntToStr(i) + ' records.' + #13#10#13#10);
+  AddMessage('It contains ' + IntToStr(RecordCount(fmoFile)) + ' records.' + #13#10#13#10);
   
-  slMasters.Free;
-  slCobj.Free;
-  slFlags.Free;
   slBenches.Free;
-  slNames.Free;
-  slCNAM.Free;
-  slModels.Free;
-  slTex.Free;
-  slKeywords.Free;
+  slExcept.Free;
+  slFileExcept.Free;
   slPre.Free;
   slPreNWS.Free;
-  slPreModels.Free;
-  slPreKeywords.Free;
-  slPreTex.Free;
-  slAAForms.Free;
-  slDAForms.Free;
+  slCobj.Free;
+  slCnam.Free;
+  slNames.Free;
+  slDA.Free;
+  slAA.Free;
   slAACobj.Free;
+  slPreFind.Free;
+  slPreAssoc.Free;
+  slPreTemplate.Free;
+  slMasters.Free;
   Result := -1;
 end;
 
