@@ -18,7 +18,7 @@ when creating mods for Bethesda games.
 Current Scripts
 ==================================
 
-* **Merge Plugins:** v1.5 released on Nexus Mods February 18, 2013.
+* **Merge Plugins:** v1.6 released on Nexus Mods March 1, 2013.
 * **PerkTreeUI:** v1.2 released on Nexus Mods February 3, 2014. 
 * **QuickChange:** v2.3 released on Nexus Mods February 16, 2014.
 * **Find and Replace FormID:** v1.2 released on Nexus Mods February 3, 2014.
