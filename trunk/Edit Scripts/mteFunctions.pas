@@ -22,6 +22,7 @@
   - [senv]: SetElementNativeValues enhanced with ElementByIP.
   - [slev]: SetListEditValues shortened function name.
   - [slnv]: SetListNativeValues shortened function name.
+  - [HasKeyword]: Checks if a record has a keyword matching the input EditorID.
   - [AddMastersToFile]: Adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
@@ -209,7 +210,10 @@ begin
   ip := StringReplace(ip, '/', '\', [rfReplaceAll]);
   subelement := e;
   While (Pos('[', ip) > 0) do begin
-    subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1);
+    if Pos('\', ip) > 0 then
+      subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1)
+    else
+      subpath := ip;
     if Pos('[', subpath) > 0 then begin 
       index := StrToInt(CopyFromTo(subpath, Pos('[', ip) + 1, Pos(']', ip) - 1));
       subelement := ElementByIndex(subelement, index);
@@ -358,6 +362,26 @@ end;
 procedure slnv(e: IInterface; ip: string; values: TList);
 begin
   SetListNativeValues(e, ip, values);
+end;
+
+{
+  HasKeyword:
+  Checks if an input record has a keyword matching the input EditorID.
+  
+  Example usage:
+  if HasKeyword(e, 'ArmorHeavy') then
+    AddMessage(Name(e) + ' is a heavy armor.');
+}
+function HasKeyword(e: IInterface; edid: string): boolean;
+var
+  kwda: IInterface;
+  n: integer;
+begin
+  Result := false;
+  kwda := ElementByPath(e, 'KWDA');
+  for n := 0 to ElementCount(kwda) - 1 do
+    if GetElementEditValues(LinksTo(ElementByIndex(kwda, n)), 'EDID') = edid then 
+      Result := true;
 end;
 
 {

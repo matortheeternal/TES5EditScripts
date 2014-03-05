@@ -1,0 +1,58 @@
+Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat
+Skyrim.esm
+Update.esm
+Dawnguard.esm
+Hearthfires.esm
+Dragonborn.esm
+Unofficial Skyrim Patch.esp
+Ivory.esp
+ArmorOfIntrigue.esp
+Mystic.esp
+SnowyNightingale.esp
+EternalShineArmorAndWeapons.esp
+Valdacil's Light Armor Robes.esp
+TrissArmorRetextured.esp
+DarkNemesis.esp
+witchplate.esp
+iorvethlightarmor_v_1_3.esp
+Aldmeri Guardian Armor Standalone.esp
+Ancient Knowledge Armour.esp
+ArmorOfIntrigue.esp
+Berserk Black Swordsman Armor.esp
+BlackSacramentArmor.esp
+BR_Orcish_Armor_1_1.esp
+CraftableTemplar.esp
+Daedric Lord Armor.esp
+Dark Elven Thalmor.esp
+DemonHunterArmor.esp
+DreamBurrowPatchWorkMaiden.esp
+GR123 Knights Templar.esp
+HentaiNightmareArmor.esp
+HentaisTemplePlateArmor.esp
+HeroicDwarven.esp
+HeroicStorm.esp
+LC_ArcherEliteArmor.esp
+Lich King's Armor.esp
+Light Elven Armor.esp
+NightsWatchArmorLight.esp
+nordicrangerarmor.esp
+Northman Armours - Credo.esp
+PaladinArmor.esp
+PlatedMagiArmor.esp
+Raven Witch Armor.esp
+Samurai Armor.esp
+Schertleite Set.esp
+Shining Paladin.esp
+Song General Armor&weapon.esp
+SPOAsilverknight.esp
+SPOA_shield.esp
+StormcloakRangerArmor.esp
+TaliArmor.esp
+TH3WICK3D1-BlueStripesEliteArmor.esp
+Thalmor Inquisitor Armor Standalone.esp
+theRoadstrokersRogueSorceress.esp
+TribalMightArmor.esp
+VagabondArmor.esp
+VanguardArmor.esp
+warchiefarmor.esp
+warmagearmor.esp

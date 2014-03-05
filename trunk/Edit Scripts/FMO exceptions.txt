@@ -1,0 +1,3 @@
+DLC1LD_AetherialCrown
+DLC1LD_AetherialShield
+DLC1LD_AetherialStaff

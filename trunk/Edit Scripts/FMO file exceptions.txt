@@ -1,0 +1,11 @@
+Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat
+Ivory.esp
+ArmorOfIntrigue.esp
+Mystic.esp
+SnowyNightingale.esp
+EternalShineArmorAndWeapons.esp
+Valdacil's Light Armor Robes.esp
+TrissArmorRetextured.esp
+DarkNemesis.esp
+witchplate.esp
+iorvethlightarmor_v_1_3.esp
