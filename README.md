@@ -11,6 +11,7 @@ when creating mods for Bethesda games.
 * Nexus Mods: [matortheeternal](http://skyrim.nexusmods.com/users/3900618/?tb=mods&pUp=1)
 * Merge Plugins Release Page: <http://skyrim.nexusmods.com/mods/37981>
 * Automation Tools Release Page: <http://www.nexusmods.com/skyrim/mods/49373>
+* Forge Menu Overhaul Release Page: <http://www.nexusmods.com/skyrim/mods/37003>
 * TES5Edit: <http://skyrim.nexusmods.com/mods/25859> 
 * FNVEdit: <http://newvegas.nexusmods.com/mods/34703>
 
@@ -18,18 +19,21 @@ when creating mods for Bethesda games.
 Current Scripts
 ==================================
 
-* **Merge Plugins:** v1.6 released on Nexus Mods March 1, 2013.
+* **Merge Plugins:** v1.6 released on Nexus Mods March 1, 2014.
 * **PerkTreeUI:** v1.2 released on Nexus Mods February 3, 2014. 
 * **QuickChange:** v2.3 released on Nexus Mods February 16, 2014.
 * **Find and Replace FormID:** v1.2 released on Nexus Mods February 3, 2014.
 * **NPC Generator:** v1.6 released on Nexus Mods February 3, 2014.
 * **Armor Mod Builder:** v1.3 released on Nexus Mods February 3, 2014.
 * **QuickDisplay:** v1.4 released on Nexus Mods February 3, 2014.
+* **Forge Menu Overhaul:** v2.13 released on Nexus Mods August 30, 2013.
 * **Full Name Manipulation Script:** Beta v1.0 is functional.
 * **CCOR Compatibility Script:** Beta v0.5 is functional.
 * **Re-Evaluator:** Beta v0.3 is functional.
 * **Break it Down:** Beta v0.4 is functional.
-* **NPC Transmogrifier:** Alpha v0.1 is non-functional.
+* **NPC Transmogrifier:** Beta v0.3 is functional.
+* **FormList Manager:** Beta v0.1 is functional.  (this script is likely to 
+be merged with QuickDisplay and QuickChange)
 
 
 Script Installation and Usage

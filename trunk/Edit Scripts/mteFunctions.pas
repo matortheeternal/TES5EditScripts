@@ -232,6 +232,28 @@ begin
 end;
 
 {
+  GetListEditValues:
+  Gets the values of elements in a list and stores them in a stringlist.
+  
+  Example usage:
+  slValues.Text := GetListEditValues(e, 'FormIDs');
+}
+function GetListEditValues(e: IInterface; ip: string): string;
+var
+  values: TStringList;
+  i: integer;
+  list: IInterface;
+begin
+  list := ElementByIP(e, ip);
+  values := TStringList.Create;
+  
+  for i := 0 to ElementCount(list) - 1 do
+    values.Add(GetEditValue(ElementByIndex(list, i)));
+  
+  Result := values.Text;
+end;
+
+{
   SetListEditValues:
   Sets the values of elements in a list to values stored in a stringlist.
   
@@ -249,7 +271,7 @@ begin
   list := ElementByIP(e, ip);
   // clear element list except for one element
   While ElementCount(list) > 1 do
-    RemoveByIndex(list, 0);
+    Remove(ElementByIndex(list, 0));
   
   // set element[0] to values[0]
   SetEditValue(ElementByIndex(list, 0), values[0]);
