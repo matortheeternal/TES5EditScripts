@@ -1,6 +1,19 @@
 {
-  CCOR Compatibility Script v0.5
+  CCOR Compatibility Script v0.6
   Created by matortheeternal
+  
+  * CHANGES *
+  - Patch file generation now supported.
+  - CCO_OrientalStyleRecipes condition now supported.
+  - Uses "CCOResource.esp".  If it isn't found the script terminates.
+  - Makes CCO_MODSupported condition.
+  - Keyword checks for learning conditions. (Including WAF keywords)
+  - Adds CCO_MiscPouchRecipes condition if backpack or if the keyword
+    WAF_ClothingPounch_KRY is present.
+  - Adds CCO_ClothingCloakRecipes condition if cloak or if the keyword
+    WAF_ClothingCloak_KRY is present.
+  - Adds Daedric At Night conditions if keyword ArmorMaterialDaedric
+    or keyword WeapMaterialDaedric is present.
   
   Applies CCOR global variable conditions to COBJ recipes in the 
   selected mods.  
@@ -8,15 +21,18 @@
 
 unit UserScript;
 
+uses mteFunctions;
+
 const
-  vs = 'v0.5';
+  vs = 'v0.6';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'
   #13'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   ccofn = 'Complete Crafting Overhaul_Remade.esp';
-  separatepatch = false; // set to true to generate a separate patch file
+  ccorfn = 'CCOResource.esp';
+  separatepatch = true; // set to true to generate a separate patch file
 
 var
-  slFiles, slGlobals: TStringList;
+  slFiles, slGlobals, slMasters: TStringList;
   patchedfiles: integer;
   
 //=========================================================================
@@ -31,6 +47,47 @@ begin
   for n := 0 to ElementCount(kwda) - 1 do
     if GetElementEditValues(LinksTo(ElementByIndex(kwda, n)), 'EDID') = kw then 
       Result := true;
+end;
+  
+//=========================================================================
+// has substring in FULL
+function HasSubstringInFULL(rec: IInterface; ss: string): boolean;
+begin
+  Result := false;
+  if Pos(Lowercase(ss), Lowercase(geev(rec, 'FULL'))) > 0 then 
+    Result := true;
+end;
+
+//=========================================================================
+// add daedric at night condition
+procedure adanc(c: IInterface);
+var
+  condition: IInterface;
+  index: integer;
+begin
+  // first condition
+  index := slGlobals.IndexOf('CCO_OptionCraftDaedricOnlyAtNight');
+  if index = -1 then begin
+    AddMessage('Couldn''t find CCO_OptionCraftDaedricOnlyAtNight');
+    exit;
+  end;
+  condition := ElementAssign(c, HighInteger, nil, False);
+  SetElementEditValues(condition, 'CTDA - \Type', '10010000'); // Equal to / Or
+  SetElementEditValues(condition, 'CTDA - \Comparison Value', '0.0');
+  SetElementEditValues(condition, 'CTDA - \Function', 'GetGlobalValue');
+  SetElementNativeValues(condition, 'CTDA - \Global', slGlobals.Objects[index]);
+  
+  // second condition
+  condition := ElementAssign(c, HighInteger, nil, False);
+  SetElementEditValues(condition, 'CTDA - \Type', '10110000'); // Less than or equal to / Or
+  SetElementEditValues(condition, 'CTDA - \Comparison Value', '6.0');
+  SetElementEditValues(condition, 'CTDA - \Function', 'GetCurrentTime');
+  
+  // third condition
+  condition := ElementAssign(c, HighInteger, nil, False);
+  SetElementEditValues(condition, 'CTDA - \Type', '11010000'); // Greater than or equal to / Or
+  SetElementEditValues(condition, 'CTDA - \Comparison Value', '21.0');
+  SetElementEditValues(condition, 'CTDA - \Function', 'GetCurrentTime');
 end;
 
 //=========================================================================
@@ -48,7 +105,7 @@ begin
   end;
   condition := ElementAssign(c, HighInteger, nil, False);
   SetElementEditValues(condition, 'CTDA - \Type', '10010000'); // Equal to / Or
-  SetElementNativeValues(condition, 'CTDA - \Comparison Value', '0.0');
+  SetElementEditValues(condition, 'CTDA - \Comparison Value', '0.0');
   SetElementEditValues(condition, 'CTDA - \Function', 'GetGlobalValue');
   SetElementNativeValues(condition, 'CTDA - \Global', slGlobals.Objects[index1]);
   
@@ -122,8 +179,10 @@ begin
   cnam := LinksTo(ElementByPath(cobj, 'CNAM'));
   edid := Lowercase(GetElementEditValues(cnam, 'EDID'));
   full := Lowercase(GetElementEditValues(cnam, 'EDID'));
-  if HasKeyword(cnam, '') or (Pos('backpack', edid) > 0) or (Pos('backpack', full) > 0) then
+  if HasSubstringInFULL(cnam, 'Backpack') then
     agvc(conditions, 'CCO_BackpackRecipes');
+  if HasKeyword(cnam, 'WAF_ClothingPouch_KRY') then
+    advc(conditions, 'CCO_MiscPouchRecipes');
   // mark as breakdown recipe if requires WEAP or ARMO
   items := ElementByPath(cobj, 'Items');
   for i := 0 to ElementCount(items) - 1 do begin
@@ -178,17 +237,33 @@ begin
     end
     else if HasKeyword(cnam, 'ArmorShield') then 
       agvc(conditions, 'CCO_ArmorShieldRecipes')
-    else if HasKeyword(cnam, '') or (Pos('cloak', edid) > 0) or (Pos('cloak', full) > 0) then
+    else if HasKeyword(cnam, 'WAF_ClothingCloak_KRY') 
+    or (Pos('cloak', edid) > 0) 
+    or (Pos('cloak', full) > 0) then
       agvc(conditions, 'CCO_ClothingCloakRecipes')
     else if HasKeyword(cnam, 'ClothingCirclet') then 
       agvc(conditions, 'CCO_MiscCircletRecipes');
     // learning condition
-    if Pos('draugr', edid) > 0 then
+    if (Pos('draugr', edid) > 0) 
+    or HasKeyword(cnam, 'WAF_ArmorMaterialDraugr_KRY') then
       algvc(conditions, 'CCO_LearningDragur')
-    else if Pos('forsworn', edid) > 0 then
+    else if (Pos('forsworn', edid) > 0) 
+    or HasKeyword(cnam, 'WAF_WeapMaterialForsworn_KRY') then
       algvc(conditions, 'CCO_LearningForsworn')
-    else if Pos('falmer', edid) > 0 then
+    else if (Pos('falmer', edid) > 0) 
+    or HasKeyword(cnam, 'WeapMaterialFalmer') 
+    or HasKeyword(cnam, 'DLC1ArmorMaterialFalmerHardened')  
+    or HasKeyword(cnam, 'DLC1ArmorMaterielFalmerHeavy') 
+    or HasKeyword(cnam, 'DLC1ArmorMaterielFalmerHeavyOriginal') then
       algvc(conditions, 'CCO_LearningFalmer');
+    // daedric at night condition
+    if HasKeyword(cnam, 'ArmorMaterialDaedric') then
+      adanc(conditions);
+    // oriental style recipes condition
+    if HasSubstringInFULL(cnam, 'Katana') or HasSubstringInFULL(cnam, 'Tanto') or HasSubstringInFULL(cnam, 'Ninjato') 
+    or HasSubstringInFULL(cnam, 'Dadao') or HasSubstringInFULL(cnam, 'Nodachi') or HasSubstringInFULL(cnam, 'Wakizashi')
+    or HasSubstringInFULL(cnam, 'Changdao') or HasSubstringInFULL(cnam, 'Daito') or HasSubstringInFULL(cnam, 'Samurai') then
+      agvc(conditions, 'CCO_OrientalStyleRecipes');
   end
   else if Signature(cnam) = 'WEAP' then begin
     // weapon type condition
@@ -209,12 +284,26 @@ begin
     else if HasKeyword(cnam, 'WeapTypeWarhammer') then
       agvc(conditions, 'CCO_WeapWarhammerRecipes');
     // learning condition
-    if HasKeyword(cnam, 'WeapMaterialDraugr') then
+    if (Pos('draugr', edid) > 0) 
+    or HasKeyword(cnam, 'WAF_ArmorMaterialDraugr_KRY') then
       algvc(conditions, 'CCO_LearningDragur')
-    else if Pos('forsworn', edid) > 0 then
+    else if (Pos('forsworn', edid) > 0) 
+    or HasKeyword(cnam, 'WAF_WeapMaterialForsworn_KRY') then
       algvc(conditions, 'CCO_LearningForsworn')
-    else if Pos('falmer', edid) > 0 then
+    else if (Pos('falmer', edid) > 0) 
+    or HasKeyword(cnam, 'WeapMaterialFalmer') 
+    or HasKeyword(cnam, 'DLC1ArmorMaterialFalmerHardened')  
+    or HasKeyword(cnam, 'DLC1ArmorMaterielFalmerHeavy') 
+    or HasKeyword(cnam, 'DLC1ArmorMaterielFalmerHeavyOriginal') then
       algvc(conditions, 'CCO_LearningFalmer');
+    // daedric at night condition
+    if HasKeyword(cnam, 'WeapMaterialDaedric') then
+      adanc(conditions);
+    // oriental style recipes condition
+    if HasSubstringInFULL(cnam, 'Katana') or HasSubstringInFULL(cnam, 'Tanto') or HasSubstringInFULL(cnam, 'Ninjato') 
+    or HasSubstringInFULL(cnam, 'Dadao') or HasSubstringInFULL(cnam, 'Nodachi') or HasSubstringInFULL(cnam, 'Wakizashi')
+    or HasSubstringInFULL(cnam, 'Changdao') or HasSubstringInFULL(cnam, 'Daito') or HasSubstringInFULL(cnam, 'Samurai') then
+      agvc(conditions, 'CCO_OrientalStyleRecipes');
   end
   else if Signature(cnam) = 'AMMO' then begin
     // ammo condition
@@ -229,7 +318,7 @@ begin
   end;
   
   // CCO_MODSupported condition
-  // cmcs(conditions);
+  cmcs(conditions);
 end;
 
 //=========================================================================
@@ -264,6 +353,12 @@ begin
   // create stringlists
   slFiles := TStringList.Create;
   slGlobals := TStringList.Create;
+  slMasters := TStringList.Create;
+  slMasters.Sorted := True;
+  slMasters.Duplicates := dupIgnore;
+  slMasters.Add('Skyrim.esm');
+  slMasters.Add('Update.esm');
+  slMasters.Add('CCOResource.esp');
   
   // process only files
   ScriptProcessElements := [etFile];
@@ -272,42 +367,74 @@ end;
 //=========================================================================
 // load selected files into slFiles stringlist
 function Process(f: IInterface): integer;
+var
+  fn: string;
+  i: integer;
+  masters, master: IInterface;
 begin
-  if GetFileName(f) = ccofn then 
+  fn := GetFileName(f);
+  if (fn = ccofn) or (fn = ccorfn) or (Pos(fn, bethesdaFiles) > 0) then 
     exit;
-    
-  if (Pos(GetFileName(f), bethesdaFiles) > 0) then
-    exit;
-    
-  slFiles.AddObject(GetFileName(f), TObject(f));
+  
+  slFiles.AddObject(fn, TObject(f));
+  
+  // load masters from file
+  masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
+  for i := 0 to ElementCount(masters) - 1 do begin
+    master := ElementByIndex(masters, i);
+    slMasters.Add(geev(master, 'MAST'));
+  end;
+  slMasters.Add(fn);
 end;
 
 //=========================================================================
 // add CCO global variables and modify COBJ conditions
 function Finalize: integer;
 var
-  ccoFile, e, ne, cf, cobj, group, conditions, cnam, cc: IInterface;
+  ccoFile, patchFile, e, ne, cf, cobj, group, conditions, cnam, cc: IInterface;
   i, j: integer;
-  edid, bnam: string;
+  s, edid, bnam: string;
 begin
   // find cco file
-  for i := 0 to FileCount - 1 do
-    if GetFileName(FileByIndex(i)) = ccofn then
+  for i := 0 to FileCount - 1 do begin
+    s := GetFileName(FileByIndex(i));
+    if s = ccorfn then
       ccoFile := FileByIndex(i);
+  end;
 
   // if cco file not found, terminate script
   if not Assigned(ccoFile) then begin
-    AddMessage(ccofn+' not found, terminating script.');
+    AddMessage(ccorfn + ' not found, terminating script.');
     Result := -1;
+    exit;
   end;
   
   { generate patchfile }
   if separatepatch then begin
-    Result := -1;
+    AddMessage('Making a CCOR compatibility patch for the selected files.');
+    patchFile := FileSelect('Select the file you want to use as your CCOR patch '+#13#10+'file below:');
+    if not Assigned(patchFile) then begin
+      AddMessage('    Patch file not assigned.  Terminating script.');
+      Result := -1;
+      exit;
+    end;
+    
+    AddMastersToFile(patchFile, slMasters, true);
+    AddMessage('    Globals copied.');
+    group := GroupBySignature(ccoFile, 'GLOB');
+    for i := 0 to ElementCount(group) - 1 do begin
+      e := ElementByIndex(group, i);
+      edid := Lowercase(GetElementEditValues(e, 'EDID'));
+      if (Pos('cco_', edid) = 1) and (FormID(e) < 30408704) then begin
+        ne := wbCopyElementToFile(e, patchFile, True, True);
+        SetLoadOrderFormID(ne, FormID(e));
+        slGlobals.AddObject(edid, TObject(FormID(e)));
+      end;
+    end;
   end;
   
-  { modify existing files }
-  AddMessage('Making files compatible with CCOR...');
+  { patch records }
+  AddMessage(#13#10+'Patching records...');
   for i := 0 to slFiles.Count - 1 do begin
     // skip file if no COBJ records present
     cf := ObjectToElement(slFiles.Objects[i]);
@@ -316,21 +443,23 @@ begin
     AddMessage('    Patching '+slFiles[i]);
     Inc(patchedfiles);
     
-    // add masters if missing
-    AddMasterIfMissing(cf, 'Skyrim.esm');
-    AddMasterIfMissing(cf, 'Update.esm');
+    if not separatepatch then begin
+      // add masters if missing
+      AddMasterIfMissing(cf, 'Skyrim.esm');
+      AddMasterIfMissing(cf, 'Update.esm');
     
-    // copy globals from ccoFile
-    AddMessage('        Copying globals...');
-    group := GroupBySignature(ccoFile, 'GLOB');
-    for j := 0 to ElementCount(group) - 1 do begin
-      e := ElementByIndex(group, j);
-      edid := Lowercase(GetElementEditValues(e, 'EDID'));
-      if (Pos('cco_', edid) = 1) and (FormID(e) < 30408704) then begin
-        ne := wbCopyElementToFile(e, cf, True, True);
-        SetLoadOrderFormID(ne, FormID(e));
-        if i = 0 then 
-          slGlobals.AddObject(edid, TObject(FormID(e)));
+      // copy globals from ccoFile
+      AddMessage('        Copying globals...');
+      group := GroupBySignature(ccoFile, 'GLOB');
+      for j := 0 to ElementCount(group) - 1 do begin
+        e := ElementByIndex(group, j);
+        edid := Lowercase(GetElementEditValues(e, 'EDID'));
+        if (Pos('cco_', edid) = 1) and (FormID(e) < 30408704) then begin
+          ne := wbCopyElementToFile(e, cf, True, True);
+          SetLoadOrderFormID(ne, FormID(e));
+          if i = 0 then 
+            slGlobals.AddObject(edid, TObject(FormID(e)));
+        end;
       end;
     end;
     
@@ -339,9 +468,17 @@ begin
     for j := 0 to ElementCount(cobj) - 1 do begin
       cc := nil;
       e := ElementByIndex(cobj, j);
-      AddMessage('            ... '+Name(e));
       bnam := GetElementEditValues(LinksTo(ElementByPath(e, 'BNAM')), 'EDID');
       cnam := LinksTo(ElementByPath(e, 'CNAM'));
+      
+      // skip temper records
+      if (bnam = 'CraftingSmithingSharpeningWheel') or (bnam = 'CraftingSmithingArmorTable') then
+        continue;
+      
+      // process conditions on record
+      AddMessage('            ... '+Name(e));
+      if separatepatch then
+        e := wbCopyElementToFile(ElementByIndex(cobj, j), patchFile, False, True);
       conditions := ElementByPath(e, 'Conditions');
       if not Assigned(conditions) then begin
         Add(e, 'Conditions', True);
@@ -350,7 +487,7 @@ begin
       end;
       if bnam = 'CraftingTanningRack' then
         TanningRackConditions(cobj, conditions)
-      else if bnam = 'CraftingSmithingForge' then 
+      else if (bnam = 'CraftingSmithingForge') or (bnam = 'CraftingSmithingSkyforge') then 
         SmithingForgeConditions(cnam, conditions)
       else if bnam = 'CraftingSmithingSmelter' then
         SmithingSmelterConditions(cobj, conditions);
