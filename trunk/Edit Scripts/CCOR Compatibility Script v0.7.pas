@@ -430,13 +430,13 @@ begin
     AddMessage('Making a CCOR compatibility patch for the selected files.');
     patchFile := FileSelect('Select the file you want to use as your CCOR patch '+#13#10+'file below:');
     if not Assigned(patchFile) then begin
-      AddMessage(' Patch file not assigned. Terminating script.');
+      AddMessage('    Patch file not assigned. Terminating script.');
       Result := -1;
       exit;
     end;
     
     AddMastersToFile(patchFile, slMasters, true);
-    AddMessage(' Globals copied.');
+    AddMessage('    Globals copied.');
     group := GroupBySignature(ccoFile, 'GLOB');
     for i := 0 to ElementCount(group) - 1 do begin
       e := ElementByIndex(group, i);
@@ -456,7 +456,7 @@ begin
     cf := ObjectToElement(slFiles.Objects[i]);
     cobj := GroupBySignature(cf, 'COBJ');
     if not Assigned(cobj) then Continue;
-    AddMessage(' Patching '+slFiles[i]);
+    AddMessage('    Patching '+slFiles[i]);
     Inc(patchedfiles);
     
     if not separatepatch then begin
@@ -465,7 +465,7 @@ begin
       AddMasterIfMissing(cf, 'Update.esm');
     
       // copy globals from ccoFile
-      AddMessage(' Copying globals...');
+      AddMessage('        Copying globals...');
       group := GroupBySignature(ccoFile, 'GLOB');
       for j := 0 to ElementCount(group) - 1 do begin
         e := ElementByIndex(group, j);
@@ -480,7 +480,7 @@ begin
     end;
     
     // loop through COBJ records and apply conditions
-    AddMessage(' Patching COBJ records...');
+    AddMessage('        Patching COBJ records...');
     for j := 0 to ElementCount(cobj) - 1 do begin
       cc := nil;
       e := ElementByIndex(cobj, j);
@@ -492,7 +492,7 @@ begin
         continue;
       
       // process conditions on record
-      AddMessage(' ... '+Name(e));
+      AddMessage('        ... '+Name(e));
       if separatepatch then
         e := wbCopyElementToFile(ElementByIndex(cobj, j), patchFile, False, True);
       conditions := ElementByPath(e, 'Conditions');
