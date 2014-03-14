@@ -1,7 +1,8 @@
 {
-  Break It Down v0.4
+  Break It Down v0.5
   created by matortheeternal
   
+  * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
   items based on the items used in the recipes to create them.
 }
@@ -11,9 +12,12 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.4';
+  vs = '0.5';
   debug = false; // set to true to print debug messages
-  pre = 'b_Breakdown'; // editor ID prefix of breakdown recipes
+  pre = ''; // editor ID prefix of breakdown recipes
+  suf = '_Breakdown'; // editor ID suffix of breakdown recipes
+  eqc = true; // conditions disallowing the breakdown of equipped items
+  enc = true; // conditions disallowing the breakdown of enchanted items
   usestrips = 1;
   // 0 to never use leather strips in tanning rack breakdown recipes
   // 1 to use leather strips for breakdown of items with 1 leather
@@ -37,10 +41,23 @@ begin
   end
   else
     condition := ElementAssign(conditions, HighInteger, nil, False);
-  seev(condition, 'CTDA - \Type', '11000000');
+  seev(condition, 'CTDA - \Type', '11000000'); // Greater than or equal to
   seev(condition, 'CTDA - \Comparison Value', '1.0');
   seev(condition, 'CTDA - \Function', 'GetItemCount');
   seev(condition, 'CTDA - \Inventory Object', s);
+  
+  if eqc then begin
+    condition := ElementAssign(conditions, HighInteger, nil, False);
+    seev(condition, 'CTDA - \Type', '10010000'); // Equal to / OR
+    seev(condition, 'CTDA - \Comparison Value', '0.0');
+    seev(condition, 'CTDA - \Function', 'GetEquipped');
+    seev(condition, 'CTDA - \Inventory Object', s);
+    condition := ElementAssign(conditions, HighInteger, nil, False);
+    seev(condition, 'CTDA - \Type', '11010000'); // Greater than or equal to / OR
+    seev(condition, 'CTDA - \Comparison Value', '2.0');
+    seev(condition, 'CTDA - \Function', 'GetItemCount');
+    seev(condition, 'CTDA - \Inventory Object', s);
+  end;
 end;
 
 //=========================================================================
@@ -126,6 +143,14 @@ begin
     lc := 0;
     if not Assigned(cnam) then Continue;
     if debug then AddMessage('    Processing '+ShortName(COBJ));
+    
+    // if enc is true, skip enchanted items
+    if enc then begin
+      if Assigned(ElementByPath(cnam, 'EITM')) then begin
+        if debug then AddMessage('      Skipping, item is enchanted.');
+        continue;
+      end;
+    end;
     
     // process ingredients
     for j := 0 to ElementCount(items) - 1 do begin
@@ -215,7 +240,7 @@ begin
         Add(recipe, 'BNAM', True);
         Add(recipe, 'NAM1', True);
         // set element values
-        seev(recipe, 'EDID', pre+geev(cnam, 'EDID'));
+        seev(recipe, 'EDID', pre+geev(cnam, 'EDID')+suf);
         senv(recipe, 'BNAM', $0007866A); // CraftingTanningRack
         agicc(recipe, Name(cnam));
         // add items to recipe
