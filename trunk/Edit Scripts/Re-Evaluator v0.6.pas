@@ -1,5 +1,5 @@
 {
-  Re-Evaluator v0.5
+  Re-Evaluator v0.6
   created by matortheeternal
   
   This script with re-evaluate the gold value of items based on
@@ -12,7 +12,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.5';
+  vs = '0.6';
   sFunctions = 'HasItem'#13'HasPerkCondition'#13'HasKeyword'#13'HasSubstringInFULL'#13'HasSubstringInEDID';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13'Dragonborn.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
@@ -25,9 +25,11 @@ var
   pnlBottom: TPanel;
   sb: TScrollBox;
   kb1, kb2: TCheckBox;
-  btnOk, btnCancel, btnPlus, btnMinus: TButton;
+  btnOk, btnCancel, btnPlus, btnMinus, btnSave, btnLoad: TButton;
   lstFunction, lstVar, lstMult, lstElse: TList;
   save, eCsv: boolean;
+  SaveDialog: TSaveDialog;
+  OpenDialog: TOpenDialog;
   
 //=========================================================================
 // HasItem
@@ -200,6 +202,76 @@ begin
 end;
 
 //=========================================================================
+// LoadFunctions: Loads functions from a text file
+procedure LoadFunctions(fn: filename);
+var
+  slLoad: TStringList;
+  i: integer;
+  s, s1, s2, s3, s4: string;
+begin
+  // create loading stringlist
+  slLoad := TStringList.Create;
+  
+  // open dialog and load procedure
+  if OpenDialog.Execute then begin
+    slLoad.LoadFromFile(OpenDialog.FileName);
+    
+    // clear current functions
+    while lstFunction.Count > 0 do
+      DelFunctionEntry;
+    
+    // create new functions with data from file
+    for i := 0 to slLoad.Count - 1 do begin
+      s := slLoad[i];
+      s1 := CopyFromTo(s, 1, ItPos(',', s, 1) - 1);
+      s2 := CopyFromTo(s, ItPos(',', s, 1) + 1, ItPos(',', s, 2) - 1);
+      s3 := CopyFromTo(s, ItPos(',', s, 2) + 1, ItPos(',', s, 3) - 1);
+      s4 := CopyFromTo(s, ItPos(',', s, 3) + 1, Length(s));
+      AddFunctionEntry(StrToInt(s1), s2, s3, StrToInt(s4));
+    end;
+  end;
+  
+  slLoad.Free;
+end;
+
+//=========================================================================
+// SaveFunctions: Saves functions to a text file
+procedure SaveFunctions(fn: filename);
+var
+  i: integer;
+  s: string;
+  slSave: TStringList;
+begin
+  // create saving stringlist
+  slSave := TStringList.Create;
+  
+  // save dialog and save procedure
+  if SaveDialog.Execute then begin
+    for i := 0 to lstFunction.Count - 1 do begin
+      if (TComboBox(lstFunction[i]).Text = '') or (TComboBox(lstVar[i]).Text = '')
+      or (TComboBox(lstMult[i]).Text = '') then Continue;
+      
+      // build line string
+      s := IntToStr(TComboBox(lstFunction[i]).ItemIndex);
+      s := s + ',' + TComboBox(lstVar[i]).Text;
+      s := s + ',' + TEdit(lstMult[i]).Text;
+      if TCheckBox(lstElse[i]).State = cbChecked then
+        s := s + ',1'
+      else
+        s := s + ',0';
+      
+      // add line to slSave
+      slSave.Add(s);
+    end;
+    
+    // save to file
+    slSave.SaveToFile(SaveDialog.FileName);
+  end;
+  
+  slSave.Free;
+end;
+
+//=========================================================================
 // FunctionManager: manages function entries
 procedure frm.FunctionManager(Sender: TObject);
 begin
@@ -241,17 +313,53 @@ begin
     pnlBottom.Align := alBottom;
     pnlBottom.Height := 160;
     
+    SaveDialog := TSaveDialog.Create(frm);
+    SaveDialog.Title := 'Save functions';
+    SaveDialog.Filter := 'Text documents|*.txt';
+    SaveDialog.DefaultExt := 'txt';
+    SaveDialog.InitialDir := ProgramPath + 'Edit Scripts\';
+    
+    btnSave := TButton.Create(frm);
+    btnSave.Parent := pnlBottom;
+    btnSave.Caption := 'S';
+    btnSave.ShowHint := true;
+    btnSave.Hint := 'Save functions';
+    btnSave.Width := 25;
+    btnSave.Left := 12;
+    btnSave.Top := 5;
+    btnSave.OnClick := SaveFunctions;
+    
+    OpenDialog := TOpenDialog.Create(frm);
+    OpenDialog.Title := 'Load functions';
+    OpenDialog.Filter := 'Text documents|*.txt';
+    OpenDialog.DefaultExt := 'txt';
+    OpenDialog.InitialDir := ProgramPath + 'Edit Scripts\';
+    
+    btnLoad := TButton.Create(frm);
+    btnLoad.Parent := pnlBottom;
+    btnLoad.Caption := 'L';
+    btnLoad.ShowHint := true;
+    btnLoad.Hint := 'Load functions';
+    btnLoad.Width := 25;
+    btnLoad.Left := btnSave.Left + btnSave.Width + 5;
+    btnLoad.Top := btnSave.Top;
+    btnLoad.OnClick := LoadFunctions;
+    
     btnPlus := TButton.Create(frm);
     btnPlus.Parent := pnlBottom;
     btnPlus.Caption := '+';
+    btnPlus.ShowHint := true;
+    btnPlus.Hint := 'Add function';
     btnPlus.Width := 25;
     btnPlus.Left := frm.Width - 80;
-    btnPlus.Top := 15;
+    btnPlus.Top := 5;
     btnPlus.OnClick := FunctionManager;
     
     btnMinus := TButton.Create(frm);
     btnMinus.Parent := pnlBottom;
     btnMinus.Caption := '-';
+    btnMinus.ShowHint := true;
+    btnMinus.Hint := 'Remove function';
     btnMinus.Width := 25;
     btnMinus.Left := btnPlus.Left + btnPlus.Width + 5;
     btnMinus.Top := btnPlus.Top;
@@ -267,7 +375,7 @@ begin
     
     lbl2 := TLabel.Create(frm);
     lbl2.Parent := pnlBottom;
-    lbl2.Top := btnPlus.Top + 30;
+    lbl2.Top := btnPlus.Top + btnPlus.Height + 20;
     lbl2.Left := 8;
     lbl2.AutoSize := False;
     lbl2.Wordwrap := True;
