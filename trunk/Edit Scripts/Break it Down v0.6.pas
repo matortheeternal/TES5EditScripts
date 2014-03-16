@@ -1,5 +1,5 @@
 {
-  Break It Down v0.5
+  Break It Down v0.6
   created by matortheeternal
   
   * DESCRIPTION *
@@ -12,20 +12,15 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.5';
+  vs = '0.6';
   debug = false; // set to true to print debug messages
-  pre = ''; // editor ID prefix of breakdown recipes
-  suf = '_Breakdown'; // editor ID suffix of breakdown recipes
-  eqc = true; // conditions disallowing the breakdown of equipped items
-  enc = true; // conditions disallowing the breakdown of enchanted items
-  usestrips = 1;
-  // 0 to never use leather strips in tanning rack breakdown recipes
-  // 1 to use leather strips for breakdown of items with 1 leather
-  // 2 to use leather strips in all tanning rack breakdown recipes
   
 var
   slCobj, slMasters: TStringList;
   bdf: IInterface;
+  eqc, enc, terminate: boolean;
+  pre, suf: string;
+  usestrips: integer;
   
 //=========================================================================
 // add get item count condition
@@ -61,6 +56,136 @@ begin
 end;
 
 //=========================================================================
+// OptionsForm: the main options form for the script
+procedure OptionsForm;
+var
+  frm: TForm;
+  lbl01, lbl02: TLabel;
+  ed01, ed02: TEdit;
+  cb01, cb02: TCheckBox;
+  rg: TRadioGroup;
+  rb01, rb02, rb03: TRadioButton;
+  btnOk, btnCancel: TButton;
+begin
+  frm := TForm.Create(nil);
+  try
+    frm.Caption := 'Break It Down v'+vs;
+    frm.Width := 250;
+    frm.Height := 250;
+    frm.Position := poScreenCenter;
+    frm.BorderStyle := bsDialog;
+    
+    lbl01 := TLabel.Create(frm);
+    lbl01.Parent := frm;
+    lbl01.Width := 80;
+    lbl01.Height := 30;
+    lbl01.Left := 8;
+    lbl01.Top := 8;
+    lbl01.Caption := 'EditorID Prefix: ';
+    lbl01.Autosize := false;
+    
+    ed01 := TEdit.Create(frm);
+    ed01.Parent := frm;
+    ed01.Width := 80;
+    ed01.left := lbl01.Left + lbl01.Width + 8;
+    ed01.Top := lbl01.Top;
+    ed01.Text := 'b_Breakdown';
+    
+    lbl02 := TLabel.Create(frm);
+    lbl02.Parent := frm;
+    lbl02.Width := lbl01.Width;
+    lbl02.Height := lbl01.Height;
+    lbl02.Left := lbl01.Left;
+    lbl02.Top := lbl01.Top+lbl01.Height + 16;
+    lbl02.Caption := 'EditorID Suffix: ';
+    lbl02.Autosize := false;
+    
+    ed02 := TEdit.Create(frm);
+    ed02.Parent := frm;
+    ed02.Width := 80;
+    ed02.left := lbl02.Left + lbl02.Width + 8;
+    ed02.Top := lbl02.Top;
+    ed02.Text := '';
+    
+    cb01 := TCheckBox.Create(frm);
+    cb01.Parent := frm;
+    cb01.Width := 200;
+    cb01.Left := lbl01.Left;
+    cb01.Top := lbl02.Top + 30;
+    cb01.Caption := 'Breakdown equipped items';
+    
+    cb02 := TCheckBox.Create(frm);
+    cb02.Parent := frm;
+    cb02.Width := cb01.Width;
+    cb02.Left := lbl01.Left;
+    cb02.Top := cb01.Top + 25;
+    cb02.Caption := 'Breakdown enchanted items';
+    
+    rg := TRadioGroup.Create(frm);
+    rg.Parent := frm;
+    rg.Left := 12;
+    rg.Height := 60;
+    rg.Top := cb02.Top + cb02.Height + 16;
+    rg.Width := 232;
+    rg.Caption := 'Leather Strips';
+    rg.ClientHeight := 45;
+    rg.ClientWidth := 216;
+    
+    rb01 := TRadioButton.Create(rg);
+    rb01.Parent := rg;
+    rb01.Left := 12;
+    rb01.Top := 18;
+    rb01.Caption := 'Never';
+    rb01.Width := 50;
+    
+    rb02 := TRadioButton.Create(rg);
+    rb02.Parent := rg;
+    rb02.Left := rb01.Left + rb01.Width + 10;
+    rb02.Top := rb01.Top;
+    rb02.Caption := '1 leather';
+    rb02.Width := 60;
+    rb02.Checked := True;
+    
+    rb03 := TRadioButton.Create(rg);
+    rb03.Parent := rg;
+    rb03.Left := rb02.Left + rb02.Width + 16;
+    rb03.Top := rb01.Top;
+    rb03.Caption := 'Always';
+    rb03.Width := 60;
+    
+    btnOk := TButton.Create(frm);
+    btnOk.Parent := frm;
+    btnOk.Left := frm.Width div 2 - btnOk.Width - 8;
+    btnOk.Top := frm.Height - 60;
+    btnOk.Caption := 'Ok';
+    btnOk.ModalResult := mrOk;
+    
+    btnCancel := TButton.Create(frm);
+    btnCancel.Parent := frm;
+    btnCancel.Caption := 'Cancel';
+    btnCancel.ModalResult := mrCancel;
+    btnCancel.Left := btnOk.Left + btnOk.Width + 16;
+    btnCancel.Top := btnOk.Top;
+    
+    terminate := true;
+    if frm.ShowModal = mrOk then begin
+      terminate := false;
+      pre := ed01.Text;
+      suf := ed02.Text;
+      if cb01.State <> cbChecked then
+        eqc := true;
+      if cb02.State <> cbChecked then
+        enc := true;
+      if rb01.Checked then usestrips := 0 else
+      if rb02.Checked then usestrips := 1 else
+      if rb03.Checked then usestrips := 2;
+    end;
+  finally
+    frm.free;
+  end;
+end;
+
+//=========================================================================
 // initialize script
 function Initialize: integer;
 begin
@@ -74,6 +199,15 @@ begin
   // create stringlists
   slCobj := TStringList.Create;
   slMasters := TStringList.Create;
+  
+  // options form
+  OptionsForm;
+  if terminate then begin
+    AddMessage('Script is terminating.');
+    exit;
+  end;
+  
+  // proceed
   if debug then AddMessage('Loading selected records...');
 end;
 
@@ -85,6 +219,9 @@ var
   s: string;
   i: integer;
 begin
+  if terminate then
+    exit;
+    
   if Signature(e) <> 'COBJ' then
     exit;
     
@@ -120,6 +257,10 @@ var
   cobj, items, li, item, cnam, recipe, group: IInterface;
   slBDSmelter: TStringList;
 begin
+  // termination
+  if terminate then
+    exit;
+
   // file select
   if debug then AddMessage('');
   bdf := FileSelect('Choose the file you want to use as your Break Down'#13'recipes file below: ');
@@ -192,7 +333,7 @@ begin
         Add(recipe, 'BNAM', True);
         Add(recipe, 'NAM1', True);
         // set element values
-        seev(recipe, 'EDID', pre+geev(cnam, 'EDID'));
+        seev(recipe, 'EDID', pre+geev(cnam, 'EDID')+suf);
         senv(recipe, 'BNAM', $000A5CCE); // CraftingSmelter
         agicc(recipe, Name(cnam));
         // add items

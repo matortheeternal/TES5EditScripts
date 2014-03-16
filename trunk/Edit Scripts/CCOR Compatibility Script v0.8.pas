@@ -1,19 +1,10 @@
 {
-  CCOR Compatibility Script v0.7
+  CCOR Compatibility Script v0.8
   Created by matortheeternal
   
   * CHANGES *
-  - Patch file generation now supported.
-  - CCO_OrientalStyleRecipes condition now supported.
-  - Uses "CCOResource.esp". If it isn't found the script terminates.
-  - Makes CCO_MODSupported condition.
-  - Keyword checks for learning conditions. (Including WAF keywords)
-  - Adds CCO_MiscPouchRecipes condition if backpack or if the keyword
-    WAF_ClothingPounch_KRY is present.
-  - Adds CCO_ClothingCloakRecipes condition if cloak or if the keyword
-    WAF_ClothingCloak_KRY is present.
-  - Adds Daedric At Night conditions if keyword ArmorMaterialDaedric
-    or keyword WeapMaterialDaedric is present.
+  - Corrected clothing keywords.  I hope.
+  - Corrected logic for application of Draugr learning conditions.
   
   * DESCRIPTION *
   Applies CCOR global variable conditions to COBJ recipes in the
@@ -25,7 +16,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = 'v0.7';
+  vs = 'v0.8';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'
   #13'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   ccofn = 'Complete Crafting Overhaul_Remade.esp';
@@ -48,6 +39,15 @@ begin
   for n := 0 to ElementCount(kwda) - 1 do
     if GetElementEditValues(LinksTo(ElementByIndex(kwda, n)), 'EDID') = kw then
       Result := true;
+end;
+  
+//=========================================================================
+// has substring in EDID
+function HasSubstringInEDID(rec: IInterface; ss: string): boolean;
+begin
+  Result := false;
+  if Pos(Lowercase(ss), Lowercase(geev(rec, 'EDID'))) > 0 then
+    Result := true;
 end;
   
 //=========================================================================
@@ -233,25 +233,25 @@ begin
       if clothing then agvc(conditions, 'CCO_ClothingBootRecipes')
       else agvc(conditions, 'CCO_ArmorBootRecipes');
     end
-    else if HasKeyword(cnam, 'ClothingBoots') then
+    else if HasKeyword(cnam, 'ClothingFeet') then
       agvc(conditions, 'CCO_ClothingBootRecipes')
     else if HasKeyword(cnam, 'ArmorGauntlets') then begin
       if clothing then agvc(conditions, 'CCO_ClothingGloveRecipes')
       else agvc(conditions, 'CCO_ArmorGauntletRecipes');
     end
-    else if HasKeyword(cnam, 'ClothingGloves') then
+    else if HasKeyword(cnam, 'ClothingHands') then
       agvc(conditions, 'CCO_ClothingGloveRecipes')
     else if HasKeyword(cnam, 'ArmorCuirass') then begin
       if clothing then agvc(conditions, 'CCO_ClothingRobeRecipes')
       else agvc(conditions, 'CCO_ArmorCuirassRecipes');
     end
-    else if HasKeyword(cnam, 'ClothingRobes') then
+    else if HasKeyword(cnam, 'ClothingBody') then
       agvc(conditions, 'CCO_ClothingRobeRecipes')
     else if HasKeyword(cnam, 'ArmorHelmet') then begin
       if clothing then agvc(conditions, 'CCO_ClothingHoodRecipes')
       else agvc(conditions, 'CCO_ArmorHelmetRecipes');
     end
-    else if HasKeyword(cnam, 'ClothingHood') then
+    else if HasKeyword(cnam, 'ClothingHead') then
       agvc(conditions, 'CCO_ClothingHoodRecipes')
     else if HasKeyword(cnam, 'ArmorShield') then
       agvc(conditions, 'CCO_ArmorShieldRecipes')
@@ -260,20 +260,24 @@ begin
     or (Pos('cloak', full) > 0) then
       agvc(conditions, 'CCO_ClothingCloakRecipes');
     // learning condition
-    if (Pos('draugr', edid) > 0)
+    if HasSubstringInEDID(cnam, 'draugr') 
+    or HasSubstringInFULL(cnam, 'draugr')
     or HasKeyword(cnam, 'WAF_ArmorMaterialDraugr_KRY') then
       algvc(conditions, 'CCO_LearningDragur')
-    else if (Pos('forsworn', edid) > 0)
+    else if HasSubstringInEDID(cnam, 'forsworn') 
+    or HasSubstringInFULL(cnam, 'forsworn')
     or HasKeyword(cnam, 'WAF_WeapMaterialForsworn_KRY') then
       algvc(conditions, 'CCO_LearningForsworn')
-    else if (Pos('falmer', edid) > 0)
+    else if HasSubstringInEDID(cnam, 'falmer')
+    or HasSubstringInFULL(cnam, 'falmer')
     or HasKeyword(cnam, 'WeapMaterialFalmer')
     or HasKeyword(cnam, 'DLC1ArmorMaterialFalmerHardened')
     or HasKeyword(cnam, 'DLC1ArmorMaterielFalmerHeavy')
     or HasKeyword(cnam, 'DLC1ArmorMaterielFalmerHeavyOriginal') then
       algvc(conditions, 'CCO_LearningFalmer');
     // daedric at night condition
-    if HasKeyword(cnam, 'ArmorMaterialDaedric') then
+    if HasKeyword(cnam, 'ArmorMaterialDaedric')
+    or HasKeyword(cnam, 'WeapMaterialDaedric') then
       adanc(conditions);
     // oriental style recipes condition
     if HasSubstringInFULL(cnam, 'Katana') or HasSubstringInFULL(cnam, 'Tanto') or HasSubstringInFULL(cnam, 'Ninjato')
