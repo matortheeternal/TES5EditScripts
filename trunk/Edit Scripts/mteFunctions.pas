@@ -23,6 +23,9 @@
   - [slev]: SetListEditValues shortened function name.
   - [slnv]: SetListNativeValues shortened function name.
   - [HasKeyword]: Checks if a record has a keyword matching the input EditorID.
+  - [HasItem]: Checks if a record has an item matching the input EditorID.
+  - [HasPerkCondition]: Checks if a record has a perk condition for a perk matching the
+    input EditorID.
   - [AddMastersToFile]: Adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
@@ -210,10 +213,7 @@ begin
   ip := StringReplace(ip, '/', '\', [rfReplaceAll]);
   subelement := e;
   While (Pos('[', ip) > 0) do begin
-    if Pos('\', ip) > 0 then
-      subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1)
-    else
-      subpath := ip;
+    subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1);
     if Pos('[', subpath) > 0 then begin 
       index := StrToInt(CopyFromTo(subpath, Pos('[', ip) + 1, Pos(']', ip) - 1));
       subelement := ElementByIndex(subelement, index);
@@ -229,28 +229,6 @@ begin
     Result := ElementByPath(subelement, ip)
   else
     Result := subelement;
-end;
-
-{
-  GetListEditValues:
-  Gets the values of elements in a list and stores them in a stringlist.
-  
-  Example usage:
-  slValues.Text := GetListEditValues(e, 'FormIDs');
-}
-function GetListEditValues(e: IInterface; ip: string): string;
-var
-  values: TStringList;
-  i: integer;
-  list: IInterface;
-begin
-  list := ElementByIP(e, ip);
-  values := TStringList.Create;
-  
-  for i := 0 to ElementCount(list) - 1 do
-    values.Add(GetEditValue(ElementByIndex(list, i)));
-  
-  Result := values.Text;
 end;
 
 {
@@ -271,7 +249,7 @@ begin
   list := ElementByIP(e, ip);
   // clear element list except for one element
   While ElementCount(list) > 1 do
-    Remove(ElementByIndex(list, 0));
+    RemoveByIndex(list, 0);
   
   // set element[0] to values[0]
   SetEditValue(ElementByIndex(list, 0), values[0]);
@@ -404,6 +382,68 @@ begin
   for n := 0 to ElementCount(kwda) - 1 do
     if GetElementEditValues(LinksTo(ElementByIndex(kwda, n)), 'EDID') = edid then 
       Result := true;
+end;
+
+{
+  HasItem:
+  Checks if an input record has an item matching the input EditorID.
+  
+  Example usage:
+  if HasItem(e, 'IngotIron') then
+    AddMessage(Name(e) + ' is made using iron!');
+}
+function HasItem(rec: IInterface; s: string): boolean;
+var
+  name: string;
+  items, li: IInterface;
+  i: integer;
+begin
+  Result := false;
+  items := ElementByPath(rec, 'Items');
+  if not Assigned(items) then 
+    exit;
+  
+  for i := 0 to ElementCount(items) - 1 do begin
+    li := ElementByIndex(items, i);
+    name := geev(LinksTo(ElementByPath(li, 'CNTO - Item\Item')), 'EDID');
+    if name = s then begin
+      Result := true;
+      Break;
+    end;
+  end;
+end;
+
+{
+  HasPerkCondition:
+  Checks if an input record has a HasPerk condition requiring a perk
+  matching the input EditorID.
+  
+  Example usage:
+  if HasPerkCondition(e, 'AdvancedSmithing') then
+    AddMessage(Name(e) + ' is an advanced armor!');
+}
+function HasPerkCondition(rec: IInterface; s: string): boolean;
+var
+  name, func: string;
+  conditions, ci: IInterface;
+  i: integer;
+begin
+  Result := false;
+  conditions := ElementByPath(rec, 'Conditions');
+  if not Assigned(conditions) then
+    exit;
+    
+  for i := 0 to ElementCount(conditions) - 1 do begin
+    ci := ElementByIndex(conditions, i);
+    func := geev(ci, 'CTDA - \Function');
+    if func = 'HasPerk' then begin
+      name := geev(LinksTo(ElementByPath(ci, 'CTDA - \Perk')), 'EDID');
+      if name = s then begin
+        Result := true;
+        Break;
+      end;
+    end;
+  end;
 end;
 
 {

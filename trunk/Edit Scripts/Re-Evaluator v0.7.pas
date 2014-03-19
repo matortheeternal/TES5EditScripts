@@ -1,7 +1,12 @@
 {
-  Re-Evaluator v0.6
+  Re-Evaluator v0.7
   created by matortheeternal
   
+  * CHANGES *
+  - Saving and loading of function lists.
+  - HasItem and HasPerkCondition have been moved to mteFunctions.
+  
+  * DESCRIPTION *
   This script with re-evaluate the gold value of items based on
   the value of the basic materials used to create them.  Run on
   COBJ records.
@@ -12,7 +17,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.6';
+  vs = '0.7';
   sFunctions = 'HasItem'#13'HasPerkCondition'#13'HasKeyword'#13'HasSubstringInFULL'#13'HasSubstringInEDID';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13'Dragonborn.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
@@ -30,69 +35,6 @@ var
   save, eCsv: boolean;
   SaveDialog: TSaveDialog;
   OpenDialog: TOpenDialog;
-  
-//=========================================================================
-// HasItem
-function HasItem(rec: IInterface; s: string): boolean;
-var
-  name: string;
-  items, li: IInterface;
-  i: integer;
-begin
-  Result := false;
-  items := ElementByPath(rec, 'Items');
-  if not Assigned(items) then 
-    exit;
-  
-  for i := 0 to ElementCount(items) - 1 do begin
-    li := ElementByIndex(items, i);
-    name := geev(LinksTo(ElementByPath(li, 'CNTO - Item\Item')), 'EDID');
-    if name = s then begin
-      Result := true;
-      Break;
-    end;
-  end;
-end;
-
-//=========================================================================
-// HasPerkCondition
-function HasPerkCondition(rec: IInterface; s: string): boolean;
-var
-  name, func: string;
-  conditions, ci: IInterface;
-  i: integer;
-begin
-  Result := false;
-  conditions := ElementByPath(rec, 'Conditions');
-  if not Assigned(conditions) then
-    exit;
-    
-  for i := 0 to ElementCount(conditions) - 1 do begin
-    ci := ElementByIndex(conditions, i);
-    func := geev(ci, 'CTDA - \Function');
-    if func = 'HasPerk' then begin
-      name := geev(LinksTo(ElementByPath(ci, 'CTDA - \Perk')), 'EDID');
-      if name = s then begin
-        Result := true;
-        Break;
-      end;
-    end;
-  end;
-end;
-
-//=========================================================================
-// HasKeyword
-function HasKeyword(rec: IInterface; kw: string): boolean;
-var
-  kwda: IInterface;
-  n: integer;
-begin
-  Result := false;
-  kwda := ElementByPath(rec, 'KWDA');
-  for n := 0 to ElementCount(kwda) - 1 do
-    if GetElementEditValues(LinksTo(ElementByIndex(kwda, n)), 'EDID') = kw then 
-      Result := true;
-end;
 
 //=========================================================================
 // LoadVars: Loads variable choices into the appropriate combobox

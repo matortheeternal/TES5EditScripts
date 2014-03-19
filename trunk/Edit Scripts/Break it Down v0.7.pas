@@ -1,6 +1,12 @@
 {
-  Break It Down v0.6
+  Break It Down v0.7
   created by matortheeternal
+  
+  * CHANGES *
+  - Options to disable breakdown of daedric/chitin items.
+  - User variable to remove single ingot recipes from the smelter
+    breakdown queue, allowing a tanning rack breakdown recipe to be
+    created for said recipes.
   
   * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
@@ -12,13 +18,16 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.6';
+  vs = '0.7';
+  removesingle = true; 
+  // set to false to not attempt to create breakdown recipes at the 
+  // tanning rack for items that have a only a single ingot type item
   debug = false; // set to true to print debug messages
   
 var
   slCobj, slMasters: TStringList;
   bdf: IInterface;
-  eqc, enc, terminate: boolean;
+  eqc, enc, daedric, chitin, terminate: boolean;
   pre, suf: string;
   usestrips: integer;
   
@@ -62,7 +71,7 @@ var
   frm: TForm;
   lbl01, lbl02: TLabel;
   ed01, ed02: TEdit;
-  cb01, cb02: TCheckBox;
+  cb01, cb02, cb03, cb04: TCheckBox;
   rg: TRadioGroup;
   rb01, rb02, rb03: TRadioButton;
   btnOk, btnCancel: TButton;
@@ -71,7 +80,7 @@ begin
   try
     frm.Caption := 'Break It Down v'+vs;
     frm.Width := 250;
-    frm.Height := 250;
+    frm.Height := 300;
     frm.Position := poScreenCenter;
     frm.BorderStyle := bsDialog;
     
@@ -121,11 +130,27 @@ begin
     cb02.Top := cb01.Top + 25;
     cb02.Caption := 'Breakdown enchanted items';
     
+    cb03 := TCheckBox.Create(frm);
+    cb03.Parent := frm;
+    cb03.Width := 200;
+    cb03.Left := lbl01.Left;
+    cb03.Top := cb02.Top + 25;
+    cb03.Caption := 'Breakdown daedric items';
+    cb03.State := cbChecked;
+    
+    cb04 := TCheckBox.Create(frm);
+    cb04.Parent := frm;
+    cb04.Width := cb01.Width;
+    cb04.Left := lbl01.Left;
+    cb04.Top := cb03.Top + 25;
+    cb04.Caption := 'Breakdown chitin items';
+    cb04.State := cbChecked;
+    
     rg := TRadioGroup.Create(frm);
     rg.Parent := frm;
     rg.Left := 12;
     rg.Height := 60;
-    rg.Top := cb02.Top + cb02.Height + 16;
+    rg.Top := cb04.Top + cb04.Height + 16;
     rg.Width := 232;
     rg.Caption := 'Leather Strips';
     rg.ClientHeight := 45;
@@ -156,7 +181,7 @@ begin
     btnOk := TButton.Create(frm);
     btnOk.Parent := frm;
     btnOk.Left := frm.Width div 2 - btnOk.Width - 8;
-    btnOk.Top := frm.Height - 60;
+    btnOk.Top := frm.Height - 65;
     btnOk.Caption := 'Ok';
     btnOk.ModalResult := mrOk;
     
@@ -176,6 +201,10 @@ begin
         eqc := true;
       if cb02.State <> cbChecked then
         enc := true;
+      if cb03.State = cbChecked then
+        daedric := true;
+      if cb04.State = cbChecked then
+        chitin := true;
       if rb01.Checked then usestrips := 0 else
       if rb02.Checked then usestrips := 1 else
       if rb03.Checked then usestrips := 2;
@@ -293,6 +322,22 @@ begin
       end;
     end;
     
+    // if daedric is false, skip daedric items
+    if not daedric then begin
+      if HasItem(cnam, 'DaedraHeart') then
+        continue;
+    end;
+    
+    // if chitin is false, skip dragonbone, dragonscale, and chitin items
+    if not chitin then begin
+      if HasItem(cnam, 'DragonBone')
+      or HasItem(cnam, 'DragonScales')
+      or HasItem(cnam, 'DLC2ChitinPlate')
+      or HasItem(cnam, 'ChaurusChitin')
+      or HasItem(cnam, 'BoneMeal') then
+        continue;
+    end;
+    
     // process ingredients
     for j := 0 to ElementCount(items) - 1 do begin
       li := ElementByIndex(items, j);
@@ -313,6 +358,11 @@ begin
     if debug and (slBDSmelter.Count > 0) then
       for j := 0 to slBDSmelter.Count - 1 do 
         AddMessage('        '+slBDSmelter[i]+': '+IntToStr(Integer(slBDSmelter.Objects[i])));
+    
+    // remove single ingots from slBDSmelter
+    if removesingle and (slBDSmelter.Count = 1) then
+      if (Integer(slBDSmelter.Objects[0]) = 1) then
+        slBDSmelter.Delete(0);
     
     // create breakdown recipe at smelter or tanning rack
     group := GroupBySignature(bdf, 'COBJ');

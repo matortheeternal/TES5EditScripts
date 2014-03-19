@@ -5,9 +5,31 @@
   
   *CHANGES*
   v3.0
-    - Created TTreeView user interface
+    - Created TTreeView user interface which allows you to easily
+      view prefix groups and their members, move members to different
+      groups, create groups, and delete groups.
     - Improved prefix finding procedure (now recursive!)
     - User variables moved to constants section.
+    - AActivators and DActivators are now WEAP/ARMO records, so
+      model information is directly copied from the objects created
+      by the sorted COBJ records (no need for all that male/female
+      model selection junk anymore!)
+    - The script uses considerably fewer stringlists and is less of
+      a memory leak in TES5Edit now (stringlists are freed on early
+      termination).
+    - Adding new mods to an existing FMO patch file is now fully
+      supported.
+    - Removed several unnecessary O(n^3), O(n^2) algorithms from the 
+      script.  The script is MUCH faster now.
+    - Initial AActivator recipes now exist, so there will be no
+      build-up of non-playable DActivator objects in player inventories
+      anymore.  Initial AActivator recipes require no items, but only
+      appear if you don't have an AActivator or DActivator for the 
+      category they're associated with in your inventory.  AActivator
+      recipes require a DActivator, and only appear if you have one or
+      more DActivator's in your inventory.  DActivator recipes require
+      an AActivator, and only appear if you have one or more AActivators
+      in your inventory.  YAY!
     
   *WHAT IT DOES*
   This script will look through all available .esp and .esm files for COBJ records that 
@@ -27,30 +49,27 @@ uses mteFunctions;
 
 const
   vs = 'v3.0';
-  choice = 0; // 10 = always use male world models, 9 = always use female world models
-  debug = true; // debug messages for the overall process
+  debug = false; // debug messages for the overall process
   iwcdebug = false; // debug messages for the COBJ record seiving processes
-  mpdebug = false; // debug messages for finding models for category items
-  pfdebug = false; // debug messages for prefix finding
   clothing = false; // set to true to process items with the armorclothing keyword
   jewelry = false; // set to true to process items with the armorjewelry keyword
   overridekwda = false; // set to true to process all items regardless of their keywords
-  noreprint = false; // set this to true to not print prefixes a second time
   PreMin = 3; // minimum number of items with a prefix to add that prefix
   openSuffix = ' +'; // suffix on sub-categories for opening groups
   closeSuffix = ' -'; // suffix on sub-categories for closing groups
+  hl = '-----------------------------------------------------------------------------';
 
 var
   slBenches, slExcept, slFileExcept, slPre, slPreNWS, slCobj, slCnam, 
-  slNames, slDA, slAA, slAACobj, slPreFind, slPreAssoc, slPreTemplate, 
-  slExisting, slMasters: TSTringList;
+  slNames, slDA, slAA, slPreFind, slPreAssoc, slPreTemplate, slExisting, 
+  slExistingCobj, slMasters: TSTringList;
   frm: TForm;
   tvList: TTreeView;
   panel: TPanel;
   btnAdd, btnRemove, btnOk, btnCancel: TButton;
   unsortedGroup: TTreeNode;
   fmoFile: IInterface;
-  endscript: boolean;
+  terminate: boolean;
   
 //=====================================================================
 // recursive function for finding prefixes
@@ -226,7 +245,7 @@ var
   nodeGroup, nodeRecord: TTreeNode;
   i, j, x: integer;
   f, g, r: IInterface;
-  subprefix: boolean;
+  group, item: string;
 begin
   frm := TForm.Create(nil);
   try
@@ -283,7 +302,6 @@ begin
     for i := 0 to slPre.Count - 1 do begin
       nodeGroup := tvList.Items.Add(nil, slPre[i]);
       for j := 0 to slPreAssoc.Count - 1 do begin
-        subprefix := false;
         if slPre[i] = slPreAssoc[j] then
           tvList.Items.AddChild(nodeGroup, slNames[j]);
       end;
@@ -296,10 +314,26 @@ begin
         tvList.Items.AddChild(unsortedGroup, slNames[i]);
     end;
     
-    // load changes to treeview if OK is clicked, else 
-    endscript := true;
+    // load changes to treeview if OK is clicked, else terminate script
+    terminate := true;
     if frm.ShowModal = mrOk then begin
-      endscript := false;
+      terminate := false;
+      for i := 0 to tvList.Items.Count - 1 do begin
+        if tvList.Items.Item(i).Level = 0 then begin
+          group := tvList.Items.Item(i).Text;
+          // break upon processing the unsorted group
+          if (group = 'Unsorted') then
+            break;
+          // create new prefix is group isn't found in slPre
+          if slPre.IndexOf(group) = -1 then begin
+            slPre.Add(group);
+          end;
+        end
+        else if tvList.Items.Item(i).Level = 1 then begin
+          item := tvList.Items.Item(i).Text;
+          slPreAssoc[slNames.IndexOf(item)] := group;
+        end;
+      end;
     end;
   finally
     frm.Free;
@@ -320,9 +354,9 @@ var
 begin
   // welcome messages
   AddMessage(#13#10#13#10#13#10);
-  AddMessage('-----------------------------------------------------------------------------');
+  AddMessage(hl);
   AddMessage('FMO Script '+vs+': This script will categorize recipes in the forge menu.');
-  AddMessage('-----------------------------------------------------------------------------');
+  AddMessage(hl);
   
   // create stringlists
   AddMessage('Creating stringlists...');
@@ -341,8 +375,8 @@ begin
   slNames := TStringList.Create; // list of full names
   slDA := TStringList.Create; // dactivator form ids
   slAA := TStringList.Create; // aactivator form ids
-  slAACobj := TStringList.Create; // aactivator form ids associated with cobj recipes
-  slExisting := TStringList.Create; // list for existing ARMO/WEAP/MISC records in fmoFile
+  slExisting := TStringList.Create; // list for existing ARMO/WEAP records in fmoFile
+  slExistingCOBJ := TStringList.Create;
   slPreFind := TStringList.Create; // list for finding prefixes
   slPreFind.Sorted := True;
   slPreFind.Duplicates := dupIgnore;
@@ -364,7 +398,7 @@ begin
     if (slFileExcept.IndexOf(s) > -1) then Continue;
     // get COBJ records group
     cobjs := GroupBySignature(f, 'COBJ');
-    // skip plugin if it has no constructible objects
+    // skip plugin if it has no constructable objects
     if not Assigned(cobjs) then Continue;
     
     // process every COBJ record
@@ -400,16 +434,7 @@ begin
       slCobj.AddObject(Name(cobj), TObject(cobj));
     end;
   end;
-  
-  // debug messages
-  if debug then begin
-    AddMessage(#13#10 + 'Current stringlist counts: ');
-    AddMessage('  slCnam: '+IntToStr(slCnam.Count));
-    AddMessage('  slNames: '+IntToStr(slNames.Count));
-    AddMessage('  slCobj: '+IntToStr(slCobj.Count));
-    AddMessage('  slMasters: '+IntToStr(slMasters.Count)+#13#10);
-  end;
-    
+  AddMessage('');
   
   // load names into the prefind stringlist
   for i := 0 to slNames.Count - 1 do 
@@ -438,15 +463,6 @@ begin
   for i := 0 to slNames.Count - 1 do
     slPreAssoc.Add('');
   
-  // set prefix-associated data lists to be same length as slPre
-  for i := 0 to slPre.Count - 1 do begin
-    slPreTemplate.AddObject('0', TObject(nil));
-    slAA.AddObject('0', TObject(nil));
-    slDA.AddObject('0', TObject(nil));
-    slPreNWS.Add('');
-  end;
-  
-    
   // create slPreAssoc stringlist
   x := 0;
   for i := 0 to slNames.Count - 1 do begin
@@ -476,6 +492,35 @@ begin
   
   // allow user to modify prefixes
   OptionsForm;
+  // terminate if user pressed cancel or closed window
+  if terminate then begin
+    AddMessage('FMO terminated.'+#13#10);
+    slBenches.Free;
+    slExcept.Free;
+    slFileExcept.Free;
+    slPre.Free;
+    slPreNWS.Free;
+    slCobj.Free;
+    slCnam.Free;
+    slNames.Free;
+    slDA.Free;
+    slAA.Free;
+    slExisting.Free;
+    slExistingCobj.Free;
+    slPreFind.Free;
+    slPreAssoc.Free;
+    slPreTemplate.Free;
+    slMasters.Free;
+    exit;
+  end;
+  
+  // set prefix-associated data lists to be same length as slPre
+  for i := 0 to slPre.Count - 1 do begin
+    slPreTemplate.AddObject('0', TObject(nil));
+    slAA.AddObject('0', TObject(nil));
+    slDA.AddObject('0', TObject(nil));
+    slPreNWS.Add('');
+  end;
   
   if debug then begin 
     AddMessage('Item prefix assocaition: ');
@@ -485,12 +530,14 @@ begin
   end;
   
   // delete unused prefixes
+  j := slPre.Count;
   for i := slPre.Count - 1 downto 0 do begin
     if slPreAssoc.IndexOf(slPre[i]) = -1 then begin
       AddMessage(slPre[i]+' isn''t used by any items.  Deleting...');
       slPre.Delete(i);
     end;
   end;
+  if j < slPre.Count then AddMessage(' ');
   
   // create prefixes no whitespace list, fill slPreTemplate with 0s
   for i := 0 to slPre.Count - 1 do begin
@@ -549,6 +596,22 @@ begin
   fmoFile := FileSelect('Choose the file you want to use as your FMO patch file '+#13#10+'below:');
   if not Assigned(fmoFile) then begin
     AddMessage('    No FMO patch file assigned.  Terminating script.' + #13#10);
+    slBenches.Free;
+    slExcept.Free;
+    slFileExcept.Free;
+    slPre.Free;
+    slPreNWS.Free;
+    slCobj.Free;
+    slCnam.Free;
+    slNames.Free;
+    slDA.Free;
+    slAA.Free;
+    slExisting.Free;
+    slExistingCobj.Free;
+    slPreFind.Free;
+    slPreAssoc.Free;
+    slPreTemplate.Free;
+    slMasters.Free;
     exit;
   end;
   AddMessage('    Script is using ' + GetfileName(fmoFile) + ' as the FMO patch file.');
@@ -564,7 +627,8 @@ begin
   // create ARMO and WEAP groups if they don't already exist
   Add(fmoFile, 'ARMO', True);
   Add(fmoFile, 'WEAP', True);
-  // create list of ARMO, and WEAP records in fmo patch file
+  Add(fmoFile, 'COBJ', True);
+  // create list of ARMO and WEAP records already existing in fmo patch file
   group := GroupBySignature(fmoFile, 'ARMO');
   for j := 0 to ElementCount(group) - 1 do begin
     e := ElementByIndex(group, j);
@@ -574,6 +638,12 @@ begin
   for j := 0 to ElementCount(group) - 1 do begin
     e := ElementByIndex(group, j);
     slExisting.Add(geev(e, 'EDID'), TObject(e));
+  end;
+  // create list of COBJ records already existing in fmo patch file
+  group := GroupBySignature(fmoFile, 'COBJ');
+  for j := 0 to ElementCount(group) - 1 do begin
+    e := ElementByIndex(group, j);
+    slExistingCobj.Add(geev(e, 'EDId'), TObject(e));
   end;
   
   // create AActivators and DActivators
@@ -585,8 +655,11 @@ begin
       
     // skip if AActivator/DActivator already exists
     if (slExisting.IndexOf(slPreNWS[i] + 'AActivator') > -1)
-    or (slExisting.IndexOf(slPreNWS[i] + 'DActivator') > -1) then
+    or (slExisting.IndexOf(slPreNWS[i] + 'DActivator') > -1) then begin
+      slAA.Objects[i] := slExisting.Objects[slExisting.IndexOf(slPreNWS[i] + 'AActivator')];
+      slDA.Objects[i] := slExisting.Objects[slExisting.IndexOf(slPreNWS[i] + 'DActivator')];
       Continue;
+    end;
     
     // make AActivator if signature is WEAP or ARMO
     template := ObjectToElement(slPreTemplate.Objects[i]);
@@ -643,44 +716,25 @@ begin
     slDA.Objects[i] := TObject(e);
   end;
   
-  // set size of slAACobj list to size of slCobj
-  for i := 0 to slCobj.Count - 1 do 
-    slAACobj.AddObject('0', TObject(nil));
-  
   // create new recipes for AActivators and DActivators
   AddMessage('Creating AActivator and DActivator recipes...');
   for i := 0 to slPre.Count - 1 do begin
     if (slPreNWS[i] = '') then Continue;
     for j := 0 to slNames.Count - 1 do begin
       // use slPreAssoc to determine if name corresponds to prefix
-      if not (slPreAssoc[j] = slPre[i]) then Continue;
+      if not (slPreAssoc[j] = slPre[i]) then 
+        Continue;
+      
       // skip if processed record is a bolt (they have funky recipe conditions)
-      if (Pos('Bolt', slNames[j]) > 0) then Continue;
+      if (Pos('Bolt', slNames[j]) > 0) then 
+        Continue;
+      
+      // break if AActivator recipe already exists
+      if slExistingCobj.IndexOf('Recipe'+slPreNWS[i]+'AActivator') > -1 then
+        Continue;
       
       // begin copying process
       cobj := ObjectToElement(slCobj.Objects[j]);
-      n := ElementCount(GroupBySignature(f, 'COBJ'));
-      
-      // check if AActivator Recipe already exists
-      AAExists := False;
-      if n > 0 then begin
-        for k := 0 to n - 1 do begin
-          e := ElementByIndex(GroupBySignature(f, 'COBJ'), k);
-          s := genv(e, 'EDID');
-          if (s = 'Recipe' + slPreNWS[i] + 'AActivator') then
-            AAExists := True;
-        end;
-      end;
-  
-      // break if AActivator recipe already exists
-      if AAExists then begin
-        if debug then AddMessage('    The category recipe for '+slPre[i]+' already exists.');
-        for k := 0 to slNames.Count - 1 do begin
-          if (slPreAssoc[j] = slPreAssoc[k]) then slAACobj[k] := slAA[i];
-        end;
-        Break;
-      end;
-      
       // create new recipe from base recipe
       if Assigned(cobj) then 
         e := wbCopyElementToFile(cobj, fmoFile, True, True)
@@ -722,7 +776,6 @@ begin
       seev(e, 'COCT', '1');
       seev(e, 'Items\Item\CNTO\Item', slDA[i]);
       seev(e, 'Items\Item\CNTO\Count', '1');
-      seev(e, 'COCT', 0);
       seev(e, 'CNAM', slAA[i]);
       seev(e, 'NAM1', 1);
       conditions := ElementByPath(e, 'Conditions');
@@ -730,21 +783,48 @@ begin
         condition := ElementAssign(conditions, HighInteger, nil, False); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
         seev(condition, 'CTDA\Inventory Object', slDA[i]);
-        seev(condition, 'CTDA\Comparison Value', '0.000000');
+        seev(condition, 'CTDA\Comparison Value', '1.000000');
         seev(condition, 'CTDA\Type', '11000000');
       end;
       if ElementCount(conditions) = 0 then begin
         Add(e, 'Conditions', True);
         seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
         seev(e, 'Conditions\Condition\CTDA\Inventory Object', slDA[i]);
-        seev(e, 'Conditions\Condition\CTDA\Comparison Value', '0.000000');
+        seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
         seev(e, 'Conditions\Condition\CTDA\Type', '11000000');
       end;
-      // go through all the COBJ recipes and find ones which match the prefix we are currently processing
-      for k := 0 to slNames.Count - 1 do begin
-        if (slPreAssoc[j] = slPreAssoc[k]) then begin
-          slAACobj[k] := slAA[i];
-        end;
+  
+      // create new recipe (initial AActivator) from base recipe
+      e := wbCopyElementToFile(cobj, fmoFile, True, True);
+      // set values for copied recipe for initial AActivator recipe
+      seev(e, 'EDID', 'Recipe' + slPreNWS[i] + 'IActivator');
+      Remove(ElementByPath(e, 'Items'));
+      seev(e, 'CNAM', slAA[i]);
+      seev(e, 'NAM1', 1);
+      conditions := ElementByPath(e, 'Conditions');
+      if ElementCount(conditions) > 0 then begin
+        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        seev(condition, 'CTDA\Function', 'GetItemCount');
+        seev(condition, 'CTDA\Inventory Object', slAA[i]);
+        seev(condition, 'CTDA\Comparison Value', '0.000000');
+        seev(condition, 'CTDA\Type', '1000000');
+        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        seev(condition, 'CTDA\Function', 'GetItemCount');
+        seev(condition, 'CTDA\Inventory Object', slDA[i]);
+        seev(condition, 'CTDA\Comparison Value', '0.000000');
+        seev(condition, 'CTDA\Type', '1000000');
+      end;
+      if ElementCount(conditions) = 0 then begin
+        Add(e, 'Conditions', True);
+        seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
+        seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAA[i]);
+        seev(e, 'Conditions\Condition\CTDA\Comparison Value', '0.000000');
+        seev(e, 'Conditions\Condition\CTDA\Type', '1000000');
+        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        seev(condition, 'CTDA\Function', 'GetItemCount');
+        seev(condition, 'CTDA\Inventory Object', slDA[i]);
+        seev(condition, 'CTDA\Comparison Value', '0.000000');
+        seev(condition, 'CTDA\Type', '1000000');
       end;
       
       // create only one set of recipes per prefix
@@ -755,11 +835,11 @@ begin
   // modify existing COBJ recipes to require AActivators
   AddMessage('Modifying recipes to require AActivators...');
   for i := 0 to slCobj.Count - 1 do begin
-    if (slAACobj[i] = '00000000') or (slAACobj[i] = '') then Continue;
+    if slPre.IndexOf(slPreAssoc[i]) = -1 then 
+      continue;
     if i = 0 then begin 
-      AddMessage('   This is the longest step, so please be patient.');
       // immersive armors fix
-      for j := 0 to FileCount - 1 do begin
+      for j := 0 to FileCount - 1 do begin {!!!!!!!!!!!!!!!!! ADDRESS THIS !!!!!!!!!!!!!!!!!}
         if ('hothtrooper44_ArmorCompilation.esp' = GetFileName(FileByIndex(j))) then begin
           AddMessage('   Applying Immersive Armors fix.');
           baserecord := RecordByFormID(FileByIndex(j), $00000031, True);
@@ -768,17 +848,11 @@ begin
         end;
       end;
     end;
-    if (i = (slCobj.Count - 1) div 4) then AddMessage('   25% complete...');
-    if (i = (slCobj.Count - 1) div 2) then AddMessage('   50% complete...');
-    if (i = ((slCobj.Count - 1) div 4) * 3) then AddMessage('   75% complete...');
-    if (i = slCobj.Count - 1) then AddMessage('   100% complete...');
     
     // skip if record already exists
     baserecord := ObjectToElement(slCobj.Objects[i]);
-    for j := 0 to ElementCount(GroupBySignature(fmoFile, 'COBJ')) - 1 do begin
-      s := geev(ElementByIndex(GroupBySignature(fmoFile, 'COBJ'), j), 'EDID');
-      if (s = geev(baserecord, 'EDID')) then Continue;
-    end;
+    if slExistingCobj.IndexOf(geev(baserecord, 'EDID')) > -1 then
+      continue;
     
     // skip if no prefix associated with cobj
     if slPreAssoc[i] = '' then 
@@ -791,21 +865,30 @@ begin
     if (ElementCount(conditions) > 0) then begin
       condition := ElementAssign(conditions, HighInteger, nil, False); 
       seev(condition, 'CTDA\Function', 'GetItemCount');
-      seev(condition, 'CTDA\Inventory Object', slAACobj[i]);
+      seev(condition, 'CTDA\Inventory Object', slAA[slPre.IndexOf(slPreAssoc[i])]);
       seev(condition, 'CTDA\Comparison Value', '1.000000');
       seev(condition, 'CTDA\Type', '11000000');
     end;
     if (ElementCount(conditions) = 0) then begin
       Add(e, 'Conditions', True);
       seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
-      seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAACobj[i]);
+      seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAA[slPre.IndexOf(slPreAssoc[i])]);
       seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
       seev(e, 'Conditions\Condition\CTDA\Type', '11000000');
     end;
   end;
   
+  // creating description
+  s := 'FMO '+vs+' Patch: ';
+  Add(ElementByIndex(fmoFile, 0), 'SNAM', True);
+  for i := 0 to slMasters.Count - 1 do
+    if slMasters[i] <> '' then
+      s := s+#13#10+'  '+slMasters[i];
+  seev(ElementByIndex(fmoFile, 0), 'CNAM', 'MatorTheEternal');
+  seev(ElementByIndex(fmoFile, 0), 'SNAM', s);
+  
   // Patch is complete
-  AddMessage(#13#10#13#10 + '-------------------------------------------------------------------------');
+  AddMessage(#13#10#13#10 + hl);
   AddMessage('FMO patch is ready.');
   AddMessage('It contains ' + IntToStr(RecordCount(fmoFile)) + ' records.' + #13#10#13#10);
   
@@ -819,7 +902,8 @@ begin
   slNames.Free;
   slDA.Free;
   slAA.Free;
-  slAACobj.Free;
+  slExisting.Free;
+  slExistingCobj.Free;
   slPreFind.Free;
   slPreAssoc.Free;
   slPreTemplate.Free;
