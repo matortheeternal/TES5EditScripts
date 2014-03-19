@@ -29,8 +29,8 @@ Current Scripts
 * **Forge Menu Overhaul:** v2.13 released on Nexus Mods August 30, 2013.
 * **Full Name Manipulation Script:** Beta v1.0 is functional.
 * **CCOR Compatibility Script:** Beta v0.8 is functional.
-* **Break it Down:** Beta v0.6 is functional.
-* **Re-Evaluator:** Beta v0.6 is functional.
+* **Break it Down:** Beta v0.7 is functional.
+* **Re-Evaluator:** Beta v0.7 is functional.
 * **NPC Transmogrifier:** Beta v0.3 is functional.
 * **FormList Manager:** Beta v0.1 is functional.  (this script is likely to 
 be merged with QuickDisplay and QuickChange)
