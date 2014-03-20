@@ -7,6 +7,8 @@
   - User variable to remove single ingot recipes from the smelter
     breakdown queue, allowing a tanning rack breakdown recipe to be
     created for said recipes.
+  - Stahlrim is now supported.
+  - Leather strips formula is now 2 * Leather01.
   
   * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
@@ -347,7 +349,8 @@ begin
       if (edid = 'LeatherStrips') then
         Continue;
       if (Pos('ingot', Lowercase(edid)) > 0) or (Pos('bone', Lowercase(edid)) > 0) 
-      or (Pos('scale', Lowercase(edid)) > 0) or (Pos('chitin', Lowercase(edid)) > 0) then begin
+      or (Pos('scale', Lowercase(edid)) > 0) or (Pos('chitin', Lowercase(edid)) > 0) 
+      or (Pos('stahlrim', Lowercase(edid) > 0) then begin
         slBDSmelter.AddObject(Name(item), TObject(count));
       end;
       if edid = 'Leather01' then 
@@ -443,12 +446,12 @@ begin
         // set created object stuff
         if (usestrips >= 1) and (lc = 1) then begin
           senv(recipe, 'CNAM', $000800E4); // LeatherStrips
-          seev(recipe, 'NAM1', 3);
+          seev(recipe, 'NAM1', 2);
           Inc(rc);
         end
         else if (usestrips = 2) and (lc > 1) then begin
           senv(recipe, 'CNAM', $000800E4); // LeatherStrips
-          seev(recipe, 'NAM1', 3*lc);
+          seev(recipe, 'NAM1', 2*lc);
           Inc(rc);
         end
         else if (usestrips <= 1) and (lc > 1) then begin
