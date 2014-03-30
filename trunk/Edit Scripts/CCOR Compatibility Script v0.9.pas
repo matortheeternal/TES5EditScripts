@@ -1,10 +1,9 @@
 {
-  CCOR Compatibility Script v0.8
+  CCOR Compatibility Script v0.9
   Created by matortheeternal
   
   * CHANGES *
-  - Corrected clothing keywords.  I hope.
-  - Corrected logic for application of Draugr learning conditions.
+  - Draugr learning conditions fixed and verified working.
   
   * DESCRIPTION *
   Applies CCOR global variable conditions to COBJ recipes in the
@@ -16,7 +15,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = 'v0.8';
+  vs = 'v0.9';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'
   #13'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   ccofn = 'Complete Crafting Overhaul_Remade.esp';
@@ -306,7 +305,7 @@ begin
     // learning condition
     if (Pos('draugr', edid) > 0)
     or HasKeyword(cnam, 'WAF_ArmorMaterialDraugr_KRY') then
-      algvc(conditions, 'CCO_LearningDragur')
+      algvc(conditions, 'CCO_LearningDraugr')
     else if (Pos('forsworn', edid) > 0)
     or HasKeyword(cnam, 'WAF_WeapMaterialForsworn_KRY') then
       algvc(conditions, 'CCO_LearningForsworn')
