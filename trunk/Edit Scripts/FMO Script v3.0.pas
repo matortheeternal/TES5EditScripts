@@ -30,6 +30,8 @@
       more DActivator's in your inventory.  DActivator recipes require
       an AActivator, and only appear if you have one or more AActivators
       in your inventory.  YAY!
+    - The XP fix is now incorporated into the script.  It doesn't work 
+      quite yet, but it will.  Soon.  Very soon.
     
   *WHAT IT DOES*
   This script will look through all available .esp and .esm files for COBJ records that 
@@ -58,11 +60,15 @@ const
   openSuffix = ' +'; // suffix on sub-categories for opening groups
   closeSuffix = ' -'; // suffix on sub-categories for closing groups
   hl = '-----------------------------------------------------------------------------';
+  fmoPath = ProgramPath + 'Edit Scripts\fmo\';
+  tesvPath = Copy(ProgramPath, 1, Pos('Skyrim\', ProgramPath) + 6);
+  scriptsPath = tesvPath + 'Data\scripts\';
+  sourcePath = scriptsPath + 'source\';
 
 var
   slBenches, slExcept, slFileExcept, slPre, slPreNWS, slCobj, slCnam, 
   slNames, slDA, slAA, slPreFind, slPreAssoc, slPreTemplate, slExisting, 
-  slExistingCobj, slMasters: TSTringList;
+  slExistingCobj, slMasters, slCBenches, slTemperBenches: TSTringList;
   frm: TForm;
   tvList: TTreeView;
   panel: TPanel;
@@ -111,6 +117,142 @@ begin
 end;
 
 //=====================================================================
+// procedure installs the pex and psc script/source files
+procedure InstallScripts;
+var
+  fn: string;
+  info: TSearchRec;
+begin
+  SetCurrentDir(fmoPath);
+  if FindFirst(fmoPath+'*.pex', faAnyFile, info) = 0 then begin
+    repeat
+      CopyFile(PChar(fmoPath + info.Name), PChar(scriptsPath + info.Name), True);
+      AddMessage('    Copying script "'+info.Name+'" to "'+scriptsPath + info.Name+'"');
+    until FindNext(info) <> 0;
+  end;
+  if FindFirst(fmoPath+'*.psc', faAnyFile, info) = 0 then begin
+    repeat
+      CopyFile(PChar(fmoPath + info.Name), PChar(scriptsPath + info.Name), True);
+      AddMessage('    Copying script source "'+info.Name+'" to "'+sourcePath + info.Name+'"');
+    until FindNext(info) <> 0;
+  end;
+end;
+
+//=====================================================================
+// procedure creates the records for the XP fix
+procedure XPFix;
+var
+  baserecord, group, e, li, condition, effect, aliases, properties: IInterface;
+  i: integer;
+  ac, ai, pk, qt: string;
+begin
+  // copy AVSmithing
+  baserecord := WinningOverride(RecordByFormID(FileByIndex(0), $00000450, true)); //AVSmithing
+  e := wbCopyElementToFile(baserecord, fmoFile, false, true);
+  seev(e, 'AVSK\Skill Use Mult', 0.0016);
+  
+  // create formID lists
+  group := Add(fmoFile, 'FLST', true); // _fmo_apparatus_create
+  e := Add(group, 'FLST', true);
+  seev(e, 'EDID', '_fmo_apparatus_create');
+  ac := Name(e);
+  e := Add(e, 'FormIDs', true); // FormIDs list
+  seev(e, 'LNAM', slCBenches[0]);
+  for i := 1 to slCBenches.Count - 1 do begin
+    li := ElementAssign(e, HighInteger, nil, false);
+    SetEditValue(li, slCBenches[i]);
+  end;
+  e := Add(group, 'FLST', true); // _fmo_apparatus_improve
+  seev(e, 'EDID', '_fmo_apparatus_improve');
+  ai := Name(e);
+  e := Add(e, 'FormIDs', true); // FormIDs list
+  seev(e, 'LNAM', slTemperBenches[0]);
+  for i := 1 to slTemperBenches.Count - 1 do begin
+    li := ElementAssign(e, HighInteger, nil, false);
+    SetEditValue(li, slTemperBenches[i]);
+  end;
+  
+  // create perk
+  group := Add(fmoFile, 'PERK', true);
+  e := Add(group, 'PERK', true);
+  Add(e, 'EDID', true);
+  Add(e, 'FULL', true);
+  seev(e, 'EDID', '_fmo_doomWarriorPerk');
+  seev(e, 'FULL', 'FMO xp gain');
+  pk := Name(e);
+  seev(e, 'DESC', 'Restores xp gain to vanilla 1.00 from 0.0016');
+  seev(e, 'DATA\Num Ranks', '1');
+  Add(e, 'Effects', true);
+  effect := ElementByPath(e, 'Effects\Effect');
+  seev(effect, 'PRKE\Type', 'Entry Point');
+  seev(effect, 'DATA\Entry Point\Entry Point', 'Mod Skill Use');
+  seev(effect, 'DATA\Entry Point\Function', 'Multiply Value');
+  seev(effect, 'DATA\Entry Point\Perk Condition Tab Count', '1');
+  ElementAssign(effect, 2, nil, false);
+  seev(effect, 'Perk Conditions\Perk Condition\PRKC', '0');
+  condition := ElementByPath(effect, 'Perk Conditions\Perk Condition\Conditions\Condition');
+  seev(condition, 'CTDA - \Type', 10010000);
+  seev(condition, 'CTDA - \Comparison Value', '1.0');
+  seev(condition, 'CTDA - \Function', 'EPMagic_IsAdvanceSkill');
+  seev(condition, 'CTDA - \Actor Value', 'Smithing');
+  seev(effect, 'Function Parameters\EPFT', 'Float');
+  Add(ElementByPath(effect, 'Function Parameters'), 'EPFD', true);
+  seev(effect, 'Function Parameters\EPFD\Float', '625.0');
+
+  // create quest
+  group := Add(fmoFile, 'QUST', true);
+  e := wbCopyElementToFile(RecordByFormID(FileByIndex(0), $000B113D, true), fmoFile, true, true); //DialogueWinterholdInnSceneINITIAL
+  seev(e, 'EDID', '_fmo_quest');
+  seev(e, 'FULL', 'Forge Menu Overhaul XP');
+  qt := Name(e);
+  seev(e, 'DNAM\Flags', '10011');
+  seev(e, 'DNAM\Priority', '0');
+  seev(e, 'DNAM\Form Version', '44');
+  Remove(ElementByPath(e, 'FLTR'));
+  seev(e, 'ANAM', '02 00 00 00');
+  aliases := ElementByPath(e, 'Aliases');
+  li := ElementByIndex(aliases, 0);
+  seev(li, 'ALST', '0');
+  seev(li, 'ALID', 'ForgeObserver');
+  seev(li, 'FNAM\Flags', '0');
+  seev(li, 'ALFR', 'Player [00000014]');
+  Remove(ElementByPath(li, 'Alias Package Data'));
+  li := ElementByIndex(aliases, 1);
+  seev(li, 'ALST', '1');
+  seev(li, 'ALID', 'InventoryMonitor');
+  seev(li, 'FNAM\Flags', '01');
+  Remove(ElementByPath(li, 'ALFR'));
+  Remove(ElementByPath(li, 'Alias Package Data'));
+  Remove(ElementByIndex(aliases, 2));
+  // vmad modification
+  aliases := ElementByPath(e, 'VMAD\Data\Quest VMAD\Script Fragments Quest\Aliases');
+  seev(aliases, 'Alias\Alias Scripts\Script\scriptName', 'tox_fmo_pRef_forge');
+  seev(aliases, 'Alias\Object Union\Object v2\FormID', qt);
+  properties := ElementByPath(aliases, 'Alias\Alias Scripts\Script\Properties');
+  li := ElementByIndex(properties, 0);
+  seev(li, 'propertyName', 'raInventory');
+  seev(li, 'Value\Object Union\Object v2\Alias', '1');
+  seev(li, 'Value\Object Union\Object v2\FormID', qt);
+  li := ElementAssign(properties, HighInteger, li, false);
+  seev(li, 'propertyName', '_fmo_apparatus_create');
+  seev(li, 'Value\Object Union\Object v2\Alias', '-1');
+  seev(li, 'Value\Object Union\Object v2\FormID', ac);
+  li := ElementAssign(properties, HighInteger, li, false);
+  seev(li, 'propertyName', '_fmo_apparatus_improve');
+  seev(li, 'Value\Object Union\Object v2\FormID', ai);
+  li := ElementAssign(properties, HighInteger, li, false);
+  seev(li, 'propertyName', '_fmo_doomWarriorPerk');
+  seev(li, 'Value\Object Union\Object v2\FormID', pk);
+  li := ElementAssign(aliases, HighInteger, ElementByIndex(aliases, 0), false);
+  seev(li, 'Object Union\Object v2\Alias', '1');
+  seev(li, 'Object Union\Object v2\FormID', qt);
+  seev(li, 'Version', '5');
+  seev(li, 'Object Format', '2');
+  seev(li, 'Alias Scripts\Script\scriptName', 'tox_fmo_pRef_inventory');
+  Remove(ElementByPath(li, 'Alias Scripts\Script\Properties'));
+end;
+
+//=====================================================================
 // function checks if COBJ record is the one we want to process
 function IsWantedCOBJ(e: IInterface): Boolean;
 var
@@ -118,7 +260,7 @@ var
   i, n: integer;
   s, edid: string;
 begin
-  Result := False;
+  Result := false;
   edid := genv(e, 'EDID');
   
   // skip records that have AActivator or DActivator in EditorID
@@ -176,7 +318,7 @@ begin
   end;
   
   // if all checks passed
-  Result := True;
+  Result := true;
 end;
 
 //=====================================================================
@@ -361,13 +503,17 @@ begin
   // create stringlists
   AddMessage('Creating stringlists...');
   slBenches := TStringList.Create; // list of workbench keywords EditorID we are interested in
-  slBenches.LoadFromFile(ProgramPath + 'Edit Scripts\FMO workbenches.txt');
+  slBenches.LoadFromFile(fmoPath + 'FMO workbenches.txt');
+  slCBenches := TStringList.Create; // list of workbench keywords for quest
+  slCBenches.LoadFromFile(fmoPath + 'FMO benches.txt');
+  slTemperBenches := TSTringList.Create; // list of temper bench keywords for quest
+  slTemperBenches.LoadFromFile(fmoPAth + 'FMO temper benches.txt');
   slExcept := TStringList.Create; // list of exceptions
-  slExcept.LoadFromFile(ProgramPath + 'Edit Scripts\FMO exceptions.txt');
+  slExcept.LoadFromFile(fmoPath + 'FMO exceptions.txt');
   slFileExcept := TStringList.Create; // list of file exceptions
-  slFileExcept.LoadFromFile(ProgramPath + 'Edit Scripts\FMO file exceptions.txt');
+  slFileExcept.LoadFromFile(fmoPath + 'FMO file exceptions.txt');
   slPre := TStringList.Create; // list of prefixes
-  slPre.Sorted := True;
+  slPre.Sorted := true;
   slPre.Duplicates := dupIgnore;
   slPreNWS := TStringList.Create; // list of prefixes with no whitespace (spaces)
   slCobj := TStringList.Create; // list of Cobjs
@@ -378,12 +524,12 @@ begin
   slExisting := TStringList.Create; // list for existing ARMO/WEAP records in fmoFile
   slExistingCOBJ := TStringList.Create;
   slPreFind := TStringList.Create; // list for finding prefixes
-  slPreFind.Sorted := True;
+  slPreFind.Sorted := true;
   slPreFind.Duplicates := dupIgnore;
   slPreAssoc := TStringList.Create; // list that assocaites items with prefixes
   slPreTemplate := TStringList.Create;
   slMasters := TStringList.Create; // master files stringlist
-  slMasters.Sorted := True;
+  slMasters.Sorted := true;
   slMasters.Duplicates := dupIgnore;
   AddMessage('Stringlists created.' + #13#10);
     
@@ -625,9 +771,9 @@ begin
   end;
   
   // create ARMO and WEAP groups if they don't already exist
-  Add(fmoFile, 'ARMO', True);
-  Add(fmoFile, 'WEAP', True);
-  Add(fmoFile, 'COBJ', True);
+  Add(fmoFile, 'ARMO', true);
+  Add(fmoFile, 'WEAP', true);
+  Add(fmoFile, 'COBJ', true);
   // create list of ARMO and WEAP records already existing in fmo patch file
   group := GroupBySignature(fmoFile, 'ARMO');
   for j := 0 to ElementCount(group) - 1 do begin
@@ -665,19 +811,19 @@ begin
     template := ObjectToElement(slPreTemplate.Objects[i]);
     s := Signature(template);
     if (s = 'ARMO') then
-      e := Add(GroupBySignature(fmoFile, 'ARMO'), 'ARMO', True)
+      e := Add(GroupBySignature(fmoFile, 'ARMO'), 'ARMO', true)
     else if (s = 'WEAP') then
-      e := Add(GroupBySignature(fmoFile, 'WEAP'), 'WEAP', True)
+      e := Add(GroupBySignature(fmoFile, 'WEAP'), 'WEAP', true)
     else
       Continue;
     // create missing elements
-    Add(e, 'EDID', True);
-    Add(e, 'FULL', True);
-    Add(e, 'DATA', True); // for WEAP records
+    Add(e, 'EDID', true);
+    Add(e, 'FULL', true);
+    Add(e, 'DATA', true); // for WEAP records
     
     // set values for copied record for AActivator
     senv(e, 'Record Header\Record Flags', 4);
-    senv(e, 'Record Header\Record Flags\NotPlayable', True);
+    senv(e, 'Record Header\Record Flags\NotPlayable', true);
     seev(e, 'EDID', slPreNWS[i] + 'AActivator');
     seev(e, 'FULL', slPre[i] + openSuffix);
     seev(e, 'OBND\X1', 0);
@@ -692,22 +838,22 @@ begin
     // copy model elements from template record
     if (s = 'ARMO') then begin
       if Assigned(ElementByPath(template, 'Male world model')) then
-        wbCopyElementToRecord(ElementByPath(template, 'Male world model'), e, True, True);
+        wbCopyElementToRecord(ElementByPath(template, 'Male world model'), e, true, true);
       if Assigned(ElementByPath(template, 'Female world model')) then
-        wbCopyElementToRecord(ElementByPath(template, 'Female world model'), e, True, True);
+        wbCopyElementToRecord(ElementByPath(template, 'Female world model'), e, true, true);
     end
     else if (s = 'WEAP') then
-      wbCopyElementToRecord(ElementByPath(template, 'Model'), e, True, True);
+      wbCopyElementToRecord(ElementByPath(template, 'Model'), e, true, true);
     // copy keyword elements from template record
-    wbCopyElementToRecord(ElementByPath(template, 'KSIZ'), e, True, True);
-    wbCopyElementToRecord(ElementByPath(template, 'KWDA'), e, True, True);
+    wbCopyElementToRecord(ElementByPath(template, 'KSIZ'), e, true, true);
+    wbCopyElementToRecord(ElementByPath(template, 'KWDA'), e, true, true);
     
     // store AActivator
     slAA[i] := Name(e);
     slAA.Objects[i] := TObject(e);
 
     // make DActivator from AActivator
-    e := wbCopyElementToFile(e, fmoFile, True, True);
+    e := wbCopyElementToFile(e, fmoFile, true, true);
     seev(e, 'FULL', slPre[i] + closeSuffix);
     seev(e, 'EDID', slPreNWS[i] + 'DActivator');
     
@@ -737,7 +883,7 @@ begin
       cobj := ObjectToElement(slCobj.Objects[j]);
       // create new recipe from base recipe
       if Assigned(cobj) then 
-        e := wbCopyElementToFile(cobj, fmoFile, True, True)
+        e := wbCopyElementToFile(cobj, fmoFile, true, true)
       else
         Continue;
       // set values for copied recipe for DActivator recipe
@@ -752,14 +898,14 @@ begin
       seev(e, 'NAM1', 1);
       conditions := ElementByPath(e, 'Conditions');
       if ElementCount(conditions) > 0 then begin
-        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        condition := ElementAssign(conditions, HighInteger, nil, false); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
         seev(condition, 'CTDA\Inventory Object', slAA[i]);
         seev(condition, 'CTDA\Comparison Value', '1.000000');
         seev(condition, 'CTDA\Type', '11000000');
       end
       else begin
-        Add(e, 'Conditions', True);
+        Add(e, 'Conditions', true);
         seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
         seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAA[i]);
         seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
@@ -767,7 +913,7 @@ begin
       end;
   
       // create new recipe (AActivator) from base recipe
-      e := wbCopyElementToFile(cobj, fmoFile, True, True);
+      e := wbCopyElementToFile(cobj, fmoFile, true, true);
       // set values for copied recipe for AActivator recipe
       seev(e, 'EDID', 'Recipe' + slPreNWS[i] + 'AActivator');
       m := geev(e, 'COCT');
@@ -780,14 +926,14 @@ begin
       seev(e, 'NAM1', 1);
       conditions := ElementByPath(e, 'Conditions');
       if ElementCount(conditions) > 0 then begin
-        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        condition := ElementAssign(conditions, HighInteger, nil, false); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
         seev(condition, 'CTDA\Inventory Object', slDA[i]);
         seev(condition, 'CTDA\Comparison Value', '1.000000');
         seev(condition, 'CTDA\Type', '11000000');
       end;
       if ElementCount(conditions) = 0 then begin
-        Add(e, 'Conditions', True);
+        Add(e, 'Conditions', true);
         seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
         seev(e, 'Conditions\Condition\CTDA\Inventory Object', slDA[i]);
         seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
@@ -795,7 +941,7 @@ begin
       end;
   
       // create new recipe (initial AActivator) from base recipe
-      e := wbCopyElementToFile(cobj, fmoFile, True, True);
+      e := wbCopyElementToFile(cobj, fmoFile, true, true);
       // set values for copied recipe for initial AActivator recipe
       seev(e, 'EDID', 'Recipe' + slPreNWS[i] + 'IActivator');
       Remove(ElementByPath(e, 'Items'));
@@ -803,24 +949,25 @@ begin
       seev(e, 'NAM1', 1);
       conditions := ElementByPath(e, 'Conditions');
       if ElementCount(conditions) > 0 then begin
-        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        condition := ElementAssign(conditions, HighInteger, nil, false); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
         seev(condition, 'CTDA\Inventory Object', slAA[i]);
         seev(condition, 'CTDA\Comparison Value', '0.000000');
         seev(condition, 'CTDA\Type', '1000000');
-        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        condition := ElementAssign(conditions, HighInteger, nil, false); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
         seev(condition, 'CTDA\Inventory Object', slDA[i]);
         seev(condition, 'CTDA\Comparison Value', '0.000000');
         seev(condition, 'CTDA\Type', '1000000');
       end;
       if ElementCount(conditions) = 0 then begin
-        Add(e, 'Conditions', True);
+        Add(e, 'Conditions', true);
+        conditions := ElementByPath(e, 'Conditions');
         seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
         seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAA[i]);
         seev(e, 'Conditions\Condition\CTDA\Comparison Value', '0.000000');
         seev(e, 'Conditions\Condition\CTDA\Type', '1000000');
-        condition := ElementAssign(conditions, HighInteger, nil, False); 
+        condition := ElementAssign(conditions, HighInteger, nil, false); 
         seev(condition, 'CTDA\Function', 'GetItemCount');
         seev(condition, 'CTDA\Inventory Object', slDA[i]);
         seev(condition, 'CTDA\Comparison Value', '0.000000');
@@ -842,8 +989,8 @@ begin
       for j := 0 to FileCount - 1 do begin {!!!!!!!!!!!!!!!!! ADDRESS THIS !!!!!!!!!!!!!!!!!}
         if ('hothtrooper44_ArmorCompilation.esp' = GetFileName(FileByIndex(j))) then begin
           AddMessage('   Applying Immersive Armors fix.');
-          baserecord := RecordByFormID(FileByIndex(j), $00000031, True);
-          e := wbCopyElementToFile(baserecord, fmoFile, False, True);
+          baserecord := RecordByFormID(FileByIndex(j), $00000031, true);
+          e := wbCopyElementToFile(baserecord, fmoFile, false, true);
           Break;
         end;
       end;
@@ -860,17 +1007,17 @@ begin
     
     // create overwrite record    
     if Assigned(baserecord) then 
-      e := wbCopyElementToFile(baserecord, fmoFile, False, True);
+      e := wbCopyElementToFile(baserecord, fmoFile, false, true);
     conditions := ElementByPath(e, 'Conditions');
     if (ElementCount(conditions) > 0) then begin
-      condition := ElementAssign(conditions, HighInteger, nil, False); 
+      condition := ElementAssign(conditions, HighInteger, nil, false); 
       seev(condition, 'CTDA\Function', 'GetItemCount');
       seev(condition, 'CTDA\Inventory Object', slAA[slPre.IndexOf(slPreAssoc[i])]);
       seev(condition, 'CTDA\Comparison Value', '1.000000');
       seev(condition, 'CTDA\Type', '11000000');
     end;
     if (ElementCount(conditions) = 0) then begin
-      Add(e, 'Conditions', True);
+      Add(e, 'Conditions', true);
       seev(e, 'Conditions\Condition\CTDA\Function', 'GetItemCount');
       seev(e, 'Conditions\Condition\CTDA\Inventory Object', slAA[slPre.IndexOf(slPreAssoc[i])]);
       seev(e, 'Conditions\Condition\CTDA\Comparison Value', '1.000000');
@@ -880,12 +1027,20 @@ begin
   
   // creating description
   s := 'FMO '+vs+' Patch: ';
-  Add(ElementByIndex(fmoFile, 0), 'SNAM', True);
+  Add(ElementByIndex(fmoFile, 0), 'SNAM', true);
   for i := 0 to slMasters.Count - 1 do
     if slMasters[i] <> '' then
       s := s+#13#10+'  '+slMasters[i];
   seev(ElementByIndex(fmoFile, 0), 'CNAM', 'MatorTheEternal');
   seev(ElementByIndex(fmoFile, 0), 'SNAM', s);
+  
+  // install scripts
+  AddMessage(#13#10 + 'Installing scripts...');
+  InstallScripts;
+  
+  // create XP fix records
+  AddMessage(#13#10 + 'Creating XP Fix...');
+  XPFix;
   
   // Patch is complete
   AddMessage(#13#10#13#10 + hl);

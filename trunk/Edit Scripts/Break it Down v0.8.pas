@@ -1,14 +1,11 @@
 {
-  Break It Down v0.7
+  Break It Down v0.8
   created by matortheeternal
   
   * CHANGES *
-  - Options to disable breakdown of daedric/chitin items.
-  - User variable to remove single ingot recipes from the smelter
-    breakdown queue, allowing a tanning rack breakdown recipe to be
-    created for said recipes.
-  - Stahlrim is now supported.
-  - Leather strips formula is now 2 * Leather01.
+  - No longer skips items craftable only at the Skyforge.
+  - Fixed index error in a debug message.
+  - Fixed spelling of Stalhrim.
   
   * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
@@ -20,7 +17,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.7';
+  vs = '0.8';
   removesingle = true; 
   // set to false to not attempt to create breakdown recipes at the 
   // tanning rack for items that have a only a single ingot type item
@@ -258,7 +255,8 @@ begin
     
   // skip recipes that aren't created at CraftingSmithingForge
   bnam := ElementByPath(e, 'BNAM');
-  if geev(LinksTo(bnam), 'EDID') <> 'CraftingSmithingForge' then
+  s := geev(LinksTo(bnam), 'EDID');
+  if (s <> 'CraftingSmithingForge') and (s <> 'CraftingSmithingSkyForge') then
     exit;
   
   // add master file names
@@ -314,7 +312,7 @@ begin
     items := ElementByPath(cobj, 'Items');
     lc := 0;
     if not Assigned(cnam) then Continue;
-    if debug then AddMessage('    Processing '+ShortName(COBJ));
+    if debug then AddMessage('    Processing '+ShortName(cobj));
     
     // if enc is true, skip enchanted items
     if enc then begin
@@ -350,7 +348,7 @@ begin
         Continue;
       if (Pos('ingot', Lowercase(edid)) > 0) or (Pos('bone', Lowercase(edid)) > 0) 
       or (Pos('scale', Lowercase(edid)) > 0) or (Pos('chitin', Lowercase(edid)) > 0) 
-      or (Pos('stahlrim', Lowercase(edid) > 0) then begin
+      or (Pos('stalhrim', Lowercase(edid)) > 0) then begin
         slBDSmelter.AddObject(Name(item), TObject(count));
       end;
       if edid = 'Leather01' then 
@@ -360,7 +358,7 @@ begin
       AddMessage('        Leather: '+IntToStr(lc));
     if debug and (slBDSmelter.Count > 0) then
       for j := 0 to slBDSmelter.Count - 1 do 
-        AddMessage('        '+slBDSmelter[i]+': '+IntToStr(Integer(slBDSmelter.Objects[i])));
+        AddMessage('        '+slBDSmelter[j]+': '+IntToStr(Integer(slBDSmelter.Objects[j])));
     
     // remove single ingots from slBDSmelter
     if removesingle and (slBDSmelter.Count = 1) then
