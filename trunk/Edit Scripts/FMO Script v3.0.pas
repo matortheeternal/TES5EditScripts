@@ -227,6 +227,7 @@ begin
   // vmad modification
   aliases := ElementByPath(e, 'VMAD\Data\Quest VMAD\Script Fragments Quest\Aliases');
   seev(aliases, 'Alias\Alias Scripts\Script\scriptName', 'tox_fmo_pRef_forge');
+  seev(aliases, 'Alias\Object Union\Object v2\Alias', '0');
   seev(aliases, 'Alias\Object Union\Object v2\FormID', qt);
   properties := ElementByPath(aliases, 'Alias\Alias Scripts\Script\Properties');
   li := ElementByIndex(properties, 0);
