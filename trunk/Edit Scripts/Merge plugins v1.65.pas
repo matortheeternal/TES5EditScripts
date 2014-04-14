@@ -1,19 +1,11 @@
 {
-  Merge Plugins Script v1.6
+  Merge Plugins Script v1.65
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.6
-    - Almost everything can now be merged with the new Two-Pass merging method.  
-      The one disadvantage of this method is you currently can't use it to merge 
-      into an existing merged file.
-    - Debug messages set to false by default.
-    - The mergerecords user variable has been removed because it doesn't do anything 
-      currently.
-    - Asset copying is no longer case sensitive.
-    - Cleaned up some message log stuff.
-    - UI has skipnavdata and two-pass copying as advanced merging options now.
+  v1.65
+    - Hotfix for the asset copying error.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -26,7 +18,7 @@ unit userscript;
 uses mteFunctions;
 
 const
-  vs = 'v1.6';
+  vs = 'v1.65';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13'Dragonborn.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   debug = false; // debug messages
@@ -59,9 +51,11 @@ begin
               src := info.Name+'\'+info2.name;
               if renumber then begin
                 index := slFormIDs.IndexOf(Copy(info2.name, 1, 8));
-                if (index = -1) and debug then begin
-                  if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
-                  else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                if (index = -1) then begin
+                  if debug then begin
+                    if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                    else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                  end;
                   dst := GetFileName(mgf)+'\'+info2.Name;
                   CopyFile(PChar(s + src), PChar(s + dst), True);
                 end
@@ -115,9 +109,11 @@ begin
                     src := info.Name+'\'+info2.name+'\'+info3.Name;
                     if renumber then begin
                       index := slFormIDs.IndexOf(Copy(info3.name, Pos('_0', info3.Name)+1, 8));
-                      if (index = -1) and debug then begin
-                        if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
-                        else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                      if (index = -1) then begin
+                        if debug then begin
+                          if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                          else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                        end;
                         dst := GetFileName(mgf)+'\'+info2.Name+'\'+info3.name;
                         CopyFile(PChar(s + src), PChar(s + dst), True);
                       end
