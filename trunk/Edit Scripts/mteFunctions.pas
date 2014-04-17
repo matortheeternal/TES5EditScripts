@@ -249,7 +249,7 @@ begin
   list := ElementByIP(e, ip);
   // clear element list except for one element
   While ElementCount(list) > 1 do
-    RemoveByIndex(list, 0);
+    RemoveByIndex(list, 0, true);
   
   // set element[0] to values[0]
   SetEditValue(ElementByIndex(list, 0), values[0]);
@@ -276,6 +276,7 @@ begin
   if values.Count = 0 then exit;
   
   list := ElementByIP(e, ip);
+  
   // clear element list except for one element
   While ElementCount(list) > 1 do
     RemoveByIndex(list, 0);
@@ -350,6 +351,37 @@ end;
 procedure slev(e: IInterface; ip: string; values: TStringList);
 begin
   SetListEditValues(e, ip, values);
+end;
+
+{
+  slevo
+  SetListEditValues - Objects.  Sets the values in an array element
+  to the objects in a TStringList.
+  
+  Example usage:
+  slevo(e, 'KWDA', slKeywords);
+}
+procedure slevo(e: IInterface; ip: string; values: TStringList);
+var
+  i: integer;
+  list, newelement: IInterface;
+begin
+  // exit if values is empty
+  if values.Count = 0 then exit;
+  
+  list := ElementByIP(e, ip);
+  
+  // clear element list except for one element
+  While ElementCount(list) > 1 do
+    RemoveByIndex(list, 0);
+  
+  // set element[0] to values[0]
+  SetEditValue(ElementByIndex(list, 0), Integer(values.Objects[0]));
+  // create elements for the rest of the list
+  for i := 1 to values.Count - 1 do begin
+    newelement := ElementAssign(list, HighInteger, nil, False);
+    SetEditValue(newelement, Integer(values.Objects[i]));
+  end;
 end;
 
 {
