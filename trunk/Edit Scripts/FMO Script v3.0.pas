@@ -334,10 +334,14 @@ begin
 
   Src := tvList.Selected;
   Dst := tvList.GetNodeAt(X,Y);
-  if tvList.Selected.Level = 0 then
+  
+  // only allow valid move operations
+  if (Src.Level = 0) and (Dst.Level = 0) then
     Src.MoveTo(Dst, naInsert)
-  else
-    Src.MoveTo(Dst, naAddChild);
+  else if (Src.Level = 1) and (Dst.Level = 0) then
+    Src.MoveTo(Dst, naAddChild)
+  else if (Src.Level = 1) and (Dst.Level = 1) then 
+    Src.MoveTo(Dst, naInsert);
 end;
  
 //=====================================================================
