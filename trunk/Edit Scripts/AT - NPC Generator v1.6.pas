@@ -434,7 +434,7 @@ begin
   Add(e, 'TINC', True);
   Add(e, 'TINV', True);
   senv(e, 'TINV', random(tinvhigh - tinvlow) + tinvlow);
-  if (random(100) + 1 < skipchance) then begin
+  if (random(100) + 1 > skipchance) then begin
     seev(e, 'TINC\[0]', '255');
     seev(e, 'TINC\[1]', '255');
     seev(e, 'TINC\[2]', '255');
