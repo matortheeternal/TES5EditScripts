@@ -1,15 +1,15 @@
 {
-  Merge Plugins Script v1.65
+  Merge Plugins Script v1.7
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.65
-    - Hotfix for the asset copying error.
+  v1.7
+    - All hardcoded dat files have been added to the bethesdaFiles listing.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
-  corrupted data.  You can set user variables at in the constansts section (const) 
+  corrupted data.  You can set user variables at in the constants section (const) 
   to customize how the script runs.
 }
 
@@ -18,9 +18,12 @@ unit userscript;
 uses mteFunctions;
 
 const
-  vs = 'v1.65';
+  vs = 'v1.7';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13'Dragonborn.esm'#13
-  'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
+  'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
+  'Fallout3.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
+  'Oblivion.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
+  'FalloutNV.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   debug = false; // debug messages
 
 var
