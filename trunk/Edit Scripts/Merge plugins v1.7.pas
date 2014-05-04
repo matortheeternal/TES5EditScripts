@@ -6,6 +6,8 @@
   *CHANGES*
   v1.7
     - Updated the bethesdaFiles listing.
+    - Second pass copying now uses the selected copying method instead of always
+      using copy by group.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -772,7 +774,9 @@ begin
     for i := slMerge.Count - 1 downto 0 do begin
       f := FileByLoadOrder(Integer(slMerge.Objects[i]));
       AddMessage('    Copying records from '+GetFileName(f));
-      MergeByGroups(f);
+      if mm = 0 then MergeByRecords(f) else 
+      if mm = 1 then MergeIntelligently(f) else 
+      if mm = 2 then MergeByGroups(f);
     end;
   end;
   
