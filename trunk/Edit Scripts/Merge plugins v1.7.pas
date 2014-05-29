@@ -5,10 +5,14 @@
   
   *CHANGES*
   v1.7
+    - Updated the Bethesda Files listing.
+    - The script now has a stylish new progress bar.
     - The script now creates FormLists for each file that is merged, so
       individual files can be removed after being merged
     - The second pass copying will now use the merging method that was 
       selected by the user, instead of always using MergeByGroups.
+    - Not having debug enabled will no longer create an issue with asset
+      copying.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
