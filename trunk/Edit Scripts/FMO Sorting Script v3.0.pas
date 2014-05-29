@@ -14,6 +14,7 @@ uses mteFunctions;
 
 const
   vs = 'v3.0';
+  debug = false; // debug messages
   PreMin = 3; // minimum number of items with a prefix to add that prefix
   clothing = false; // set to true to process items with the ArmorClothing keyword
   jewelry = false; // set to true to process items with the ArmorJewelry keyword
@@ -135,10 +136,10 @@ begin
   slBenches.Add('DLC1LD_CraftingForgeAetherium');
   // list of sorting file exceptions
   slSortExcept := TStringList.Create;
-  slSortExcept.LoadFromFile(ProgramPath + 'Edit Scripts\FMO sorting file exceptions.txt');
+  slSortExcept.LoadFromFile(ProgramPath + 'Edit Scripts\fmo\FMO sorting file exceptions.txt');
   // list of file exceptions
   slFileExcept := TStringList.Create;
-  slFileExcept.LoadFromFile(ProgramPath + 'Edit Scripts\FMO file exceptions.txt');
+  slFileExcept.LoadFromFile(ProgramPath + 'Edit Scripts\fmo\FMO file exceptions.txt');
   // list of prefixes
   slPre := TStringList.Create;
   slPre.Sorted := True;

@@ -32,6 +32,7 @@
       in your inventory.  YAY!
     - The XP fix is now incorporated into the script.  It doesn't work 
       quite yet, but it will.  Soon.  Very soon.
+    - The UI no longer allows for invalid move operations.
     
   *WHAT IT DOES*
   This script will look through all available .esp and .esm files for COBJ records that 
@@ -108,7 +109,7 @@ begin
   
   // add prefix if it matches enough items
   if (count >= PreMin) then begin
-    //AddMessage('Added prefix: '+prefix);
+    if debug then AddMessage('  Found prefix: '+prefix);
     slPre.Add(prefix);
   end;
   
@@ -334,10 +335,14 @@ begin
 
   Src := tvList.Selected;
   Dst := tvList.GetNodeAt(X,Y);
-  if tvList.Selected.Level = 0 then
+  
+  // only allow valid move operations
+  if (Src.Level = 0) and (Dst.Level = 0) then
     Src.MoveTo(Dst, naInsert)
-  else
-    Src.MoveTo(Dst, naAddChild);
+  else if (Src.Level = 1) and (Dst.Level = 0) then
+    Src.MoveTo(Dst, naAddChild)
+  else if (Src.Level = 1) and (Dst.Level = 1) then 
+    Src.MoveTo(Dst, naInsert);
 end;
  
 //=====================================================================
@@ -594,6 +599,7 @@ begin
   
   // print found prefixes
   j := 0;
+  if debug then AddMessage('');
   AddMessage('Found the following prefixes: ');
   s := StringReplace(slPre.Text, #13#10, ', ', [rfReplaceAll]);
   for i := 0 to Length(s) - 1 do begin

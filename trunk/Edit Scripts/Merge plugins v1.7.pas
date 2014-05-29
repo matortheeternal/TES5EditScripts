@@ -5,17 +5,14 @@
   
   *CHANGES*
   v1.7
-    - The script now creates FormLists for each file that is merged, so
-      individual files can be removed after being merged
-    - The second pass copying will now use the merging method that was 
-      selected by the user, instead of always using MergeByGroups.
+    - Updated the bethesdaFiles listing.
+    - Second pass copying now uses the selected copying method instead of always
+      using copy by group.
   
   *DESCRIPTION*
-  This script will allow you to merge ESP files.  This should work for files with
-  basic script usage, but may cause problems with files with heavier script usage
-  (like spell mods).  This won't work on files with corrupted data.  You can set 
-  user variables at in the constansts section (const) to customize how the script 
-  runs.
+  This script will allow you to merge ESP files.  This won't work on files with 
+  corrupted data.  You can set user variables at in the constants section (const) 
+  to customize how the script runs.
 }
 
 unit userscript;
@@ -24,8 +21,12 @@ uses mteFunctions;
 
 const
   vs = 'v1.7';
-  bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13'Dragonborn.esm'#13
-  'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
+  bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13
+  'Dragonborn.esm'#13'Fallout3.esm'#13'FalloutNV.esm'#13'Oblivion.esm'#13
+  'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
+  'Fallout3.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
+  'Oblivion.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
+  'FalloutNV.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   debug = false; // debug messages
 
 var
@@ -56,9 +57,11 @@ begin
               src := info.Name+'\'+info2.name;
               if renumber then begin
                 index := slFormIDs.IndexOf(Copy(info2.name, 1, 8));
-                if (index = -1) and debug then begin
-                  if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
-                  else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                if (index = -1) then begin
+                  if debug then begin
+                    if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                    else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                  end;
                   dst := GetFileName(mgf)+'\'+info2.Name;
                   CopyFile(PChar(s + src), PChar(s + dst), True);
                 end
@@ -112,9 +115,11 @@ begin
                     src := info.Name+'\'+info2.name+'\'+info3.Name;
                     if renumber then begin
                       index := slFormIDs.IndexOf(Copy(info3.name, Pos('_0', info3.Name)+1, 8));
-                      if (index = -1) and debug then begin
-                        if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
-                        else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                      if (index = -1) then begin
+                        if debug then begin
+                          if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                          else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                        end;
                         dst := GetFileName(mgf)+'\'+info2.Name+'\'+info3.name;
                         CopyFile(PChar(s + src), PChar(s + dst), True);
                       end
@@ -563,9 +568,6 @@ var
   id: Int64;
   self, done: boolean;
   Records: array [0..$FFFFFF] of IInterface;
-  frm: TForm;
-  lbl: TLabel;
-  pb: TProgressBar;
 begin
   // check version
   try
@@ -602,269 +604,196 @@ begin
   end;
   AddMessage('    Script is using ' + GetFileName(mgf) + ' as the merge file.');
   
-  // display progress bar
-  frm := TForm.Create(nil);
-  try
-    frm.Caption := 'Merging plugins...';
-    frm.Width := 415;
-    frm.Position := poScreenCenter;
-    frm.Height := 130;
-    
-    lbl := TLabel.Create(frm);
-    lbl.Parent := frm;
-    lbl.Top := 20;
-    lbl.Left := 20;
-    lbl.AutoSize := False;
-    lbl.Wordwrap := True;
-    lbl.Width := 300;
-    lbl.Height := 30;
-    lbl.Caption := 'Adding masters...';
-    
-    pb := TProgressBar.Create(frm);
-    pb.Parent := frm;
-    pb.Top := 40;
-    pb.Left := 20;
-    pb.Width := 360;
-    pb.Height := 20;
-    pb.Step := 1;
-    pb.Min := 0;
-    pb.Max := 100;
-    pb.Position := 0;
-    
-    frm.Show;
+  // add masters
+  AddMessage('    Adding masters to merge file...');
+  AddMastersToFile(mgf, slMasters, true);
   
-    // add masters
-    AddMessage('    Adding masters to merge file...');
-    AddMastersToFile(mgf, slMasters, true);
-     
-    // renumber forms in files to be merged
-    sdir := Copy(ProgramPath, 1, Pos('skyrim\', LowerCase(ProgramPath)) + 6);
-    if renumber then begin
-      lbl.Caption := 'Renumbering FormIDs...';
-      pb.Position := 1;
-      AddMessage(#13#10+'Renumbering FormIDs before merging...');
-      HighestFormID := 0;
-      NewFormID := 0;
-      BaseFormID := 0;
-      
-      // find the ideal NewFormID to start at
-      for i := 0 to slMerge.Count - 1 do begin
-        f := FileByLoadOrder(Integer(slMerge.Objects[i]));
-        for j := 0 to RecordCount(f) - 1 do begin
-          e := RecordByIndex(f, j);
-          if not Equals(e, MasterOrSelf(e)) then Continue;
-          s := Copy(HexFormID(e), 3, 6);
-          if StrToInt64('$' + s) > HighestFormID then HighestFormID := StrToInt64('$' + s);
-        end;
-      end;
-      
-      // check merge file for a higher form ID
-      for i := 0 to RecordCount(mgf) - 1 do begin
+  // renumber forms in files to be merged
+  sdir := Copy(ProgramPath, 1, Pos('skyrim\', LowerCase(ProgramPath)) + 6);
+  if renumber then begin
+    AddMessage(#13#10+'Renumbering FormIDs before merging...');
+    HighestFormID := 0;
+    NewFormID := 0;
+    BaseFormID := 0;
+    
+    // find the ideal NewFormID to start at
+    for i := 0 to slMerge.Count - 1 do begin
+      f := FileByLoadOrder(Integer(slMerge.Objects[i]));
+      for j := 0 to RecordCount(f) - 1 do begin
+        e := RecordByIndex(f, j);
         if not Equals(e, MasterOrSelf(e)) then Continue;
-        e := RecordByIndex(mgf, i);
         s := Copy(HexFormID(e), 3, 6);
         if StrToInt64('$' + s) > HighestFormID then HighestFormID := StrToInt64('$' + s);
       end;
+    end;
+    
+    // check merge file for a higher form ID
+    for i := 0 to RecordCount(mgf) - 1 do begin
+      if not Equals(e, MasterOrSelf(e)) then Continue;
+      e := RecordByIndex(mgf, i);
+      s := Copy(HexFormID(e), 3, 6);
+      if StrToInt64('$' + s) > HighestFormID then HighestFormID := StrToInt64('$' + s);
+    end;
+    
+    // form id renumbering for each file
+    for i := 0 to slMerge.Count - 1 do begin
+      f := FileByLoadOrder(Integer(slMerge.Objects[i]));
+      RC := RecordCount(f) - 1;
+      AddMessage('    Renumbering records in file '+GetFileName(f));
+      slFormIDs := TStringList.Create;
+      atd := false;
+      amd := false;
+      vd := false;
       
-      // form id renumbering for each file
-      for i := 0 to slMerge.Count - 1 do begin
-        f := FileByLoadOrder(Integer(slMerge.Objects[i]));
-        RC := RecordCount(f) - 1;
-        AddMessage('    Renumbering records in file '+GetFileName(f));
-        slFormIDs := TStringList.Create;
-        atd := false;
-        amd := false;
-        vd := false;
+      // create records array for file because the indexed order of records changes as we alter their formIDs
+      for j := 0 to RC do
+        Records[j] := RecordByIndex(f, j);
+      
+      // initialize NewFormID based on HighestFormID found
+      if BaseFormID = 0 then BaseFormID := HighestFormID + 4096;
+      // set newformID to use the load order of the file currently being processed.
+      NewFormID := StrToInt64('$' + IntToHex(Integer(slMerge.Objects[i]), 2) + IntToHex(BaseFormID, 6));
         
-        // create records array for file because the indexed order of records changes as we alter their formIDs
-        for j := 0 to RC do
-          Records[j] := RecordByIndex(f, j);
+      // renumber the records in the file
+      for j := 0 to RC do begin
+        e := Records[j];
+        if SameText(Signature(e), 'TES4') then Continue;
         
-        // initialize NewFormID based on HighestFormID found
-        if BaseFormID = 0 then BaseFormID := HighestFormID + 4096;
-        // set newformID to use the load order of the file currently being processed.
-        NewFormID := StrToInt64('$' + IntToHex(Integer(slMerge.Objects[i]), 2) + IntToHex(BaseFormID, 6));
-          
-        // renumber the records in the file
-        for j := 0 to RC do begin
-          e := Records[j];
-          if SameText(Signature(e), 'TES4') then Continue;
-          
-          // continue if formIDs are identical or if record is override
-          s := HexFormID(e);
-          OldFormID := StrToInt64('$' + s);
-          s := '00' + Copy(s, 3, 6);
-          if NewFormID = OldFormID then Continue;
-          self := Equals(MasterOrSelf(e), e);
-          if not self then begin
-            if debug then AddMessage('        Skipping renumbering '+SmallName(e)+', it''s an override record.');
-            slFormIDs.AddObject(s, TObject(OldFormID));
-            Continue;
-          end;
-          
-          // print log message first, then change references, then change form
-          if debug then 
-            AddMessage(Format('        Changing FormID from [%s] to [%s] on %s', 
-            [IntToHex64(OldFormID, 8), IntToHex64(NewFormID, 8), SmallName(e)]));
-          prc := 0;
-          while ReferencedByCount(e) > 0 do begin
-            if prc = ReferencedByCount(e) then exit;
-            prc := ReferencedByCount(e);
-            CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
-          end;
-          SetLoadOrderFormID(e, NewFormID);
-          slFormIDs.AddObject(s, TObject(NewFormID));
-          
-          // increment formid
-          Inc(BaseFormID);
-          Inc(NewFormID);
+        // continue if formIDs are identical or if record is override
+        s := HexFormID(e);
+        OldFormID := StrToInt64('$' + s);
+        s := '00' + Copy(s, 3, 6);
+        if NewFormID = OldFormID then Continue;
+        self := Equals(MasterOrSelf(e), e);
+        if not self then begin
+          if debug then AddMessage('        Skipping renumbering '+SmallName(e)+', it''s an override record.');
+          slFormIDs.AddObject(s, TObject(OldFormID));
+          Continue;
         end;
         
-        // copy File/FormID specific assets
-        cdir := sdir + 'Data\Textures\Actors\Character\FacegenData\facetint\';
-        CopyAssets(cdir, slMerge[i], atd); // copy actor textures
-        cdir := sdir + 'Data\Meshes\actors\character\facegendata\facegeom\';
-        CopyAssets(cdir, slMerge[i], amd); // copy actor meshes
-        cdir := sdir + 'Data\Sound\Voice\';
-        CopyVoiceAssets(cdir, slMerge[i], vd); // copy voice assets
-        
-        // create formlist file
-        for j := 0 to slFormIDs.Count - 1 do begin
-          slFormIDs[j] := IntToHex(Integer(slFormIDs.Objects[j]), 8);
+        // print log message first, then change references, then change form
+        if debug then 
+          AddMessage(Format('        Changing FormID from [%s] to [%s] on %s', 
+          [IntToHex64(OldFormID, 8), IntToHex64(NewFormID, 8), SmallName(e)]));
+        prc := 0;
+        while ReferencedByCount(e) > 0 do begin
+          if prc = ReferencedByCount(e) then exit;
+          prc := ReferencedByCount(e);
+          CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
         end;
-        slFormIDs.SaveToFile(ProgramPath + 'Edit Scripts\' + Copy(slMerge[i], 1, Length(slMerge[i]) - 4)+'Forms.txt');
+        SetLoadOrderFormID(e, NewFormID);
+        slFormIDs.AddObject(s, TObject(NewFormID));
         
-        // free form ID stringlist
-        slFormIDs.Free;
-        pb.Position := pb.Position + 18/slMerge.Count;
+        // increment formid
+        Inc(BaseFormID);
+        Inc(NewFormID);
       end;
-    end
-    else if not renumber then begin
-      // copy File specific asets
-      AddMessage(#13#10+'Copying Assets...');
-      for i := 0 to slMerge.Count - 1 do begin
-        atd := false;
-        amd := false;
-        vd := false;
-        cdir := sdir + 'Data\Textures\Actors\Character\FacegenData\facetint\';
-        CopyAssets(cdir, slMerge[i], atd); // copy actor textures
-        cdir := sdir + 'Data\Meshes\actors\character\facegendata\facegeom\';
-        CopyAssets(cdir, slMerge[i], amd); // copy actor meshes
-        cdir := sdir + 'Data\Sound\Voice\';
-        CopyVoiceAssets(cdir, slMerge[i], vd); // copy voice assets
+      
+      // copy File/FormID specific assets
+      cdir := sdir + 'Data\Textures\Actors\Character\FacegenData\facetint\';
+      CopyAssets(cdir, slMerge[i], atd); // copy actor textures
+      cdir := sdir + 'Data\Meshes\actors\character\facegendata\facegeom\';
+      CopyAssets(cdir, slMerge[i], amd); // copy actor meshes
+      cdir := sdir + 'Data\Sound\Voice\';
+      CopyVoiceAssets(cdir, slMerge[i], vd); // copy voice assets
+      
+      // free form ID stringlist
+      slFormIDs.Free;
+    end;
+  end
+  else if not renumber then begin
+    // copy File specific asets
+    AddMessage(#13#10+'Copying Assets...');
+    for i := 0 to slMerge.Count - 1 do begin
+      atd := false;
+      amd := false;
+      vd := false;
+      cdir := sdir + 'Data\Textures\Actors\Character\FacegenData\facetint\';
+      CopyAssets(cdir, slMerge[i], atd); // copy actor textures
+      cdir := sdir + 'Data\Meshes\actors\character\facegendata\facegeom\';
+      CopyAssets(cdir, slMerge[i], amd); // copy actor meshes
+      cdir := sdir + 'Data\Sound\Voice\';
+      CopyVoiceAssets(cdir, slMerge[i], vd); // copy voice assets
+    end;
+  end;
+
+  // the merging process
+  AddMessage(#13#10+'Beginning merging process...');
+  for i := slMerge.Count - 1 downto 0 do begin
+    f := FileByLoadOrder(Integer(slMerge.Objects[i]));
+    AddMessage('    Copying records from '+GetFileName(f));
+    if mm = 0 then MergeByRecords(f) else 
+    if mm = 1 then MergeIntelligently(f) else 
+    if mm = 2 then MergeByGroups(f);
+  end;
+  
+  // removing masters
+  AddMessage(#13#10+'Removing unnecessary masters...');
+  masters := ElementByName(ElementByIndex(mgf, 0), 'Master Files');
+  for i := ElementCount(masters) - 1 downto 0 do begin
+    e := ElementByIndex(masters, i);
+    s := GetElementNativeValues(e, 'MAST');
+    if SameText(s, '') then Continue;
+    for j := 0 to slMerge.Count - 1 do begin
+      if SameText(slMerge[j], s) then begin
+        AddMessage('    Removing master '+s);
+        RemoveElement(masters, e);
       end;
     end;
-
-    // the merging process
-    AddMessage(#13#10+'Beginning merging process...');
-    lbl.Caption := 'Copying records...';
-    pb.Position := 29;
+  end;
+  
+  // creating description
+  desc := 'Merged Plugin: ';
+  s := nil;
+  s := geev(ElementByIndex(mgf, 0), 'SNAM');
+  if not Assigned(s) then
+    Add(ElementByIndex(mgf, 0), 'SNAM', True)
+  else if Pos('Merged Plugin', s) > 0 then 
+    desc := s;
+  for i := 0 to slMerge.Count - 1 do begin
+    s := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
+    if Pos('Merged Plugin', s) > 0 then
+      desc := desc+StringReplace(s, 'Merged Plugin: ', '', [rfReplaceAll])
+    else
+      desc := desc+#13#10+'  '+slMerge[i];
+  end;
+  seev(ElementByIndex(mgf, 0), 'CNAM', 'Various Authors');
+  seev(ElementByIndex(mgf, 0), 'SNAM', desc);
+  
+  // second pass copying
+  if twopasses then begin
+    // removing records for second pass copying
+    AddMessage(#13#10+'Removing records for second pass...');
+    for i := ElementCount(mgf) - 1 downto 1 do begin
+      AddMessage('    Removing '+Name(ElementByIndex(mgf, i)));
+      Remove(ElementByIndex(mgf, i));
+    end;
+    
+    // second pass copying
+    AddMessage(#13#10+'Performing second pass copying...');
     for i := slMerge.Count - 1 downto 0 do begin
       f := FileByLoadOrder(Integer(slMerge.Objects[i]));
       AddMessage('    Copying records from '+GetFileName(f));
       if mm = 0 then MergeByRecords(f) else 
       if mm = 1 then MergeIntelligently(f) else 
       if mm = 2 then MergeByGroups(f);
-      pb.Position := pb.Position + 30/slMerge.Count;
     end;
-   
-    // removing masters
-    AddMessage(#13#10+'Removing unnecessary masters...');
-    lbl.Caption := 'Removing masters...';
-    pb.Position := 59;
-    masters := ElementByName(ElementByIndex(mgf, 0), 'Master Files');
-    for i := ElementCount(masters) - 1 downto 0 do begin
-      e := ElementByIndex(masters, i);
-      s := GetElementNativeValues(e, 'MAST');
-      if SameText(s, '') then Continue;
-      for j := 0 to slMerge.Count - 1 do begin
-        if SameText(slMerge[j], s) then begin
-          AddMessage('    Removing master '+s);
-          RemoveElement(masters, e);
+  end;
+  
+  // remove NAVM/NAVI records if skipnavdata is true
+  if skipnavdata then begin
+    AddMessage(#13#10+'  Deleting NAVM/NAVI data...');
+    RC := RecordCount(mgf) - 1;
+    for i := 0 to RC do
+      Records[i] := RecordByIndex(mgf, i);
+    for i := 0 to RC do begin
+        e := Records[i];
+        if (signature(e) = 'NAVM') or (signature(e) = 'NAVI') then begin
+          AddMessage('    Removed '+Name(e));
+          Remove(e);
+          nddeleted := true;
         end;
-      end;
     end;
-    
-    // creating description
-    desc := 'Merged Plugin: ';
-    lbl.Caption := 'Creating description';
-    pb.Position := 64;
-    s := nil;
-    s := geev(ElementByIndex(mgf, 0), 'SNAM');
-    if not Assigned(s) then
-      Add(ElementByIndex(mgf, 0), 'SNAM', True)
-    else if Pos('Merged Plugin', s) > 0 then 
-      desc := s;
-    for i := 0 to slMerge.Count - 1 do begin
-      s := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
-      if Pos('Merged Plugin', s) > 0 then
-        desc := desc+StringReplace(s, 'Merged Plugin: ', '', [rfReplaceAll])
-      else
-        desc := desc+#13#10+'  '+slMerge[i];
-    end;
-    seev(ElementByIndex(mgf, 0), 'CNAM', 'Merge Plugins Script '+vs);
-    seev(ElementByIndex(mgf, 0), 'SNAM', desc);
-    
-    // second pass copying
-    if twopasses then begin
-      // removing records for second pass copying
-      pb.Position := 60;
-      AddMessage(#13#10+'Removing records for second pass...');
-      lbl.Caption := 'Removing records...';
-      for i := ElementCount(mgf) - 1 downto 1 do begin
-        AddMessage('    Removing '+Name(ElementByIndex(mgf, i)));
-        Remove(ElementByIndex(mgf, i));
-      end;
-      
-      // second pass copying
-      AddMessage(#13#10+'Performing second pass copying...');
-      pb.Position := 65;
-      lbl.Caption := 'Copying records (second pass)...';
-      for i := slMerge.Count - 1 downto 0 do begin
-        f := FileByLoadOrder(Integer(slMerge.Objects[i]));
-        AddMessage('    Copying records from '+GetFileName(f));
-        if mm = 0 then MergeByRecords(f) else 
-        if mm = 1 then MergeIntelligently(f) else 
-        if mm = 2 then MergeByGroups(f);
-        pb.Position := pb.Position + 30/slMerge.Count;
-      end;
-    end;
-    
-    // create formID list group
-    Add(mgf, 'FLST', true);
-     
-    // create formlists
-    slFormIDs := TStringList.Create;
-    lbl.Caption := 'Creating FormLists...';
-    pb.Position := 98;
-    for i := 0 to slMerge.Count - 1 do begin
-      slFormIDs.LoadFromFile(ProgramPath + 'Edit Scripts\' + Copy(slMerge[i], 1, Length(slMerge[i]) - 4)+'Forms.txt');
-      DeleteFile(ProgramPath + 'Edit Scripts\' + Copy(slMerge[i], 1, Length(slMerge[i]) - 4)+'Forms.txt');
-      e := Add(GroupBySignature(mgf, 'FLST'), 'FLST', True);
-      seev(e, 'EDID', Copy(slMerge[i], 1, Length(slMerge[i]) - 4)+'Forms');
-      Add(e, 'FormIDs', True);
-      slev(e, 'FormIDs', slFormIDs);
-    end;
-    
-    // remove NAVM/NAVI records if skipnavdata is true
-    if skipnavdata then begin
-      lbl.Caption := 'Removing Navdata...';
-      pb.Position := 99;
-      AddMessage(#13#10+'  Deleting NAVM/NAVI data...');
-      RC := RecordCount(mgf) - 1;
-      for i := 0 to RC do
-        Records[i] := RecordByIndex(mgf, i);
-      for i := 0 to RC do begin
-          e := Records[i];
-          if (signature(e) = 'NAVM') or (signature(e) = 'NAVI') then begin
-            AddMessage('    Removed '+Name(e));
-            Remove(e);
-            nddeleted := true;
-          end;
-      end;
-    end;
-  finally
-    frm.Free;
   end;
 
   // script is done, print confirmation messages
