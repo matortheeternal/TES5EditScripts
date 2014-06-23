@@ -29,6 +29,8 @@
   - [AddMastersToFile]: Adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
+  - [RemoveMaster]: Removes a master of the specified name from the specified file.
+    NOTE: This function can be dangerous if used improperly.
   - [FileSelect]: Creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
 }
@@ -477,6 +479,30 @@ begin
         Result := true;
         Break;
       end;
+    end;
+  end;
+end;
+
+{
+  RemoveMaster:
+  Removes a master matching the specified string from the specified file.
+  
+  Example usage:
+  f := FileByIndex(i);
+  RemoveMaster(f, 'Update.esm');
+}
+procedure RemoveMaster(f: IInterface; mast: String);
+var
+  masters: IInterface;
+  i: integer;
+  s: string;
+begin
+  masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
+  for i := ElementCount(masters) - 1 downto 0 do begin
+    s := geev(ElementByIndex(masters, i), 'MAST');
+    if s = mast then begin
+      Remove(ElementByIndex(masters, i));
+      break;
     end;
   end;
 end;

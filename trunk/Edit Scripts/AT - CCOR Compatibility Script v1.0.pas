@@ -175,11 +175,9 @@ end;
 procedure TanningRackConditions(cobj: IInterface; conditions: IInterface);
 var
   cnam, items, li, item: IInterface;
-  edid, full: string;
+  i: integer;
 begin
   cnam := LinksTo(ElementByPath(cobj, 'CNAM'));
-  edid := Lowercase(GetElementEditValues(cnam, 'EDID'));
-  full := Lowercase(GetElementEditValues(cnam, 'EDID'));
   if HasSubstringInFULL(cnam, 'Backpack') then
     agvc(conditions, 'CCO_BackpackRecipes');
   if HasKeyword(cnam, 'WAF_ClothingPouch_KRY') then
@@ -190,7 +188,7 @@ begin
     li := ElementByIndex(items, i);
     item := LinksTo(ElementByPath(li, 'CNTO - Item\Item'));
     if (Signature(item) = 'WEAP') or (Signature(item) = 'ARMO') then begin
-      agvc(conditions, 'CCO_BreakdownRecipes');
+      agvc(conditions, 'CCO_OptionBreakdownEquipmentatTanningRack');
       Break;
     end;
   end;
@@ -353,7 +351,7 @@ begin
     li := ElementByIndex(items, i);
     item := LinksTo(ElementByPath(li, 'CNTO - Item\Item'));
     if (Signature(item) = 'WEAP') or (Signature(item) = 'ARMO') then begin
-      agvc(conditions, 'CCO_BreakdownRecipes');
+      agvc(conditions, 'CCO_OptionBreakdownEquipmentatSmelter');
       Break;
     end;
   end;
