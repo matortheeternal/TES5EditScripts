@@ -378,15 +378,16 @@ function Rename(name: string; func: string; fvar: string): string;
 var
   find, replace: string;
 begin
+  Result := name;
   if func = 'Replace' then begin
     find := CopyFromTo(fvar, 1, Pos(',', fvar) - 1);
     replace := CopyFromTo(fvar, Pos(',', fvar) + 1, Length(fvar));
     Result := StringReplace(name, find, replace, [rfReplaceAll]);
   end
-  else if func = 'SnipTextBefore' then
+  else if (func = 'SnipTextBefore') and (Pos(fvar, name) > 0) then
     Result := CopyFromTo(name, Pos(fvar, name), Length(name))
-  else if func = 'SnipTextAfter' then
-    Result := CopyFromTo(name, 1, Pos(fvar, name))
+  else if (func = 'SnipTextAfter') and (Pos(fvar, name) > 0) then
+    Result := CopyFromTo(name, 1, Pos(fvar, name) + Length(fvar) - 1)
   else if func = 'AddPrefix' then
     Result := fvar + name
   else if func = 'AddSuffix' then

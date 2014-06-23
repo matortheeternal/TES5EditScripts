@@ -438,7 +438,6 @@ begin
     end;
     
     AddMastersToFile(patchFile, slMasters, true);
-    AddMessage('    Globals copied.');
     group := GroupBySignature(ccoFile, 'GLOB');
     for i := 0 to ElementCount(group) - 1 do begin
       e := ElementByIndex(group, i);
@@ -449,6 +448,7 @@ begin
         slGlobals.AddObject(edid, TObject(FormID(e)));
       end;
     end;
+    AddMessage('    Globals copied.');
   end;
   
   { patch records }

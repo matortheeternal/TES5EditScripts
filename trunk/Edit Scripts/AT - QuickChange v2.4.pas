@@ -39,6 +39,9 @@
     -Copy: Copies an element to all selected records.  You can use one Copy function
     per script execution (until I fix this).
     -Import: Imports values from a csv file exported with QuickDisplay onto matching records.
+    -ArrayImport: Imports values from an array text document exported with QuickDisplay onto
+    the selected records at the selected path.  This allows you to set multiple values stored
+    at a single path simultaneously.  E.g. Keywords, Factions, Head Parts, Conditions, etc.
   
   In TES5Edit there are two kinds of values, Native Values and Edit Values.
   Edit values are the ones you see when you look at a record in TES5Edit, while
@@ -600,8 +603,8 @@ begin
     btnOk.Parent := pnlBottom;
     btnOk.Caption := 'OK';
     btnOk.ModalResult := mrOk;
-    btnOk.Left := 260;
-    btnOk.Top := pnlBottom.Height - 30;
+    btnOk.Left := frm.Width div 2 - btnOk.Width - 8;
+    btnOk.Top := pnlBottom.Height - 40;
     
     btnCancel := TButton.Create(frm);
     btnCancel.Parent := pnlBottom;
