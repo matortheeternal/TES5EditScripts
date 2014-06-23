@@ -1,11 +1,10 @@
 {
-  Break It Down v0.8
+  Break It Down v1.0
   created by matortheeternal
   
   * CHANGES *
-  - No longer skips items craftable only at the Skyforge.
-  - Fixed index error in a debug message.
-  - Fixed spelling of Stalhrim.
+  - Fixed trailing OR in conditions for comaptibility with the CCOR 
+    Compatibility Script.
   
   * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
@@ -17,7 +16,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.8';
+  vs = '1.0';
   removesingle = true; 
   // set to false to not attempt to create breakdown recipes at the 
   // tanning rack for items that have a only a single ingot type item
@@ -56,7 +55,7 @@ begin
     seev(condition, 'CTDA - \Function', 'GetEquipped');
     seev(condition, 'CTDA - \Inventory Object', s);
     condition := ElementAssign(conditions, HighInteger, nil, False);
-    seev(condition, 'CTDA - \Type', '11010000'); // Greater than or equal to / OR
+    seev(condition, 'CTDA - \Type', '11000000'); // Greater than or equal to
     seev(condition, 'CTDA - \Comparison Value', '2.0');
     seev(condition, 'CTDA - \Function', 'GetItemCount');
     seev(condition, 'CTDA - \Inventory Object', s);

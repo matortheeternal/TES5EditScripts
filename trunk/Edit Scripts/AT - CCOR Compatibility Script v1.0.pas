@@ -3,6 +3,7 @@
   Created by matortheeternal
   
   * CHANGES *
+  - Fixed Smelter and Tanning Rack condition adding.
   - Draugr learning conditions fixed and verified working.
   
   * DESCRIPTION *
@@ -505,7 +506,7 @@ begin
         cc := ElementByIndex(conditions, 0);
       end;
       if bnam = 'CraftingTanningRack' then
-        TanningRackConditions(cobj, conditions)
+        TanningRackConditions(e, conditions)
       else if (bnam = 'CraftingSmithingForge') or (bnam = 'CraftingSmithingSkyforge') then
         SmithingForgeConditions(cnam, conditions)
       else if bnam = 'CraftingSmelter' then
