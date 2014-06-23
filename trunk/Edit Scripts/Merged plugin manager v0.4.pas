@@ -34,7 +34,7 @@ begin
     slReport := TStringList.Create;
     s := p.Components[1].Text + ';' + p.Components[3].Text + ';' + IntToStr(p.Components[5].ItemIndex) 
     + ';' + p.Components[7].Text + ';' + StringReplace(p.Components[8].Lines.Text, ';', ',', [rfReplaceAll]) + ';';
-    slReport.Add(s);
+    slReport.Add(StringReplace(s, ' ', '_', [rfReplaceAll]));
     AddMessage('  '+s+#13#10);
     slReport.SaveToFile(ProgramPath + 'Edit Scripts\mp\Report-'+Copy(p.Caption, 15, Length(p.Caption) - 14)+'.txt');
     slReport.Free;

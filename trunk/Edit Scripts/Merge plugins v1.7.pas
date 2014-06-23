@@ -537,6 +537,9 @@ begin
   slMasters.Duplicates := dupIgnore;
   slMgfMasters := TStringList.Create;
   
+  if FileCount >= 128 then
+    SkipProcess := true;
+  
   // process only file elements
   try 
     ScriptProcessElements := [etFile];
@@ -580,12 +583,19 @@ begin
   // check version
   try
     k := wbVersionNumber;
+    AddMesssage('Running on TES5Edit '+IntToStr(k));
   except on Exception do
     AddMessage('The program is out of date, you must update it to use this script!'+#13#10);
   end;
   if k = 0 then begin
-    slMerge.Free;
-    slMasters.Free;
+    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    exit;
+  end;
+  
+  if FileCount >= 128 then begin
+    AddMessage('You cannot load 128 or more plugins into TES5Edit at any given time when Merging Plugins due to integer data type constaints.');
+    AddMessage('Please reopen TES5Edit and select 127 or fewer plugins to load.'+#13#10);
+    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
     exit;
   end;
   
@@ -594,8 +604,7 @@ begin
   // terminate script if mergelist contains less than one file
   if slMerge.Count < 1 then begin
     AddMessage(#13#10+'Select at least 1 file to merge!  Terminating script.'+#13#10);
-    slMerge.Free;
-    slMasters.Free;
+    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
     exit;
   end;
   

@@ -213,7 +213,10 @@ begin
   ip := StringReplace(ip, '/', '\', [rfReplaceAll]);
   subelement := e;
   While (Pos('[', ip) > 0) do begin
-    subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1);
+    if Pos('\', ip) > 0 then
+      subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1)
+    else
+      subpath := ip;
     if Pos('[', subpath) > 0 then begin 
       index := StrToInt(CopyFromTo(subpath, Pos('[', ip) + 1, Pos(']', ip) - 1));
       subelement := ElementByIndex(subelement, index);

@@ -1,5 +1,5 @@
 {
-  CCOR Compatibility Script v0.9
+  CCOR Compatibility Script v1.0
   Created by matortheeternal
   
   * CHANGES *
@@ -15,7 +15,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = 'v0.9';
+  vs = 'v1.0';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'
   #13'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
   ccofn = 'Complete Crafting Overhaul_Remade.esp';
@@ -508,12 +508,15 @@ begin
         TanningRackConditions(cobj, conditions)
       else if (bnam = 'CraftingSmithingForge') or (bnam = 'CraftingSmithingSkyforge') then
         SmithingForgeConditions(cnam, conditions)
-      else if bnam = 'CraftingSmithingSmelter' then
-        SmithingSmelterConditions(cobj, conditions);
+      else if bnam = 'CraftingSmelter' then
+        SmithingSmelterConditions(e, conditions);
       if Assigned(cc) then
         Remove(cc);
     end;
   end;
+ 
+  AddMessage(#13#10'Removing '+GetFileName(ccoFile)+' master from patch file.');
+  RemoveMaster(patchfile, GetFileName(ccoFile));
   
   // final messages
   AddMessage(#13#10);
