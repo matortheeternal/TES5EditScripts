@@ -1,5 +1,5 @@
 {
-  NPC Transmogrifier v0.3
+  NPC Transmogrifier v1.0
   Created by matortheeternal
   
   *What it does*
@@ -22,7 +22,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.3';
+  vs = '1.0';
   processesps = true;
 
 var

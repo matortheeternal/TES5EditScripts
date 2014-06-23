@@ -1,5 +1,5 @@
 {
-  Re-Evaluator v0.7
+  Re-Evaluator v1.0
   created by matortheeternal
   
   * CHANGES *
@@ -17,7 +17,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '0.7';
+  vs = '1.0';
   sFunctions = 'HasItem'#13'HasPerkCondition'#13'HasKeyword'#13'HasSubstringInFULL'#13'HasSubstringInEDID';
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13'Dragonborn.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
