@@ -1,5 +1,5 @@
 {
-  Armor Mod Builder v1.3
+  Armor Mod Builder v1.4
   Created by matortheeternal
   
   This script will attempt to build an armor mod using an array of user inputs,
@@ -17,7 +17,7 @@ unit userscript;
 uses mteFunctions;
 
 const
-  vs = 'v1.3';
+  vs = 'v1.4';
   sFunctions = 'GetActorValue'#13'GetGlobalValue'#13'GetBaseActorValue'#13'GetItemCount'#13'GetLevel'#13
   'GetPCIsRace'#13'GetPCIsSex'#13'GetQuestCompleted'#13'GetQuestRunning'#13'HasMagicEffect'#13'HasPerk'#13
   'HasSpell'#13'HasShout';
@@ -44,13 +44,17 @@ var
   cbRecipes: TCheckBox;
   dd01, dd02: TComboBox;
   ed01, ed02, ed03, ed04, ed05: TEdit;
-  btnOk, btnCancel, btnPlusItem, btnMinusItem, btnPlusCondition, btnMinusCondition: TButton;
+  btnOk, btnCancel, btnPlusItem, btnMinusItem, btnPlusCondition, 
+  btnMinusCondition, btnSelect: TButton;
   pnlBottom, pnlTop, pnlMiddle: TPanel;
   itemCount, conditionCount: integer;
-  sMaterials, prefix, ArmorType, ArmorMaterial, ArmorValue, WeightValue, GoldValue, nifPath, edidprefix: string;
-  slItems, slPerks, slQuests, slActorValues, slGlobalValues, slMagicEffects, slSpells, slRaces, 
-  slShouts, slMasters, slMaterials, slRecipeItems, slRecipeItemCounts, slConditionFunctions, 
-  slConditionTypes, slConditionVars, slConditionVals, slConditionOr, slNifList, slNifTags, slAdditionalRaces: TStringList;
+  sMaterials, prefix, ArmorType, ArmorMaterial, ArmorValue, WeightValue, 
+  GoldValue, nifPath, edidprefix: string;
+  slItems, slPerks, slQuests, slActorValues, slGlobalValues, slMagicEffects, 
+  slSpells, slRaces, slShouts, slMasters, slMaterials, slRecipeItems, 
+  slRecipeItemCounts, slConditionFunctions, slConditionTypes, slConditionVars, 
+  slConditionVals, slConditionOr, slNifList, slNifTags, slAdditionalRaces: TStringList;
+  OpenDialog: TOpenDialog;
 
 //=========================================================================
 // AddItem: Creates a Recipe Item entry
@@ -363,24 +367,17 @@ begin
   
   TLabel(rb01).Visible := False;
   TLabel(rb01).Free;
-  
   TButton(btnPlusItem).Visible := False;
   TButton(btnPlusItem).Free;
-  
   TButton(btnMinusItem).Visible := False;
   TButton(btnMinusItem).Free;
-  
   TLabel(rb02).Visible := False;
   TLabel(rb02).Free;
-  
   TButton(btnPlusCondition).Visible := False;
   TButton(btnPlusCondition).Free;
-  
   TButton(btnMinusCondition).Visible := False;
   TButton(btnMinusCondition).Free;
-  
   TPanel(pnlTop).Free;
-  
   TPanel(pnlMiddle).Free;
   
   itemCount := 0;
@@ -398,6 +395,19 @@ begin
   else begin
     DeleteRecipeOptions;
     frm.Height := 390;
+  end;
+end;
+
+//=========================================================================
+// SelectDir
+procedure SelectDir(Sender: TObject);
+var
+  s: String;
+begin
+  s := SelectDirectory('Select a directory', DataPath, '', '');
+  if s <> '' then begin
+    ed05.Text := s;
+    btnOk.Enabled := true;
   end;
 end;
 
@@ -542,14 +552,23 @@ begin
     ed05.Parent := pnlBottom;
     ed05.Top := lbl08.Top;
     ed05.Left := 116;
-    ed05.Width := 300;
-    ed05.Text := 'Data\Meshes\Armor\';
+    ed05.Width := 280;
+    ed05.Text := '';
+    
+    btnSelect := TButton.Create(frm);
+    btnSelect.Parent := pnlBottom;
+    btnSelect.Top := ed05.Top;
+    btnSelect.Left := ed05.Left + ed05.Width + 8;
+    btnSelect.Width := 25;
+    btnSelect.Caption := 'O';
+    btnSelect.OnClick := SelectDir;
     
     btnOk := TButton.Create(frm);
     btnOk.Parent := pnlBottom;
     btnOk.Caption := 'OK';
     btnOk.ModalResult := mrOk;
     btnOk.Top := pnlBottom.Height - 40;
+    btnOk.Enabled := false;
     btnOk.Left := 160;
     
     btnCancel := TButton.Create(frm);
@@ -729,7 +748,7 @@ end;
 // Initialize: Everything happens here
 function Initialize: integer;
 var
-  dir, sdir, idir, s, s2, s3: string;
+  dir, idir, s, s2, s3: string;
   i, j, u, materialkw: integer;
   fDir, mDir, femDir, maleDir: boolean;
   aagloves, aaboots, aacuirass, aahelmet, aahelmetarg, aahelmetorc, aahelmetkha, aashield, 
@@ -892,8 +911,7 @@ begin
   Add(amfile, 'COBJ', true);
   
   // begin file finding
-  sdir := Copy(ProgramPath, 1, Pos('skyrim\', LowerCase(ProgramPath)) + 6);
-  dir := sdir + nifPath;
+  dir := nifPath;
   if not SameText(Copy(dir, Length(dir), Length(dir)), '\') then dir := dir + '\';
   AddMessage(#13#10+'Searching for nif files...');
   if FindFirst(dir + '*.*', faAnyFile and faDirectory, info) = 0 then
