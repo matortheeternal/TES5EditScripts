@@ -3,6 +3,12 @@
   A set of useful functions for use in TES5Edit scripts.
   
   **LIST OF INCLUDED FUNCTIONS**
+  - [ElementTypeString]: Uses ElementType and outputs a string.
+  - [DefTypeString]: Uses DefType and outputs a string.
+  - [ConflictThisString]: Uses ConflictThisForNode or ConflictThisForMainRecord 
+    and outputs a string.
+  - [ConflictAllString]: Uses ConflictAllForNode or ConflictAllForMainRecord 
+    and outputs a string.
   - [BoolToStr]: converts a boolean value to a string.
   - [ReverseString]: reverses a string.
   - [ItPos]: finds the position of an iteration of a substring in a string.
@@ -40,6 +46,200 @@ unit mteFunctions;
 const
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
+
+{
+  ElementTypeString:
+  Uses ElementType and outputs a string.
+  
+  Example usage:
+  element := ElementByPath(e, 'KWDA');
+  AddMessage(ElementTypeString(element));
+}
+function ElementTypeString(e: IInterface): string;
+begin
+  Result := '';
+  if ElementType(e) = etFile then
+    Result := 'etFile'
+  else if ElementType(e) = etMainRecord then
+    Result := 'etMainRecord'
+  else if ElementType(e) = etGroupRecord then
+    Result := 'etGroupRecord'
+  else if ElementType(e) = etSubRecord then
+    Result := 'etSubRecord'
+  else if ElementType(e) = etSubRecordStruct then
+    Result := 'etSubRecordStruct'
+  else if ElementType(e) = etSubRecordArray then
+    Result := 'etSubRecordArray'
+  else if ElementType(e) = etSubRecordUnion then
+    Result := 'etSubRecordUnion'
+  else if ElementType(e) = etArray then
+    Result := 'etArray'
+  else if ElementType(e) = etStruct then
+    Result := 'etStruct'
+  else if ElementType(e) = etValue then
+    Result := 'etValue'
+  else if ElementType(e) = etFlag then
+    Result := 'etFlag'
+  else if ElementType(e) = etStringListTerminator then
+    Result := 'etStringListTerminator'
+  else if ElementType(e) = etUnion then
+    Result := 'etUnion';
+end;
+ 
+{
+  DefTypeString:
+  Uses DefType and outputs a string.
+  
+  Example usage:
+  element := ElementByPath(e, 'KWDA');
+  AddMessage(DefTypeString(element));
+}
+function DefTypeString(e: IInterface): string;
+begin
+  Result := '';
+  if DefType(e) = dtRecord then
+    Result := 'dtRecord'
+  else if DefType(e) = dtSubRecord then
+    Result := 'dtSubRecord'
+  else if DefType(e) = dtSubRecordArray then
+    Result := 'dtSubRecordArray'
+  else if DefType(e) = dtSubRecordStruct then
+    Result := 'dtSubRecordStruct'
+  else if DefType(e) = dtSubRecordUnion then
+    Result := 'dtSubRecordUnion'
+  else if DefType(e) = dtString then
+    Result := 'dtString'
+  else if DefType(e) = dtLString then
+    Result := 'dtLString'
+  else if DefType(e) = dtLenString then
+    Result := 'dtLenString'
+  else if DefType(e) = dtByteArray then
+    Result := 'dtByteArray'
+  else if DefType(e) = dtInteger then
+    Result := 'dtInteger'
+  else if DefType(e) = dtIntegerFormater then
+    Result := 'dtIntegerFormatter'
+  else if DefType(e) = dtFloat then
+    Result := 'dtFloat'
+  else if DefType(e) = dtArray then
+    Result := 'dtArray'
+  else if DefType(e) = dtStruct then
+    Result := 'dtStruct'
+  else if DefType(e) = dtUnion then
+    Result := 'dtUnion'
+  else if DefType(e) = dtEmpty then
+    Result := 'dtEmpty';
+end;
+ 
+{
+  ConflictThisString:
+  Uses ConflictThisForNode or ConflictThisForMainRecord and outputs a string.
+  
+  Example usage:
+  e := RecordByIndex(FileByIndex(0), 1);
+  AddMessage(ConflictThisString(e));
+}
+function ConflictThisString(e: IInterface): string;
+begin
+  Result := '';
+  if ElementType(e) = etMainRecord then begin
+    if ConflictThisForMainRecord(e) = ctUnknown then 
+      Result := 'ctUnknown'
+    else if ConflictThisForMainRecord(e) = ctIgnored then 
+      Result := 'ctIgnored'
+    else if ConflictThisForMainRecord(e) = ctNotDefined then 
+      Result := 'ctNotDefined'
+    else if ConflictThisForMainRecord(e) = ctIdenticalToMaster then 
+      Result := 'ctIdenticalToMaster'
+    else if ConflictThisForMainRecord(e) = ctOnlyOne then 
+      Result := 'ctOnlyOne'
+    else if ConflictThisForMainRecord(e) = ctHiddenByModGroup then 
+      Result := 'ctHiddenByModGroup'
+    else if ConflictThisForMainRecord(e) = ctMaster then 
+      Result := 'ctMaster'
+    else if ConflictThisForMainRecord(e) = ctConflictBenign then 
+      Result := 'ctConflictBenign'
+    else if ConflictThisForMainRecord(e) = ctOverride then 
+      Result := 'ctOverride'
+    else if ConflictThisForMainRecord(e) = ctIdenticalToMasterWinsConflict then 
+      Result := 'ctIdenticalToMasterWinsConflict'
+    else if ConflictThisForMainRecord(e) = ctConflictWins then 
+      Result := 'ctConflictWins'
+    else if ConflictThisForMainRecord(e) = ctConflictLoses then 
+      Result := 'ctConflictLoses';
+  end
+  else begin
+    if ConflictThisForNode(e) = ctUnknown then 
+      Result := 'ctUnknown'
+    else if ConflictThisForNode(e) = ctIgnored then 
+      Result := 'ctIgnored'
+    else if ConflictThisForNode(e) = ctNotDefined then 
+      Result := 'ctNotDefined'
+    else if ConflictThisForNode(e) = ctIdenticalToMaster then 
+      Result := 'ctIdenticalToMaster'
+    else if ConflictThisForNode(e) = ctOnlyOne then 
+      Result := 'ctOnlyOne'
+    else if ConflictThisForNode(e) = ctHiddenByModGroup then 
+      Result := 'ctHiddenByModGroup'
+    else if ConflictThisForNode(e) = ctMaster then 
+      Result := 'ctMaster'
+    else if ConflictThisForNode(e) = ctConflictBenign then 
+      Result := 'ctConflictBenign'
+    else if ConflictThisForNode(e) = ctOverride then 
+      Result := 'ctOverride'
+    else if ConflictThisForNode(e) = ctIdenticalToMasterWinsConflict then 
+      Result := 'ctIdenticalToMasterWinsConflict'
+    else if ConflictThisForNode(e) = ctConflictWins then 
+      Result := 'ctConflictWins'
+    else if ConflictThisForNode(e) = ctConflictLoses then 
+      Result := 'ctConflictLoses';
+  end;
+end;
+
+{
+  ConflictAllString:
+  Uses ConflictAllForNode or ConflictAllForMainRecord and outputs a string.
+  
+  Example usage:
+  e := RecordByIndex(FileByIndex(0), 1);
+  AddMessage(ConflictAllString(e));
+}
+function ConflictAllString(e: IInterface): string;
+begin
+  Result := '';
+  if ElementType(e) = etMainRecord then begin
+    if ConflictAllForMainRecord(e) = caUnknown then 
+      Result := 'caUnknown'
+    else if ConflictAllForMainRecord(e) = caOnlyOne then 
+      Result := 'caOnlyOne'
+    else if ConflictAllForMainRecord(e) = caConflict then 
+      Result := 'caConflict'
+    else if ConflictAllForMainRecord(e) = caNoConflict then 
+      Result := 'caNoConflict'
+    else if ConflictAllForMainRecord(e) = caConflictBenign then 
+      Result := 'caConflictBenign'
+    else if ConflictAllForMainRecord(e) = caOverride then 
+      Result := 'caOverride'
+    else if ConflictAllForMainRecord(e) = caConflictCritical then 
+      Result := 'caConflictCritical';
+  end
+  else begin
+    if ConflictAllForNode(e) = caUnknown then 
+      Result := 'caUnknown'
+    else if ConflictAllForNode(e) = caOnlyOne then 
+      Result := 'caOnlyOne'
+    else if ConflictAllForNode(e) = caConflict then 
+      Result := 'caConflict'
+    else if ConflictAllForNode(e) = caNoConflict then 
+      Result := 'caNoConflict'
+    else if ConflictAllForNode(e) = caConflictBenign then 
+      Result := 'caConflictBenign'
+    else if ConflictAllForNode(e) = caOverride then 
+      Result := 'caOverride'
+    else if ConflictAllForNode(e) = caConflictCritical then 
+      Result := 'caConflictCritical';
+  end;
+end;
   
 {
   BoolToStr:
