@@ -17,13 +17,6 @@ const
   dashes = '-----------------------------------------------------------';
   debug1 = false;
   debug2 = false;
-  
-type
-  TRecordDiff = record
-    DstSrcDiff: integer;
-    SrcMstDiff: integer;
-    DstMstDiff: integer;
-  end;
  
 var
   slRecords: TStringList;
@@ -103,7 +96,7 @@ end;
  
 //======================================================================
 // Uses ConflictThisForNode or ConflictThisForMainRecord and outputs a string
-function ctString(e: IInterface): string;
+function ConflictThisString(e: IInterface): string;
 begin
   Result := '';
   if ElementType(e) = etMainRecord then begin
@@ -162,7 +155,7 @@ end;
 
 //======================================================================
 // Uses ConflictAllForNode or ConflictAllForMainRecord and outputs a string
-function caString(e: IInterface): string;
+function ConflictAllString(e: IInterface): string;
 begin
   Result := '';
   if ElementType(e) = etMainRecord then begin
