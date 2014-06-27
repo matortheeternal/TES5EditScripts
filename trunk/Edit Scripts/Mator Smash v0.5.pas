@@ -64,7 +64,7 @@ var
   slDst, slMst: TStringList;
 begin
   // skip identical to master sources
-  if ctString(src) = 'ctIdenticalToMaster' then begin
+  if ConflictThisString(src) = 'ctIdenticalToMaster' then begin
     AddMessage('  Skipping, ctIdenticalToMaster');
     exit;
   end;
