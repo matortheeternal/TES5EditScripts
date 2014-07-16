@@ -1,5 +1,5 @@
 {
-  Replace FormID v1.2
+  Replace FormID v1.3
   Created by matortheeternal
   
   This script will find and replace FormID on selected records.
@@ -12,9 +12,7 @@ unit userscript;
 uses mteFunctions;
 
 const
-  vs = 'v1.2';
-  bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'#13
-  'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
+  vs = 'v1.3';
 
 var
   frm: TForm;
