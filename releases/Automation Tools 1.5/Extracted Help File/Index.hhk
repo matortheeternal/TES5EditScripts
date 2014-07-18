@@ -209,6 +209,16 @@
      <param name="Name" value="User Variables">
      <param name="Local" value="1.htm#m40">
      </OBJECT>
+     
+ <LI> <OBJECT type="text/sitemap">
+     <param name="Name" value="NPC Transmogrifier">
+     <param name="Local" value="1.htm#m41">
+     </OBJECT>
+     
+ <LI> <OBJECT type="text/sitemap">
+     <param name="Name" value="Basic Usage">
+     <param name="Local" value="1.htm#m42">
+     </OBJECT>
 
 </UL>
 </BODY></HTML>

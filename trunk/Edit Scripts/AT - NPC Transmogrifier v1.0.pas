@@ -59,7 +59,6 @@ var
   rn, tinvlow, tinvhigh: integer;
   tintrecord: IInterface;
 begin
-  randomize();
   tinvlow := StrToInt(Copy(tinv, 1, Pos('-', tinv) - 1));
   tinvhigh := StrToInt(Copy(tinv, Pos('-', tinv) + 1, Length(tinv)));
   senv(e, 'TINI', index);
@@ -422,6 +421,7 @@ begin
   cancel := true;
   OptionsForm;
   if cancel then exit;
+  randomize();
   
   // load stringlist data from available files
   AddMessage('Loading data from available master files.'+#13#10);
