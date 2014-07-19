@@ -7,6 +7,7 @@
     mteFunctions.pas.
   - Fixed Smelter and Tanning Rack condition adding.
   - Draugr learning conditions fixed and verified working.
+  - Fixed global reference to CCO_ClothingGlovesRecipes.
   
   * DESCRIPTION *
   Applies CCOR global variable conditions to COBJ recipes in the
@@ -234,11 +235,11 @@ begin
     else if HasKeyword(cnam, 'ClothingFeet') then
       agvc(conditions, 'CCO_ClothingBootRecipes')
     else if HasKeyword(cnam, 'ArmorGauntlets') then begin
-      if clothing then agvc(conditions, 'CCO_ClothingGloveRecipes')
+      if clothing then agvc(conditions, 'CCO_ClothingGlovesRecipes')
       else agvc(conditions, 'CCO_ArmorGauntletRecipes');
     end
     else if HasKeyword(cnam, 'ClothingHands') then
-      agvc(conditions, 'CCO_ClothingGloveRecipes')
+      agvc(conditions, 'CCO_ClothingGlovesRecipes')
     else if HasKeyword(cnam, 'ArmorCuirass') then begin
       if clothing then agvc(conditions, 'CCO_ClothingRobeRecipes')
       else agvc(conditions, 'CCO_ArmorCuirassRecipes');
