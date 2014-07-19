@@ -1002,6 +1002,7 @@ begin
     if (slFunctions[i] = 'Replace') then begin
       s1 := CopyFromTo(slInput[i], 1, ItPos(',', slInput[i], 1) - 1);
       s2 := CopyFromTo(slInput[i], ItPos(',', slInput[i], 1) + 1, ItPos(',', slInput[i], 2) - 1);
+      s3 := CopyFromTo(slInput[i], ItPos(',', slInput[i], 2) + 1, ItPos(',', slInput[i], 3) - 1);
       s := nil;
       s := geev(e, s1);
       if (s = s2) or (s2 = '*') then begin
