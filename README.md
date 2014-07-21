@@ -37,7 +37,7 @@ Current Scripts
 Script Installation and Usage
 ==================================
 
-To install scripts you need to put the .pas files and all associated text 
+To install scripts you need to put the .pas files and all associated asset 
 files into 
 
   {Skyrim Directory}\TES5Edit\Edit Scripts\
