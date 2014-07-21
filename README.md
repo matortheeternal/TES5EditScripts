@@ -19,21 +19,19 @@ when creating mods for Bethesda games.
 Current Scripts
 ==================================
 
-* **Merge Plugins:** v1.6 released on Nexus Mods March 1, 2014.
+* **Merge Plugins:** v1.65 released on Nexus Mods April 19, 2014.
 * **PerkTreeUI:** v1.2 released on Nexus Mods February 3, 2014. 
-* **QuickChange:** v2.3 released on Nexus Mods February 16, 2014.
+* **QuickChange:** v2.4 released on Nexus Mods July 18, 2014.
 * **Find and Replace FormID:** v1.2 released on Nexus Mods February 3, 2014.
-* **NPC Generator:** v1.6 released on Nexus Mods February 3, 2014.
-* **Armor Mod Builder:** v1.3 released on Nexus Mods February 3, 2014.
-* **QuickDisplay:** v1.4 released on Nexus Mods February 3, 2014.
+* **NPC Generator:** v1.8 released on Nexus Mods July 18, 2014.
+* **Armor Mod Builder:** v1.4 released on Nexus Mods July 21, 2014.
+* **QuickDisplay:** v1.5 released on Nexus Mods July 17, 2014.
 * **Forge Menu Overhaul:** v2.13 released on Nexus Mods August 30, 2013.
-* **Full Name Manipulation Script:** Beta v1.0 is functional.
-* **CCOR Compatibility Script:** Beta v0.9 is functional.
-* **Break it Down:** Beta v0.8 is functional.
-* **Re-Evaluator:** Beta v0.7 is functional.
-* **NPC Transmogrifier:** Beta v0.3 is functional.
-* **FormList Manager:** Beta v0.1 is functional.  (this script is likely to 
-be merged with QuickDisplay and QuickChange)
+* **Renamer:** v1.1 released on Nexus Mods July 17, 2014.
+* **CCOR Compatibility Script:** v1.0 released on Nexus Mods July 17, 2014.
+* **Break it Down:** v1.0 released on Nexus Mods July 17, 2014.
+* **Re-Evaluator:** v1.0 released on Nexus Mods July 17, 2014.
+* **NPC Transmogrifier:** v1.0 released on Nexus Mods July 17, 2014.
 
 
 Script Installation and Usage
