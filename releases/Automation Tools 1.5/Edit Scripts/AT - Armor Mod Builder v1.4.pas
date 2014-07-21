@@ -45,7 +45,8 @@ var
   dd01, dd02: TComboBox;
   ed01, ed02, ed03, ed04, ed05: TEdit;
   btnOk, btnCancel, btnPlusItem, btnMinusItem, btnPlusCondition, 
-  btnMinusCondition, btnSelect: TButton;
+  btnMinusCondition: TButton;
+  btnSelect: TBitBtn;
   pnlBottom, pnlTop, pnlMiddle: TPanel;
   itemCount, conditionCount: integer;
   sMaterials, prefix, ArmorType, ArmorMaterial, ArmorValue, WeightValue, 
@@ -417,6 +418,7 @@ procedure OptionsForm;
 var
   i, j: integer;
   s, s2: string;
+  openFileIcon: TBitmap;
 begin
   frm := TForm.Create(nil);
   try
@@ -555,12 +557,16 @@ begin
     ed05.Width := 280;
     ed05.Text := '';
     
-    btnSelect := TButton.Create(frm);
+    openFileIcon := TBitmap.Create;
+    openFileIcon.LoadFromFile(ProgramPath + 'Edit Scripts\amb\openfile.bmp');
+    btnSelect := TBitBtn.Create(frm);
     btnSelect.Parent := pnlBottom;
-    btnSelect.Top := ed05.Top;
-    btnSelect.Left := ed05.Left + ed05.Width + 8;
-    btnSelect.Width := 25;
-    btnSelect.Caption := 'O';
+    btnSelect.Top := ed05.Top - 2;
+    btnSelect.Left := ed05.Left + ed05.Width + 6;
+    btnSelect.Glyph := openFileIcon;
+    btnSelect.Width := 26;
+    btnSelect.Height := 26;
+    btnSelect.Caption := '';
     btnSelect.OnClick := SelectDir;
     
     btnOk := TButton.Create(frm);
@@ -1163,7 +1169,7 @@ begin
   if cancel then exit;
   
   AddMessage(#13#10 + 'Creating armor addon records...');
-  idir := StringReplace(dir, sdir, '', [rfReplaceAll]);
+  idir := StringReplace(dir, DataPath + 'meshes\', '', [rfReplaceAll]);
   if (slNifTags.IndexOf('boots') > -1) or (slNifTags.IndexOf('female boots') > -1) or (slNifTags.IndexOf('male boots') > -1) then begin
     AddMessage('    Creating Boots armor addon.');
     aaboots := Add(GroupBySignature(amfile, 'ARMA'), 'ARMA', True);
