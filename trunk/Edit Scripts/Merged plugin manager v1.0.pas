@@ -1,5 +1,5 @@
 {
-  Merged Plugin Manager v0.4
+  Merged Plugin Manager v1.0
   Created by matortheeternal
   
   * DESCRIPTION *
@@ -7,17 +7,90 @@
   reports on the effectiveness of a merged plugin.
 }
 
-unit UserScript;
+unit mpManager;
 
 uses mteFunctions;
 
 const
-  vs = 'v0.4';
+  vs = 'v1.0';
+  notesmax = 255;
+  smartremove = true;
+  // smart removal!  if true RemovePlugin won't remove forms that
+  // are used by other plugins internally.
 
 var
   cbArray: Array[0..254] of TCheckBox;
-  slPlugins: TStringList;
+  lbArray: Array[0..254] of TLabel;
+  arForms: Array[0..254] of TStringList;
+  slPlugins, slDictionary: TStringList;
   plugin: IInterface;
+  oldIndex: integer;
+  oldNotes: string;
+  btnClose: TButton;
+  frm: TForm;
+  done: boolean;
+
+//=========================================================================
+// GetDefinitionHint: Generates a hint based on the definition
+function GetDefinitionHint(sl: TStringList): string;
+var
+  notes: String;
+begin
+  if sl.Count < 6 then
+    Result := 'No user reports for this plugin have been submitted.'
+  else begin
+    notes := Trim(StringReplace(sl[5], '@13', #13, [rfReplaceAll]));
+    Result := 'Average rating: '+sl[3]+#13+'Number of ratings: '+sl[4]+#13+'User notes: '+#13+notes;
+  end;
+end;
+  
+//=========================================================================
+// GetMergeColor: gets the color associated with the file's merge rating
+function GetMergeColor(sl: TStringList): integer;
+var
+  rating, k1, k2: float;
+  c1, c2, c3, fc: TColor;
+begin
+  if sl.Count < 2 then
+    Result := $404040
+  else begin
+    c1.Red := $FF; c1.Green := $00; c1.Blue := $00;
+    c2.Red := $E5; c2.Green := $A8; c2.Blue := $00;
+    c3.Red := $00; c3.Green := $90; c3.Blue := $00;
+    fc.Blue := $00;
+    rating := StrToFloat(sl[3]);
+    if (rating > 2.0) then begin
+      k2 := (rating - 2.0)/2.0;
+      k1 := 1.0 - k2;
+      fc.Red := c2.Red * k1 + c3.Red * k2;
+      fc.Green := c2.Green * k1 + c3.Green * k2;
+    end
+    else begin
+      k2 := (rating/2.0);
+      k1 := 1.0 - k2;
+      fc.Red := c1.Red * k1 + c2.Red * k2;
+      fc.Green := c1.Green * k1 + c2.Green * k2;
+    end;
+    Result := ColorToInt(fc.Red, fc.Green, fc.Blue);
+  end;
+end;
+
+//=========================================================================
+// GetDefinition: gets a definition for the file from the dictionary
+function GetDefinition(fn: string): string;
+var
+  i: integer;
+  search: string;
+begin
+  Result := '';
+  search := fn + ';';
+  for i := 0 to Pred(slDictionary.Count) do begin
+    if Pos(search, slDictionary[i]) = 1 then begin
+      Result := slDictionary[i];
+      break;
+    end;
+  end;
+end;
 
 //=========================================================================
 procedure rfrm.SubmitReport(Sender: TObject);
@@ -32,9 +105,11 @@ begin
     p := Sender.Parent;
     AddMessage('Submitting '+ p.Caption);
     slReport := TStringList.Create;
+    oldIndex := p.Components[5].ItemIndex;
+    oldNotes := p.Components[8].Lines.Text;
     s := p.Components[1].Text + ';' + p.Components[3].Text + ';' + IntToStr(p.Components[5].ItemIndex) 
-    + ';' + p.Components[7].Text + ';' + StringReplace(p.Components[8].Lines.Text, ';', ',', [rfReplaceAll]) + ';';
-    slReport.Add(StringReplace(s, ' ', '_', [rfReplaceAll]));
+    + ';' + p.Components[7].Text + ';' + StringReplace(p.Components[8].Lines.Text, ';', ',', [rfReplaceAll]);
+    slReport.Add(s);
     AddMessage('  '+s+#13#10);
     slReport.SaveToFile(ProgramPath + 'Edit Scripts\mp\Report-'+Copy(p.Caption, 15, Length(p.Caption) - 14)+'.txt');
     slReport.Free;
@@ -47,8 +122,21 @@ var
   p: TObject;
 begin
   p := Sender.Parent;
-  if (p.Components[5].Text <> '') and (p.Components[7].Text <> '?') and (p.Components[8].Lines[0] <> 'Notes') then
-    p.Components[9].Enabled := true;
+  
+  // update characters remaining label
+  p.Components[9].Text := IntToStr(notesmax - Length(p.Components[8].Lines.Text)) + ' characters remaining';
+  p.Components[9].Left := p.Width - p.Components[9].Width - 45;
+  if (Length(p.Components[8].Lines.Text) > notesmax) then
+    p.Components[9].Font.Color := clRed
+  else
+    p.Components[9].Font.Color := clDefault;
+    
+  // enable/disable submit button
+  if (p.Components[5].Text <> '') and (p.Components[7].Text <> '?') and (p.Components[8].Lines[0] <> 'Notes') 
+  and (Length(p.Components[8].Lines.Text) < notesmax) then
+    p.Components[10].Enabled := true
+  else
+    p.Components[10].Enabled := false;
 end;
 
 //=========================================================================
@@ -56,7 +144,7 @@ procedure MakeReport(fn: string; fc: Integer);
 var
   rfrm: TForm;
   btnSubmit, btnCancel: TButton;
-  lbl01, lbl02, lbl03, lbl04: TLabel;
+  lbl01, lbl02, lbl03, lbl04, lbl05: TLabel;
   ed01, ed02, ed03: TEdit;
   cb01: TComboBox;
   mm01: TMemo;
@@ -113,6 +201,8 @@ begin
     cb01.Top := lbl03.Top;
     cb01.Width := 200;
     cb01.Items.Text := 'Cannot be merged'#13'Merges with errors'#13'Merges but CTDs ingame'#13'Merges, no CTDs'#13'Merges perfectly';
+    if (oldIndex > -1) then
+      cb01.ItemIndex := oldIndex;
     cb01.OnChange := EnableSubmit;
     
     lbl04 := TLabel.Create(rfrm);
@@ -143,8 +233,15 @@ begin
     mm01.Top := lbl04.Top + 35;
     mm01.Width := 350;
     mm01.Height := 150;
-    mm01.Lines.Add('Notes');
+    mm01.Lines.Text := oldNotes;
     mm01.OnChange := EnableSubmit;
+    
+    lbl05 := TLabel.Create(rfrm);
+    lbl05.Parent := rfrm;
+    lbl05.Text := '';
+    lbl05.Autosize := True;
+    lbl05.Left := rfrm.Width - lbl05.Width - 45;
+    lbl05.Top := lbl04.Top + 190;
     
     btnSubmit := TButton.Create(rfrm);
     btnSubmit.Parent := rfrm;
@@ -164,7 +261,11 @@ begin
     btnCancel.Left := btnSubmit.Left + btnSubmit.Width + 16;
     btnCancel.Top := btnSubmit.top;
     
-    rfrm.ActiveControl := btnCancel;
+    EnableSubmit(mm01);
+    if btnSubmit.Enabled then
+      rfrm.ActiveControl := btnSubmit
+    else
+      rfrm.ActiveControl := btnCancel;
     if rfrm.ShowModal = mrOk then begin
       ;
     end;
@@ -177,36 +278,64 @@ end;
 procedure frm.Report(Sender: TObject);
 var
   x, i: integer;
-  s: string;
+  s, fn: string;
   group, forms: IInterface;
+  mp: boolean;
 begin
+  mp := Pos('Merged Plugin', geev(ElementByIndex(plugin, 0), 'SNAM')) = 1;
   for x := 0 to slPlugins.Count - 1 do begin
     if (cbArray[x].Checked = True) then begin
-      s := Trim(Copy(cbArray[x].Caption, 8, Length(cbArray[x].Caption)));
+      s := Trim(slPlugins[x]);
+      fn := Copy(s, 0, Length(s) - 4);
       // find formlist
-      group := GroupBySignature(plugin, 'FLST');
-      for i := 0 to ElementCount(group) - 1 do begin
-        if geev(ElementByIndex(group, i), 'EDID') = Copy(s, 0, Length(s) - 4)+'Forms' then
-          forms := ElementByIndex(group, i);
-      end;
-      forms := ElementByPath(forms, 'FormIDs');
-      if ElementCount(forms) > 0 then
-        MakeReport(s, ElementCount(forms));
+      if mp then begin
+        group := GroupBySignature(plugin, 'FLST');
+        for i := 0 to ElementCount(group) - 1 do begin
+          if geev(ElementByIndex(group, i), 'EDID') = fn+'Forms' then
+            forms := ElementByIndex(group, i);
+        end;
+        forms := ElementByPath(forms, 'FormIDs');
+        if ElementCount(forms) > 0 then
+          MakeReport(s, ElementCount(forms));
+      end
+      else
+        MakeReport(s, RecordCount(FileByName(s)));
+    end;
+  end;
+  frm.ActiveControl := btnClose;
+end;
+
+//=========================================================================
+function NotDuplicateForm(form: string; x: integer): boolean;
+var
+  i: integer;
+begin
+  Result := true;
+  for i := 0 to slPlugins.Count - 1 do begin
+    if i = x then Continue;
+    if arForms[x].IndexOf(form) > -1 then begin
+      Result := false;
+      break;
     end;
   end;
 end;
 
 //=========================================================================
-procedure RemoveForms(flst: IInterface);
+procedure RemoveForms(flst: IInterface; x: integer);
 var
-  forms, rec: IInterface;
+  forms, rec, e: IInterface;
 begin
   AddMessage('Removing FormIDs associated with: '+geev(flst, 'EDID'));
   forms := ElementByPath(flst, 'FormIDs');
   while ElementCount(forms) > 0 do begin
-    rec := LinksTo(ElementByIndex(forms, 0));
+    e := ElementByIndex(forms, 0);
+    rec := LinksTo(e);
     RemoveByIndex(forms, 0, true);
-    if Assigned(rec) then Remove(rec);
+    if Assigned(rec) then
+      if smartremove then
+        if NotDuplicateForm(GetEditValue(e), x)) then Remove(rec);
+      else
+        Remove(rec);
   end;
   Remove(flst);
 end;
@@ -225,26 +354,26 @@ begin
 end;
 
 //=========================================================================
-procedure frm.Remove(Sender: TObject);
+procedure frm.RemovePlugin(Sender: TObject);
 var
-  x, i: integer;
-  fn, s, desc: String;
+  m, i: integer;
+  fn, desc: String;
   group: IInterface;
 begin
-  for x := 0 to slPlugins.Count - 1 do begin
-    if (cbArray[x].Checked = True) then begin
+  for m := 0 to slPlugins.Count - 1 do begin
+    if (cbArray[m].Checked = True) then begin
       // string operations
-      fn := Trim(CopyFromTo(cbArray[x].Caption, 8, Length(cbArray[x].Caption)));
-      s := Copy(fn, 0, Length(fn) - 4);
+      fn := Trim(slPlugins[i]);
+      fn := Copy(fn, 0, Length(fn) - 4);
       // remove forms
       group := GroupBySignature(plugin, 'FLST');
       for i := 0 to ElementCount(group) - 1 do begin
-        if geev(ElementByIndex(group, i), 'EDID') = s+'Forms' then
-          RemoveForms(ElementByIndex(group, i));
+        if geev(ElementByIndex(group, i), 'EDID') = fn+'Forms' then
+          RemoveForms(ElementByIndex(group, i), m);
       end;
       // fix description
       desc := geev(ElementByIndex(plugin, 0), 'SNAM');
-      desc := StringReplace(desc, '  '+fn+#13#10, '', [rfReplaceAll]);
+      desc := StringReplace(desc, slPlugins[m] + #13#10, '', [rfReplaceAll]);
       seev(ElementByIndex(plugin, 0), 'SNAM', desc);
     end;
   end;
@@ -254,33 +383,48 @@ end;
 
 //=========================================================================
 // MainForm: Provides user with merged plugin managing
-procedure MainForm;
+procedure MainForm(mp: boolean);
 var
-  frm: TForm;
-  btnReport, btnRemove, btnClose: TButton;
+  btnReport, btnRemove: TButton;
   lbl1, lbl2: TLabel;
   pnl: TPanel;
   sb: TScrollBox;
   i, j, k, height, m: integer;
   holder: TObject;
-  s: string;
+  s, fn: string;
+  slDefinition, sl: TStringList;
+  forms, e, group: IInterface;
 begin
-  s := geev(ElementByIndex(plugin, 0), 'SNAM');
-  slPlugins := TStringList.Create;
-  slPlugins.Text := s;
-  slPlugins.Delete(0);
+  if mp then begin
+    s := geev(ElementByIndex(plugin, 0), 'SNAM');
+    slPlugins.Text := s;
+    slPlugins.Delete(0);
+    
+    // create arForms stringlists
+    for i := 0 to slPlugins.Count - 1 do begin
+      fn := Trim(slPlugins[i]);
+      fn := Copy(fn, 0, Length(fn) - 4);
+      group := GroupBySignature(plugin, 'FLST');
+      for j := 0 to ElementCount(group) - 1 do begin
+        e := ElementByIndex(group, j);
+        if geev(e, 'EDID') = fn+'Forms' then begin
+          arForms[i] := TStringList.Create;
+          forms := ElementByPath(e, 'FormIDs');
+          for k := 0 to ElementCount(forms) - 1 do
+            arForms[i].Add(GetEditValue(ElementByIndex(forms, k)));
+        end;
+      end;
+    end;
+  end;
   
+  j := 0;
+  k := 0;
   frm := TForm.Create(nil);
   try
     frm.Caption := 'Merged Plugin Manager';
     frm.Width := 415;
     frm.Position := poScreenCenter;
-    for i := 0 to FileCount - 1 do begin
-      s := GetFileName(FileByLoadOrder(i));
-      if Pos(s, bethesdaFiles) > 0 then Continue;
-      Inc(m);
-    end;
-    height := m*25 + 110;
+    height := slPlugins.Count*25 + 135;
     if height > (Screen.Height - 100) then begin
       frm.Height := Screen.Height - 100;
       sb := TScrollBox.Create(frm);
@@ -304,17 +448,39 @@ begin
     lbl1.Height := 50;
     lbl1.Caption := 'Select the plugins you want to manage.';
     
+    // create file list
     for i := 0 to slPlugins.Count - 1 do begin
       s := Trim(slPlugins[i]);
       j := 25 * k;
       Inc(k);
+      
+      // load definition
+      slDefinition := TStringList.Create;
+      slDefinition.StrictDelimiter := true;
+      slDefinition.Delimiter := ';';
+      slDefinition.DelimitedText := GetDefinition(s);
+      
+      // set up checkbox
       cbArray[i] := TCheckBox.Create(holder);
       cbArray[i].Parent := holder;
       cbArray[i].Left := 24;
       cbArray[i].Top := 40 + j;
-      cbArray[i].Caption := '  [' + IntToHex(i + 1, 2) + ']  ' + s;
-      cbArray[i].Width := 300;
-      cbArray[i].Checked := False;
+      cbArray[i].Width := 350;
+      cbArray[i].ShowHint := true;
+      cbArray[i].Hint := GetDefinitionHint(slDefinition);
+      
+      // set up label
+      lbArray[i] := TLabel.Create(holder);
+      lbArray[i].Parent := holder;
+      lbArray[i].Left := 44;
+      lbArray[i].Top := cbArray[i].Top;
+      lbArray[i].Caption := '  [' + IntToHex(i + 1, 2) + ']  ' + s;
+      lbArray[i].Font.Color := GetMergeColor(slDefinition);
+      if slDefinition.Count > 5 then
+        lbArray[i].Font.Style := lbArray[i].Font.Style + [fsbold];
+      
+      // free definition
+      slDefinition.Free;
     end;
     
     if holder = sb then begin
@@ -338,10 +504,14 @@ begin
     
     btnRemove := TButton.Create(frm);
     btnRemove.Parent := pnl;
-    btnRemove.OnClick := Remove;
     btnRemove.Caption := 'Remove';
     btnRemove.Left := btnReport.Left + btnReport.Width + 16;
     btnRemove.Top := btnReport.Top;
+    btnRemove.Enabled := false;
+    if mp then begin 
+      btnRemove.OnClick := RemovePlugin;
+      btnRemove.Enabled := true;
+    end;
     
     btnClose := TButton.Create(frm);
     btnClose.Parent := pnl;
@@ -366,6 +536,13 @@ begin
   AddMessage('Merged plugin manager '+vs+': Used for managing merged files.');
   AddMessage('-----------------------------------------------------------------------------');
   
+  // initialize vars
+  oldIndex := -1;
+  oldNotes := 'Notes'+#13;
+  slPlugins := TStringList.Create;
+  slDictionary := TStringList.Create;
+  slDictionary.LoadFromFile(ScriptsPath + '\mp\dictionary.txt');
+  
   ScriptProcessElements := [etFile];
 end;
 
@@ -376,14 +553,25 @@ var
 begin
   desc := geev(ElementByIndex(e, 0), 'SNAM');
   
-  if Pos('Merged Plugin', desc) <> 1 then
+  if Pos('Merged Plugin', desc) <> 1 then begin
+    slPlugins.Add(GetFileName(e));
     exit;
+  end;
     
   // create main form for merged plugin
   plugin := e;
-  MainForm;
-  
-  AddMessage(#13#10);
+  AddMessage('Managing: '+GetFileName(e));
+  MainForm(true);
+  done := true;
+  AddMessage('');
+end;
+
+//==========================================================================
+function Finalize: integer;
+begin
+  if not done then 
+    MainForm(false);
+  AddMessage('');
   AddMessage('-----------------------------------------------------------------------------');
   AddMessage('Finished managing merged plugins.');
   AddMessage(#13#10);

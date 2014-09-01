@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.5
+  Mator Smash v0.6
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,12 +11,12 @@ unit smash;
 uses mteFunctions;
 
 const
-  bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Dragonborn.esm'#13'Hearthfires.esm'#13
-  'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
-  vs = '0.5';
+  vs = '0.6';
   dashes = '-----------------------------------------------------------';
+  signaturesToSkip = 'NAVM'#13'NAVI'#13;
   debug1 = false;
   debug2 = false;
+  debug3 = false;
  
 var
   slRecords: TStringList;
@@ -178,6 +178,8 @@ begin
     AddMessage('Processing '+fn);
     for j := 0 to RecordCount(f) - 1 do begin
       r := MasterOrSelf(RecordByIndex(f, j));
+      if Pos(Signature(r), signaturesToSkip) > 0 then 
+        continue;
       rn := Name(r);
       if (OverrideCount(r) > 1) then
         if slRecords.IndexOf(rn) = -1 then
@@ -186,12 +188,14 @@ begin
   end;
  
   // test list of records
-  AddMessage('');
-  for i := 0 to slRecords.Count - 1 do begin
-    r := ObjectToElement(slRecords.Objects[i]);
-    AddMessage(slRecords[i]+' ('+IntToStr(OverrideCount(r))+' overrides)');
-    for j := 0 to OverrideCount(r) - 1 do
-      AddMessage('    Override #'+IntToStr(j)+': '+GetFileName(GetFile(OverrideByIndex(r, j))));
+  if debug3 then begin
+    AddMessage('');
+    for i := 0 to slRecords.Count - 1 do begin
+      r := ObjectToElement(slRecords.Objects[i]);
+      AddMessage(slRecords[i]+' ('+IntToStr(OverrideCount(r))+' overrides)');
+      for j := 0 to OverrideCount(r) - 1 do
+        AddMessage('    Override #'+IntToStr(j)+': '+GetFileName(GetFile(OverrideByIndex(r, j))));
+    end;
   end;
  
   // make smashFile if not found
@@ -213,6 +217,7 @@ begin
   end;
  
   // copy records that have been overridden multiple times to mashed patch
+  AddMessage('');
   for i := 0 to slRecords.Count - 1 do begin
     mr := nil;
     r := ObjectToElement(slRecords.Objects[i]);
@@ -223,7 +228,7 @@ begin
         if not Assigned(mr) then
           mr := wbCopyElementToFile(ovr, smashFile, false, true)
         else begin
-          AddMessage(#13#10+'Smashing record '+Name(mr)+' from file: '+fn);
+          AddMessage('Smashing record '+Name(mr)+' from file: '+fn);
           rcore(ovr, r, mr, mr); // recursively copy overriden elements
         end;
       end;
