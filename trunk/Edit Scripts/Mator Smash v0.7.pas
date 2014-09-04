@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.6
+  Mator Smash v0.7
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,9 +11,34 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = '0.6';
+  vs = '0.7';
   dashes = '-----------------------------------------------------------';
-  signaturesToSkip = 'NAVM'#13'NAVI'#13;
+  signaturesToSkip = 'NAVM'#13'NAVI'#13'DOBJ';
+  subrecordsToSkip = 
+    'DIAL \ TIFC - Info Count'#13
+    'INFO \ PNAM - Previous INFO'#13
+    'SMQN \ SNAM - Child'#13
+    'SMQN \ QNAM - Quest Count'#13
+    'SMBN \ SNAM - Child'#13
+    'LCTN \ ACPR - Actor Cell Persistent Reference'#13
+    'LCTN \ LCPR - Location Cell Persistent Reference'#13
+    'LCTN \ RCPR - Reference Cell Persistent Reference'#13
+    'LCTN \ ACUN - Actor Cell Unique'#13
+    'LCTN \ LCUN - Location Cell Unique'#13
+    'LCTN \ RCUN - Reference Cell Unique'#13
+    'LCTN \ ACSR - Actor Cell Static Reference'#13
+    'LCTN \ LCSR - Location Cell Static Reference'#13
+    'LCTN \ RCSR - Reference Cell Static Reference'#13
+    'LCTN \ Actor Cell Encounter Cell'#13
+    'LCTN \ Location Cell Encounter Cell'#13
+    'LCTN \ Reference Cell Encounter Cell'#13
+    'LCTN \ ACID - Actor Cell Marker Reference'#13
+    'LCTN \ LCID - Location Cell Marker Reference'#13
+    'LCTN \ ACEP - Actor Cell Enable Point'#13
+    'LCTN \ LCEP - Location Cell Enable Point'#13
+    'IDLE \ ANAM - Related Idle Animations'#13
+    'WRLD \ NAM0'#13
+    'WRLD \ NAM9'#13;
   debug1 = false;
   debug2 = false;
   debug3 = false;
@@ -23,10 +48,25 @@ var
   smashFile: IInterface;
 
 //======================================================================
+// Non-Bethesda Override Count
+function nbsOverrideCount(r: IInterface): integer;
+var
+  i: integer;
+  fn: string;
+begin
+  Result := 0;
+  for i := 0 to OverrideCount(r) - 1 do begin
+    fn := GetFileName(GetFile(OverrideByIndex(r, i)));
+    if Pos(fn, bethesdaFiles) = 0 then
+      Result := Result + 1;
+  end;
+end;
+  
+//======================================================================
 // MergeArrayElements: Merges array elements
 procedure MergeArrayElements(mst: IInterface; src: IInterface; dst: IInterface);
 var
-  i: integer;
+  i, ndx: integer;
   se, de, me: IInterface;
   slDst, slMst: TStringList;
   useValues: boolean;
@@ -45,8 +85,10 @@ begin
   
   for i := 0 to ElementCount(src) - 1 do begin
     se := ElementByIndex(src, i);
-    if slDst.IndexOf(SortKey(se, false)) = -1 then
-      ElementAssign(dst, HighInteger, se, false);
+    ndx := slDst.IndexOf(SortKey(se, false));
+    if ndx > -1 then
+      Remove(ElementByIndex(dst, ndx));
+    ElementAssign(dst, HighInteger, se, false);
   end;
   
   slDst.Free;
@@ -98,10 +140,6 @@ begin
     // DefType and ElementType strings
     ets := ElementTypeString(se);
     dts := DefTypeString(se);
-    if debug1 then AddMessage('  -se: '+Path(se));
-    if debug1 then AddMessage('  -de: '+Path(de));
-    if debug1 then AddMessage('    ets: '+ets);
-    if debug1 then AddMessage('    dts: '+dts);
     
     // skip the record header.  we don't want to touch that
     if Name(se) = 'Record Header' then begin
@@ -110,6 +148,20 @@ begin
       Inc(j);
       continue;
     end;
+    
+    // skip subrecordsToSkip
+    if Pos(Path(se), subrecordsToSkip) > 0 then begin
+      if debug1 then AddMessage('  Skipping '+Path(se));
+      Inc(i);
+      Inc(j);
+      continue;
+    end;
+    
+    // debug messages
+    if debug1 then AddMessage('  -se: '+Path(se));
+    if debug1 then AddMessage('  -de: '+Path(de));
+    if debug1 then AddMessage('    ets: '+ets);
+    if debug1 then AddMessage('    dts: '+dts);
     
     // if destination element doesn't match source element
     if Name(se) <> Name(de) then begin
@@ -131,7 +183,7 @@ begin
     end
     // else copy element if value differs from master
     else if (dts = 'dtInteger') or (dts = 'dtFloat') or (dts = 'dtUnion') or (dts = 'dtByteArray')
-    or (dts = 'DefTypeString') or (dts = 'dtLString') or (dts = 'dtLenString') then begin
+    or (dts = 'dtString') or (dts = 'dtLString') or (dts = 'dtLenString') then begin
       if debug1 then AddMessage('  Comparing values: '+GetEditValue(se)+' and '+geev(mst, Name(se)));
       if GetEditValue(se) <> GetEditValue(me) then
         SetEditValue(de, GetEditValue(se));
@@ -152,7 +204,7 @@ function Initialize: integer;
 var
   f, r, ovr, mr: IInterface;
   i, j: integer;
-  fn, rn: string;
+  fn, rn, author: string;
 begin
   // welcome messages
   AddMessage(#13#10#13#10+dashes);
@@ -166,11 +218,12 @@ begin
   for i := 0 to FileCount - 1 do begin
     f := FileByIndex(i);
     fn := GetFileName(f);
+    author := geev(ElementByIndex(f, 0), 'CNAM');
     // skip bethesda files, we're not patching them
     if Pos(fn, bethesdaFiles) > 0 then
       continue;
     // if smashFile found, skip and assign
-    if Pos('SmashedPatch', fn) > 0 then begin
+    if Pos('Mator Smash', author) = 1 then begin
       smashFile := f;
       continue;
     end;
@@ -181,7 +234,7 @@ begin
       if Pos(Signature(r), signaturesToSkip) > 0 then 
         continue;
       rn := Name(r);
-      if (OverrideCount(r) > 1) then
+      if (nbsOverrideCount(r) > 1) then
         if slRecords.IndexOf(rn) = -1 then
           slRecords.AddObject(Name(r), TObject(r));
     end;
@@ -199,16 +252,16 @@ begin
   end;
  
   // make smashFile if not found
-  if not Assigned(smashFile) then begin
-    MessageDlg('Please enter "SmashedPatch" in the next window', mtConfirmation, [mbOk], 0);
+  if not Assigned(smashFile) then
     smashFile := AddNewFile;
-  end;
   if not Assigned(smashFile) then begin
     AddMessage('Smashed patch not assigned, terminating script');
     Result := -1;
     exit;
   end;
- 
+  
+  // set smashFile author to Mator Smash
+  seev(ElementByIndex(smashFile, 0), 'CNAM', 'Mator Smash '+vs);
   // add masters to smashFile
   for i := 0 to FileCount - 3 do begin
     f := FileByLoadOrder(i);
@@ -240,5 +293,5 @@ begin
   AddMessage('Smashing complete.  '+IntToStr(RecordCount(smashfile))+' records smashed.');
   AddMessage(#13#10#13#10);
 end;
- 
+
 end.
