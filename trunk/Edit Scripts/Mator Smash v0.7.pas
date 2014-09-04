@@ -70,6 +70,7 @@ var
   se, de, me: IInterface;
   slDst, slMst: TStringList;
   useValues: boolean;
+  dts: string;
 begin
   // create slDst and slMst stringlists
   slDst := TStringList.Create;
@@ -85,10 +86,14 @@ begin
   
   for i := 0 to ElementCount(src) - 1 do begin
     se := ElementByIndex(src, i);
+    dts := DefTypeString(se);
     ndx := slDst.IndexOf(SortKey(se, false));
-    if ndx > -1 then
+    if (ndx = -1) then
+      ElementAssign(dst, HighInteger, se, false)
+    else if (dts = 'dtStruct') then begin
       Remove(ElementByIndex(dst, ndx));
-    ElementAssign(dst, HighInteger, se, false);
+      ElementAssign(dst, HighInteger, se, false);
+    end;
   end;
   
   slDst.Free;
