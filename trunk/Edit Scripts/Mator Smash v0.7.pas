@@ -167,7 +167,10 @@ begin
     if Name(se) <> Name(de) then begin
       // proceed to next destination element
       // because we copied all of the source elements to the destination already
-      Inc(j);
+      if (j < ElementCount(dst)) then
+        Inc(j)
+      else
+        Inc(i); // just in case
       continue;
     end;
     
