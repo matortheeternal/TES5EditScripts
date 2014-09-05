@@ -48,6 +48,54 @@ var
   smashFile: IInterface;
 
 //======================================================================
+// GetMasterElement: Gets the first instance of an element (the master)
+function GetMasterElement(src, se, dstrec: IInterface; sorted: boolean): IInterface;
+var
+  i, j, ndx: integer;
+  p: string;
+  ovr, ae, ne: IInterface;
+begin
+  Result := nil;
+  dstrec := MasterOrSelf(dstrec);
+  p := Path(src);
+  p := Copy(p, Pos('\', p) + 2, Length(p));
+  if sorted then begin
+    if debug3 then AddMessage('  Called GetMasterElement at path '+p+' looking for SortKey '+SortKey(se, false));
+    for i := 0 to OverrideCount(dstrec) - 2 do begin
+      ovr := OverrideByIndex(dstrec, i);
+      ae := ElementByPath(dstrec, p);
+      for j := 0 to ElementCount(ae) - 1 do begin
+        ne := ElementByIndex(ae, j);
+        if (SortKey(ne, false) = SortKey(se, false)) then begin
+          Result := ne;
+          break;
+        end;
+      end;
+      
+      if Result <> nil then
+        break;
+    end;
+  end 
+  else begin
+    ndx := IndexOf(src, se);
+    if debug3 then AddMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
+    ae := ElementByPath(dstrec, p);
+    if (ElementCount(ae) - 1 >= ndx) then 
+      Result := ElementByIndex(ae, ndx)
+    else begin
+      for i := 0 to OverrideCount(dstrec) - 1 do begin
+        ovr := OverrideByIndex(dstrec, i);
+        ae := ElementByPath(ovr, p);
+        if (ElementCount(ae) - 1 >= ndx) then begin
+          Result := ElementByIndex(ae, ndx);
+          break;
+        end;
+      end;
+    end;
+  end;
+end;
+  
+//======================================================================
 // Non-Bethesda Override Count
 function nbsOverrideCount(r: IInterface): integer;
 var
@@ -64,40 +112,61 @@ end;
   
 //======================================================================
 // MergeArrayElements: Merges array elements
-procedure MergeArrayElements(mst: IInterface; src: IInterface; dst: IInterface);
+procedure MergeArrayElements(mst, src, dst, dstrec: IInterface);
 var
-  i, ndx: integer;
-  se, de, me: IInterface;
-  slDst, slMst: TStringList;
+  i, m_ndx, s_ndx, d_ndx: integer;
+  me, se, de: IInterface;
+  slMst, slDst, slSrc: TStringList;
   useValues: boolean;
-  dts: string;
+  dts, ets: string;
 begin
   // create slDst and slMst stringlists
-  slDst := TStringList.Create;
   slMst := TStringList.Create;
-  for i := 0 to ElementCount(dst) - 1 do begin
-    de := ElementByIndex(dst, i);
-    slDst.Add(SortKey(de, false));
-  end;
+  slSrc := TStringList.Create;
+  slDst := TStringList.Create;
   for i := 0 to ElementCount(mst) - 1 do begin
     me := ElementByIndex(mst, i);
     slMst.Add(SortKey(me, false));
   end;
-  
   for i := 0 to ElementCount(src) - 1 do begin
     se := ElementByIndex(src, i);
-    dts := DefTypeString(se);
-    ndx := slDst.IndexOf(SortKey(se, false));
-    if (ndx = -1) then
-      ElementAssign(dst, HighInteger, se, false)
-    else if (dts = 'dtStruct') then begin
-      Remove(ElementByIndex(dst, ndx));
-      ElementAssign(dst, HighInteger, se, false);
+    slSrc.Add(SortKey(se, false));
+  end;
+  for i := 0 to ElementCount(dst) - 1 do begin
+    de := ElementByIndex(dst, i);
+    slDst.Add(SortKey(de, false));
+  end;
+  
+  // remove elements that are in slMst and slDst, but missing from slSrc
+  for i := 0 to slMst.Count - 1 do begin
+    s_ndx := slSrc.IndexOf(slMst[i]);
+    d_ndx := slDst.IndexOf(slMst[i]);
+    
+    if (s_ndx = -1) and (d_ndx > -1) then begin
+      Remove(ElementByIndex(dst, d_ndx));
+      slDst.Delete(d_ndx);
     end;
   end;
   
-  slDst.Free;
+  // add elements that are in slSrc, but not in slMst or slDst
+  for i := 0 to slSrc.Count - 1 do begin
+    d_ndx := slDst.IndexOf(slSrc[i]);
+    m_ndx := slMst.IndexOf(slSrc[i]);
+    
+    se := ElementByIndex(src, i);
+    dts := DefTypeString(se);
+    ets := ElementTypeString(se);
+    if (d_ndx = -1) and (m_ndx = -1) then
+      ElementAssign(dst, HighInteger, se, false)
+    else if (d_ndx > -1) and ((dts = 'dtStruct') or (ets = 'etSubRecordArray')) then
+      rcore(se, GetMasterElement(src, se, dstrec, true), ElementByIndex(dst, d_ndx), dstrec)
+    else if (ets = 'etSubRecordStruct') then
+      rcore(se, GetMasterElement(src, se, dstrec, false), ElementByIndex(dst, IndexOf(src, se)), dstrec);
+  end;
+  
   slMst.Free;
+  slSrc.Free;
+  slDst.Free;
 end;
 
 //======================================================================
@@ -182,7 +251,7 @@ begin
     // deal with general array cases
     if (ets = 'etSubRecordArray') or (dts = 'dtArray') then begin
       if debug2 then AddMessage('  Array element found: '+Path(se));
-      MergeArrayElements(me, se, de);
+      MergeArrayElements(me, se, de, dstrec);
     end
     // else recurse deeper
     else if (ElementCount(se) > 0) then begin
@@ -192,7 +261,7 @@ begin
     // else copy element if value differs from master
     else if (dts = 'dtInteger') or (dts = 'dtFloat') or (dts = 'dtUnion') or (dts = 'dtByteArray')
     or (dts = 'dtString') or (dts = 'dtLString') or (dts = 'dtLenString') then begin
-      if debug1 then AddMessage('  Comparing values: '+GetEditValue(se)+' and '+geev(mst, Name(se)));
+      if debug1 then AddMessage('  Comparing values: '+GetEditValue(se)+' and '+GetEditValue(me));
       if GetEditValue(se) <> GetEditValue(me) then
         SetEditValue(de, GetEditValue(se));
     end;
