@@ -331,11 +331,10 @@ begin
     e := ElementByIndex(forms, 0);
     rec := LinksTo(e);
     RemoveByIndex(forms, 0, true);
-    if Assigned(rec) then
-      if smartremove then
-        if NotDuplicateForm(GetEditValue(e), x)) then Remove(rec);
-      else
-        Remove(rec);
+    if Assigned(rec) and smartremove then begin
+      if NotDuplicateForm(GetEditValue(e), x)) then Remove(rec);
+    end else
+      Remove(rec);
   end;
   Remove(flst);
 end;
