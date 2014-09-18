@@ -14,7 +14,7 @@ uses mteFunctions;
 const
   vs = 'v1.0';
   notesmax = 255;
-  smartremove = true;
+  smartremove = false;
   // smart removal!  if true RemovePlugin won't remove forms that
   // are used by other plugins internally.
 
@@ -330,13 +330,14 @@ begin
   while ElementCount(forms) > 0 do begin
     e := ElementByIndex(forms, 0);
     rec := LinksTo(e);
-    RemoveByIndex(forms, 0, true);
+    AddMessage('  removing '+SmallName(rec));
+    Remove(e);
     if Assigned(rec) and smartremove then begin
-      if NotDuplicateForm(GetEditValue(e), x)) then Remove(rec);
-    end else
-      Remove(rec);
+      if NotDuplicateForm(GetEditValue(e), x) then RemoveNode(rec);
+    end else if Assigned(rec) then
+      RemoveNode(rec);
   end;
-  Remove(flst);
+  RemoveNode(flst);
 end;
 
 //=========================================================================
@@ -348,7 +349,7 @@ begin
   for i := ElementCount(plugin) - 1 downto 1 do begin
     group := ElementByIndex(plugin, i);
     if ElementCount(group) = 0 then
-      Remove(group);
+      RemoveNode(group);
   end;
 end;
 
@@ -362,7 +363,7 @@ begin
   for m := 0 to slPlugins.Count - 1 do begin
     if (cbArray[m].Checked = True) then begin
       // string operations
-      fn := Trim(slPlugins[i]);
+      fn := Trim(slPlugins[m]);
       fn := Copy(fn, 0, Length(fn) - 4);
       // remove forms
       group := GroupBySignature(plugin, 'FLST');
