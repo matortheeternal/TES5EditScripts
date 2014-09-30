@@ -535,7 +535,9 @@ var
   perk, tree, connections: IInterface;
   perkName: string;
   xGrid, yGrid, maxGrid, xPos, yPos, index: Integer;
+  hnam, vnam: real;
 begin
+  AddMessage('GridScale = '+IntToStr(gridScale));
   maxGrid := 0;
   tree := ElementByPath(sp, 'Perk Tree');
   for i := 1 to ElementCount(tree) - 1 do begin
@@ -546,10 +548,13 @@ begin
   for i := 1 to ElementCount(tree) - 1 do begin
     perk := ElementByIndex(tree, i);
     perkName := geev(perk, 'PNAM');
-    xGrid := maxGrid - geev(perk, 'XNAM');
-    yGrid := geev(perk, 'YNAM');
-    xPos := Round(geev(perk, 'HNAM') * gridScale);
-    yPos := Round(geev(perk, 'VNAM') * gridScale);
+    xGrid := maxGrid - genv(perk, 'XNAM');
+    yGrid := genv(perk, 'YNAM');
+    hnam := genv(perk, 'HNAM');
+    vnam := genv(perk, 'VNAM');
+    xPos := Round(hnam * gridScale);
+    yPos := Round(vnam * gridScale);
+    AddMessage(perkName + '  ::  ('+IntToStr(xGrid)+'.'+IntToStr(xPos)+', '+IntToStr(yGrid)+'.'+IntToStr(yPos)+')');
 
     // create perk with loaded attributes
     Button4.Click;
