@@ -1,10 +1,10 @@
 {
   matortheeternal's Functions
+  edited 10/6/2014
+  
   A set of useful functions for use in TES5Edit scripts.
   
   **LIST OF INCLUDED FUNCTIONS**
-  - [GetVersionString]: Gets TES5Edit's version as a string.
-  - [ColorToInt]: Gets an integer value representing a color from a TColor record.
   - [ElementTypeString]: Uses ElementType and outputs a string.
   - [DefTypeString]: Uses DefType and outputs a string.
   - [ConflictThisString]: Uses ConflictThisForNode or ConflictThisForMainRecord 
@@ -16,10 +16,8 @@
   - [ItPos]: finds the position of an iteration of a substring in a string.
   - [CopyFromTo]: copies all characters in a string from a starting position to an 
     ending position.
-  - [FileByName]: gets a file from a filename.
   - [GroupSignature]: gets the signature of a group record.
   - [HexFormID]: gets the FormID of a record as a hexadecimal string.
-  - [FileFormID]: gets the FileFormID of a record as a cardinal.
   - [SmallName]: gets the FormID and editor ID as a string.
   - [ElementByIP]: loads an element by an indexed path.
   - [SetListEditValues]: Sets the edit values in a list of elements to the values 
@@ -52,55 +50,12 @@
 unit mteFunctions;
 
 const
-  bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'HearthFires.esm'#13
+  bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'Hearthfires.esm'#13
   'Dragonborn.esm'#13'Fallout3.esm'#13'FalloutNV.esm'#13'Oblivion.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
   'Fallout3.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
   'Oblivion.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
   'FalloutNV.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
-
-type
-  TColor = Record
-    red, green, blue: integer;
-  end;
-  
-
-{
-  GetVersionString:
-  Gets TES5Edit's version as a string.
-  
-  Will throw an exception on versions < 3.0.31, so surround in a
-  try..except block if you want your script to terminate gracefully
-  on old versions.
-  
-  Example usage:
-  s := GetVersionString(wbVersionNumber);
-  AddMessage(s); // xEdit version *.*.*
-}
-function GetVersionString(v: integer): string;
-begin
-  AddMessage(Format('%sEdit version %d.%d.%d', [
-    wbAppName,
-    v shr 24,
-    v shr 16 and $FF,
-    v shr 8 and $FF
-  ]));
-end;
-  
-{
-  ColorToInt:
-  Gets an integer value representing a color from a TColor record.
-  
-  Example usage:
-  color.Red := $FF;
-  color.Green := $FF;
-  color.Blue := $FF;
-  c := ColorToInt(color.Red, color.Green, color.Blue);
-}
-function ColorToInt(red: integer; green: integer; blue: integer): integer;
-begin
-  Result := blue * 65536 + green * 256 + red;
-end;
 
 {
   ElementTypeString:
@@ -391,26 +346,6 @@ begin
 end;
 
 {
-  FileByName:
-  Gets a file from a filename.
-  
-  Example usage:
-  f := FileByName('Skyrim.esm');
-}
-function FileByName(s: string): IInterface;
-var
-  i: integer;
-begin
-  Result := nil;
-  for i := 0 to FileCount - 1 do begin
-    if GetFileName(FileByIndex(i)) = s then begin
-      Result := FileByIndex(i);
-      break;
-    end;
-  end;
-end;
-
-{
   GroupSignature:
   Gets the signature of a group record.
   
@@ -448,20 +383,6 @@ begin
     Result := '00000000'
   else  
     Result := Copy(s, Pos('[' + Signature(e) + ':', s) + Length(Signature(e)) + 2, 8);
-end;
-
-{
-  FileFormID
-  Gets the local File FormID of the record.
-  
-  Replaces the non-functional FixedFormID function.
-  
-  Example usage:
-  c := FileFormID(e);
-}
-function FileFormID(e: IInterface): cardinal;
-begin
-  Result := GetLoadOrderFormID(e) mod 16777216;
 end;
 
 {
@@ -545,16 +466,13 @@ begin
   While ElementCount(list) > 1 do
     RemoveByIndex(list, 0, true);
   
-  // create elements and populate the list
-  for i := 0 to values.Count - 1 do begin
+  // set element[0] to values[0]
+  SetEditValue(ElementByIndex(list, 0), values[0]);
+  // create elements for the rest of the list
+  for i := 1 to values.Count - 1 do begin
     newelement := ElementAssign(list, HighInteger, nil, False);
-    try 
-      SetEditValue(newelement, values[i]);
-    except on Exception do
-      Remove(newelement); // remove the invalid/failed element
-    end;
+    SetEditValue(newelement, values[i]);
   end;
-  Remove(ElementByIndex(list, 0));
 end;
 
 {
@@ -894,7 +812,6 @@ begin
     
     cbFiles := TComboBox.Create(frm);
     cbFiles.Parent := frm;
-    cbFiles.Style := csDropDownList;
     cbFiles.Items.Add('-- CREATE NEW FILE --');
     cbFiles.Top := lbl.Top + lbl.Height + 20;
     cbFiles.Left := 8;
@@ -990,7 +907,7 @@ end;
   A function which can be used to make a button.  Used to make code more compact.
   
   Example usage:
-  cb1 := ConstructButton(frm, pnlBottom, 8, 8, 160, 'OK');
+  cb1 := ConstructButton(frm, pnlBottom, 8, 8, 160, 'Remove persistent references', cbChecked);
 }
 function ConstructButton(h: TObject; p: TObject; top: Integer; left: Integer; width: Integer; s: String): TButton;
 var

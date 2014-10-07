@@ -1,5 +1,5 @@
 {
-  Virtual Broom v1.0
+  Virtual Broom v1.1
   Cleans an interior cell of specific types of references, as per user input.
 }
 
@@ -8,7 +8,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = 'v1.0';
+  vs = 'v1.1';
   disable = true;
 
 var
@@ -270,7 +270,7 @@ begin
         end
         else begin
           AddMessage('        Deleting reference: ['+IntToHex(FormID(refr), 8)+'] '+geev(refr, 'NAME'));
-          Remove(refr);
+          RemoveNode(refr);
           Inc(removalCount);
         end;
       end;
@@ -316,7 +316,7 @@ begin
         end
         else begin
           AddMessage('        Deleting reference: ['+IntToHex(FormID(refr), 8)+'] '+geev(refr, 'NAME'));
-          Remove(refr);
+          RemoveNode(refr);
           Inc(removalCount);
         end;
       end;

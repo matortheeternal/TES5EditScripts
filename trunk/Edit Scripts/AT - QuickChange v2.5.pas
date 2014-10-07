@@ -1,5 +1,5 @@
 {
-  QuickChange v2.4
+  QuickChange v2.5
   Created by matortheeternal
   
   *Documentation*
@@ -53,7 +53,7 @@ unit userscript;
 uses mteFunctions;
 
 const
-  vs = 'v2.4';
+  vs = 'v2.5';
   sFunctions = 'Add'#13'ElementAssign'#13'Remove'#13'Replace'#13'Formula'#13'Restore'#13'TemplateRestore'#13'Copy'#13'Import'#13'ArrayImport';
   formuladebug = false; // set formuladebug to true to debug the formula function
 
@@ -986,11 +986,11 @@ begin
       element := ElementByIP(e, s1);
       if Assigned(element) then begin
         if (s2 = '') or (s2 = '<Index>') then begin
-          Remove(element);
+          RemoveNode(element);
           AddMessage('        Removed element at path: '+s1+' on record: '+edid);
         end
         else begin
-          RemoveByIndex(element, s2, True);
+          RemoveNode(ElementByIndex(element, StrToInt(s2)));
           AddMessage('    Removed element #'+s2+' at path: '+s1+' on record: '+edid);
         end;
       end
