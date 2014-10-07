@@ -1,5 +1,7 @@
 {
   matortheeternal's Functions
+  edited 10/6/2014
+  
   A set of useful functions for use in TES5Edit scripts.
   
   **LIST OF INCLUDED FUNCTIONS**
