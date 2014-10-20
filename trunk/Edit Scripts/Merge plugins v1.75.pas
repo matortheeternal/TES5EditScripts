@@ -1,27 +1,14 @@
 {
-  Merge Plugins Script v1.7
+  Merge Plugins Script v1.75
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.7
-    - Moved the Bethesda Files listing to mteFunctions.pas.
-    - The script now has a stylish new progress bar.
-    - The script now creates FormLists for each file that is merged, so
-      individual files can be removed after being merged
-    - The second pass copying will now use the merging method that was 
-      selected by the user, instead of always using MergeByGroups.
-    - Not having debug enabled will no longer create an issue with asset
-      copying.
-    - The user will be notified when their version of Edit is out of date.
-    - MCM Translation files are automatically copied for the new merged file.
-    - Second pass copying can now be performed into an existing file.
-    - Filenames in the Merging options form will be colored based on reports
-      stored in the Merge Plugins dictionary.
-    - You can now merge files and renumber formIDs when more than 128 files
-      are loaded in TES5Edit, assuming you're using TES5Edit v3.0.33 or newer.
-    - The TComboBox in the file selection window is no longer editable, so
-      there should be no more confusion on how to use it.
+  v1.75
+    - Reverted second pass copying bethod to CopyByGroups by default.  To use 
+      the same copying method as first pass copying, set the user variable 
+      secondpassmm to true.
+    - Fixed asset copying in Mod Organizer's virtual directory structure.
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -34,17 +21,22 @@ unit mergePlugins;
 uses mteFunctions;
 
 const
-  vs = 'v1.7';
-  debug = true; // debug messages
+  vs = 'v1.75';
+  debug = false; // debug messages
+  secondpassmm = false; // if set to true, second pass merge method will use the same 
+  // method as first pass.  else we'll use merge by groups.  leave this false unless
+  // you want to break things.
 
 var
-  slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary: TStringList;
+  slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
+  slTranslations: TStringList;
   OldForms, NewForms: TList;
   mm: integer;
   renumber, nddeleted, SkipProcess, skipnavdata, twopasses: boolean;
   mgf: IInterface;
   cbArray: Array[0..254] of TCheckBox;
   lbArray: Array[0..254] of TLabel;
+  slArray: Array[0..30] of TStringList;
 
 //=========================================================================
 // GetDefinitionHint: Generates a hint based on the definition
@@ -122,36 +114,36 @@ var
 begin
   fn := slMerge[mergeIndex];
   SetCurrentDir(s);
-  if FindFirst(s+'*.*', faAnyFile and faDirectory, info) = 0 then begin
+  if FindFirst(s+'*', faAnyFile and faDirectory, info) = 0 then begin
     repeat
+      //AddMessage(Lowercase(info.Name) + ' = ' + Lowercase(fn) + ' ? ');
       if Lowercase(info.Name) = Lowercase(fn) then begin
         CreateDir(GetFileName(mgf));
+        SetCurrentDir(s+GetFileName(mgf)+'\');
         AddMessage('        Copying assets from directory "'+Copy(s, Pos('\Data', s) + 1, Length(s))+info.Name+'"');
         // copy contents of found directory
-        if FindFirst(s+info.Name+'\'+'*.*', faAnyFile and faDirectory, info2) = 0 then begin
+        if FindFirst(s+info.Name+'\'+'*', faAnyFile and faDirectory, info2) = 0 then begin
           repeat
             if Length(info2.Name) > 8 then begin
               src := info.Name+'\'+info2.name;
               if renumber then begin
                 index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info2.name, 1, 8));
                 if (index = -1) then begin
-                  if debug then begin
-                    if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                  if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
                     else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                  end;
-                  dst := GetFileName(mgf)+'\'+info2.Name;
+                  dst := info2.Name;
                   CopyFile(PChar(src), PChar(dst), false);
                 end
                 else begin
                   old := TStringList(OldForms[mergeIndex]).Strings[index];
                   new := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
-                  dst := GetFileName(mgf)+'\'+StringReplace(Lowercase(info2.name), Lowercase(old), new, [rfReplaceAll]);
+                  dst := StringReplace(Lowercase(info2.name), Lowercase(old), new, [rfReplaceAll]);
                   CopyFile(PChar(src), PChar(dst), false);
-                  if debug then AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                  AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
                 end;
               end
               else begin
-                dst := GetFileName(mgf)+'\'+info2.name;
+                dst := info2.name;
                 CopyFile(PChar(src), PChar(dst), false);
                 if debug then AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
               end;
@@ -176,6 +168,7 @@ begin
   SetCurrentDir(s);
   if FindFirst(s+'*.*', faAnyFile and faDirectory, info) = 0 then begin
     repeat
+      //AddMessage(Lowercase(info.Name) + ' = ' + Lowercase(fn) + ' ? ');
       if Lowercase(info.Name) = Lowercase(fn) then begin
         CreateDir(GetFileName(mgf));
         AddMessage('        Copying voice assets from directory "'+Copy(s, Pos('\Data', s) + 1, Length(s))+info.Name+'"');
@@ -197,19 +190,19 @@ begin
                           if not renumber then AddMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
                           else AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
                         end;
-                        dst := GetFileName(mgf)+'\'+info2.Name+'\'+info3.name;
+                        dst := info2.Name+'\'+info3.name;
                         CopyFile(PChar(src), PChar(dst), false);
                       end
                       else begin
                         old := TStringList(OldForms[mergeIndex]).Strings[index];
                         new := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
-                        dst := GetFileName(mgf)+'\'+info2.Name+'\'+StringReplace(Lowercase(info3.name), Lowercase(old), new, [rfReplaceAll]);
+                        dst := info2.Name+'\'+StringReplace(Lowercase(info3.name), Lowercase(old), new, [rfReplaceAll]);
                         CopyFile(PChar(src), PChar(dst), false);
                         if debug then AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
                       end;
                     end
                     else begin
-                      dst := GetFileName(mgf)+'\'+info2.Name+'\'+info3.name;
+                      dst := info2.Name+'\'+info3.name;
                       CopyFile(PChar(src), PChar(dst), false);
                       if debug then AddMessage('            Copying asset "'+src+'" to "'+dst+'"');
                     end;
@@ -231,15 +224,13 @@ procedure CopyTranslations(s: string; mergeIndex: integer);
 var
   info: TSearchRec;
   src, dst, t, fn: string;
-  slArray: Array[0..30] of TStringList;
-  slTranslations, slSrc: TStringList;
-  index, i: integer;
+  slSrc: TStringList;
+  index: integer;
 begin
   fn := slMerge[mergeIndex];
-  slTranslations := TStringList.Create;
   fn := Lowercase(Copy(fn, 1, Length(fn) - 4)); // trim .esp off
   SetCurrentDir(s);
-  if FindFirst(s+'*.*', faAnyFile and faDirectory, info) = 0 then begin
+  if FindFirst(s+'*.txt', faAnyFile and faDirectory, info) = 0 then begin
     repeat
       if (Pos(fn, Lowercase(info.Name)) = 1) then begin
         t := StringReplace(Lowercase(info.Name), fn, '', [rfReplaceAll]);
@@ -261,6 +252,14 @@ begin
       end;
     until FindNext(info) <> 0;
   end;
+end;
+
+//=========================================================================
+// SaveTranslations
+procedure SaveTranslations(s: string);
+var
+  i: integer;
+begin
   for i := 0 to slTranslations.Count - 1 do begin
     if debug then 
       AddMessage('            Output MCM translation "'+s+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
@@ -451,6 +450,7 @@ begin
     
     pb.Position := pb.Position + 18/slMerge.Count;
   end;
+  SaveTranslations(DataPath + 'Interface\Translations\');
 end;
 
 //=========================================================================
@@ -548,6 +548,7 @@ begin
     
     pb.Position := pb.Position + 18/slMerge.Count;
   end;
+  SaveTranslations(DataPath + 'Interface\Translations\');
 end;
 
 //=========================================================================
@@ -861,6 +862,7 @@ begin
   slMgfMasters := TStringList.Create;
   slDictionary := TStringList.Create;
   slDictionary.LoadFromFile(ScriptsPath + '\mp\dictionary.txt');
+  slTranslations := TStringList.Create;
   OldForms := TList.Create;
   NewForms := TList.Create;
   
@@ -1094,9 +1096,12 @@ begin
       for i := slMerge.Count - 1 downto 0 do begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
         AddMessage('    Copying records from '+GetFileName(f));
-        if mm = 0 then MergeByRecords(f) else 
-        if mm = 1 then MergeIntelligently(f) else 
-        if mm = 2 then MergeByGroups(f);
+        if (secondpassmm) then begin
+          if mm = 0 then MergeByRecords(f) else 
+          if mm = 1 then MergeIntelligently(f) else 
+          if mm = 2 then MergeByGroups(f);
+        end
+        else MergeByGroups(f);
         pb.Position := pb.Position + 30/slMerge.Count;
       end;
     end;
