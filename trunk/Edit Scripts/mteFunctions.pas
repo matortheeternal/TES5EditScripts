@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 10/10/2014
+  edited 11/30/2014
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -81,12 +81,12 @@ type
 }
 function GetVersionString(v: integer): string;
 begin
-  AddMessage(Format('%sEdit version %d.%d.%d', [
+  Result := Format('%sEdit version %d.%d.%d', [
     wbAppName,
     v shr 24,
     v shr 16 and $FF,
     v shr 8 and $FF
-  ]));
+  ]);
 end;
   
 {
