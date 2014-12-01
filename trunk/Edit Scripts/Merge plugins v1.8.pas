@@ -5,6 +5,11 @@
   
   *CHANGES*
   v1.8
+  - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
+    log messages will still be used.  Logs are automatically saved to a
+    text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
+    log can be viewed during execution by clicking on the Show Details
+    button.
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1184,7 +1189,8 @@ begin
     LogMessage(#13#10);
     LogMessage('-----------------------------------------------------------------------------');
     LogMessage('Your merged file has been created successfully.  It has '+IntToStr(RecordCount(mgf))+' records.');
-    if skipnavdata and nddeleted then LogMessage('    Some NAVM/NAVI records were deleted, you may want to re-generate them in the CK!');
+    if skipnavdata and nddeleted then 
+      LogMessage('    Some NAVM/NAVI records were deleted, you may want to re-generate them in the CK!');
     // inform user about records that failed to copy
     if (slFails.Count > 0) then begin
       MessageDlg('Some records failed to copy, so your merged file is incomplete.  '
@@ -1201,7 +1207,7 @@ begin
     today := Now;
     s := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
         '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
-    memo.Lines.SaveToFile(ScriptsPath+'\mp\'+s);
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+s);
     
   finally
     frm.Free;
