@@ -23,7 +23,7 @@ uses mteFunctions;
 
 const
   vs = 'v1.8';
-  dashes = '-----------------------------------------------------------';
+  dashes = '-----------------------------------------------------------------------------';
   debug = false; // debug messages
 
 var
@@ -827,7 +827,6 @@ begin
         
         if cbArray[i].State = cbChecked then begin
           slMerge.AddObject(s, TObject(GetLoadOrder(f)));
-          AddMessage('Merging '+s);
           slMasters.Add(s);
           // add masters from files to be merged
           masters := ElementByName(ElementByIndex(f, 0), 'Master Files');
@@ -867,9 +866,9 @@ function Initialize: integer;
 begin
   // welcome messages
   AddMessage(#13#10#13#10);
-  AddMessage('-----------------------------------------------------------------------------');
+  AddMessage(dashes);
   AddMessage('Merge plugins '+vs+': Merges files.  For use with TES5Edit and FNVEdit.');
-  AddMessage('-----------------------------------------------------------------------------');
+  AddMessage(dashes);
  
   // stringlist creation
   slSelectedFiles := TStringList.Create;
@@ -916,7 +915,7 @@ function Finalize: integer;
 var
   i, j, k, rc: integer;
   f, e, group, masters, master: IInterface;
-  merge, s, desc: string;
+  merge, s, desc, version: string;
   done, b: boolean;
   lbl: TLabel;
   pb: TProgressBar;
@@ -928,7 +927,8 @@ begin
   // check version
   try
     k := wbVersionNumber;
-    AddMessage(GetVersionString(k));
+    version := GetVersionString(k);
+    AddMessage(version);
   except on Exception do
     ;// nothing
   end;
@@ -1019,8 +1019,13 @@ begin
     application.processmessages;
     
     LogMessage(dashes);
-    LogMessage('Mator Smash '+vs+': Makes a smashed patch.');
+    LogMessage('Merge Plugins '+vs+': Merges files.  For use with TES5Edit and FNVEdit.');
     LogMessage(dashes);
+    LogMessage(version+#13#10);
+    for i := 0 to slMerge.Count - 1 do
+      LogMessage('Merging '+slMerge[i]);
+    
+    LogMessage(#13#10+'Script is using ' + GetFileName(mgf) + ' as the merge file.');
   
     // add masters
     lbl.Caption := 'Adding masters...';
@@ -1060,7 +1065,7 @@ begin
     end;
 
     // the merging process
-    LogMessage(#13#10+'Beginning merging process...');
+    LogMessage(#13#10+'Copying records...');
     lbl.Caption := 'Copying records...';
     pb.Position := 29;
     for i := slMerge.Count - 1 downto 0 do begin
@@ -1070,6 +1075,7 @@ begin
       if mm = 1 then MergeIntelligently(f) else 
       if mm = 2 then MergeByGroups(f);
       pb.Position := pb.Position + 30/slMerge.Count;
+      Application.processmessages;
     end;
    
     // removing masters
@@ -1113,7 +1119,7 @@ begin
     if twopasses then begin
       // removing records for second pass copying
       pb.Position := 61;
-      LogMessage(#13#10+'Removing records for second pass...');
+      LogMessage(#13#10+'Removing records for second pass.');
       lbl.Caption := 'Removing records...';
       for i := RecordCount(mgf) - 1 downto 1 do begin
         e := RecordByIndex(mgf, i);
@@ -1132,7 +1138,7 @@ begin
       end;
       
       // copy records again
-      LogMessage(#13#10+'Performing second pass copying...');
+      LogMessage('Performing second pass copying...');
       pb.Position := 65;
       lbl.Caption := 'Copying records (second pass)...';
       for i := slMerge.Count - 1 downto 0 do begin
@@ -1145,6 +1151,7 @@ begin
         end
         else MergeByGroups(f);
         pb.Position := pb.Position + 30/slMerge.Count;
+        Application.processmessages;
       end;
     end;
     
@@ -1155,7 +1162,7 @@ begin
     pb.Position := 98;
     LogMessage(#13#10+'Creating FormLists...');
     for i := 0 to slMerge.Count - 1 do begin
-      if debug then LogMessage('  Creating formlist for '+slMerge[i]);
+      LogMessage('    Creating formlist for '+slMerge[i]);
       e := Add(GroupBySignature(mgf, 'FLST'), 'FLST', True);
       seev(e, 'EDID', Copy(slMerge[i], 1, Length(slMerge[i]) - 4)+'Forms');
       Add(e, 'FormIDs', True);
@@ -1164,6 +1171,7 @@ begin
       except on Exception do
         ; // nothing we can really do
       end;
+      Application.processmessages;
     end;
     
     // remove NAVM/NAVI records if skipnavdata is true
@@ -1187,12 +1195,14 @@ begin
 
     // script is done, print confirmation messages
     LogMessage(#13#10);
-    LogMessage('-----------------------------------------------------------------------------');
+    LogMessage(dashes);
     LogMessage('Your merged file has been created successfully.  It has '+IntToStr(RecordCount(mgf))+' records.');
     if skipnavdata and nddeleted then 
       LogMessage('    Some NAVM/NAVI records were deleted, you may want to re-generate them in the CK!');
     // inform user about records that failed to copy
     if (slFails.Count > 0) then begin
+      ShowDetails;
+      Application.processmessages;
       MessageDlg('Some records failed to copy, so your merged file is incomplete.  '
       'Please refer to the message log so you can address these records manually.  '
       '(the merged file likely will not work without these records!)', mtConfirmation, [mbOk], 0);
