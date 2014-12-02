@@ -10,6 +10,16 @@
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
     log can be viewed during execution by clicking on the Show Details
     button.
+  - Logs folder is automatically created if it didn't exist before the
+    script was executed.
+  - New separate "Advanced Options" window for setting script options.
+  - Settings specified in the advanced options window will be saved to a
+    the file Edit Scripts\mp\config.ini whenever you click OK.  These 
+    settings are then loaded and used each time the script is run in the
+    future.
+  - Automatic detection of Mod Organizer's directory has been added.
+  - Note: Several of the options in the Advanced Options window are
+    disabled because they haven't been implemented yet.
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -25,13 +35,16 @@ const
   vs = 'v1.8';
   dashes = '-----------------------------------------------------------------------------';
   debug = false; // debug messages
+  debugsearch = false;
 
 var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
   slTranslations: TStringList;
   OldForms, NewForms: TList;
-  mm: integer;
-  renumber, nddeleted, SkipProcess, skipnavdata, twopasses, secondpassmm: boolean;
+  rn, mm, sp: integer;
+  moPath: string;
+  SkipProcess, disableColoring, extractBSAs, disableESPs, 
+  usingMo, copyAll: boolean;
   mgf: IInterface;
   cbArray: Array[0..254] of TCheckBox;
   lbArray: Array[0..254] of TLabel;
@@ -39,8 +52,17 @@ var
   frm: TForm;
   memo: TMemo;
   btnDetails: TButton;
+  gear: TPicture;
+  cb2: TCheckbox;
+  btnFind: TButton;
+  ed1: TEdit;
+ 
+ 
+{*************************************************************************}
+{***************************** GUI Functions *****************************}
+{*************************************************************************}
 
-//======================================================================
+//=========================================================================
 // LogMessage: Posts a message to the log stringlist
 procedure LogMessage(msg: String);
 begin
@@ -114,6 +136,598 @@ begin
 end;
 
 //=========================================================================
+// FileSelectM: File selection window for merging
+function FileSelectM(lbl: string): IInterface;
+var
+  cmbFiles: TComboBox;
+  btnOk, btnCancel: TButton;
+  lbl01: TLabel;
+  i, j, llo: integer;
+  s: string;
+  f: IInterface;
+begin
+  frm := TForm.Create(frm);
+  try
+    frm.Caption := 'Select File';
+    frm.Width := 290;
+    frm.Height := 190;
+    frm.Position := poScreenCenter;
+    
+    lbl01 := TLabel.Create(frm);
+    lbl01.Parent := frm;
+    lbl01.Width := 250;
+    lbl01.Height := 60;
+    lbl01.Left := 8;
+    lbl01.Top := 8;
+    lbl01.Caption := lbl;
+    lbl01.Autosize := false;
+    lbl01.Wordwrap := True;
+    
+    cmbFiles := TComboBox.Create(frm);
+    cmbFiles.Parent := frm;
+    cmbFiles.Items.Add('-- CREATE NEW FILE --');
+    cmbFiles.Style := csDropDownList;
+    cmbFiles.Top := 33 + lbl01.Height;
+    cmbFiles.Left := 8;
+    cmbFiles.Width := 225;
+    llo := 0;
+    
+    for j := 0 to slMerge.Count - 1 do 
+      if llo < Integer(slMerge.Objects[j]) then 
+        llo := Integer(slMerge.Objects[j]);
+    for i := 0 to FileCount - 1 do begin
+      s := GetFileName(FileByIndex(i));
+      if Pos(s, bethesdaFiles) > 0 then Continue;
+      if slMerge.IndexOf(s) > -1 then Continue;
+      if GetLoadOrder(FileByIndex(i)) < llo then Continue;
+      cmbFiles.Items.Add(s);
+    end;
+    cmbFiles.ItemIndex := 0;
+    
+    ConstructOkCancelButtons(frm, frm, cmbFiles.Top + 50);
+    
+    if frm.ShowModal = mrOk then begin
+      if (cmbFiles.Items[cmbFiles.ItemIndex] = '-- CREATE NEW FILE --') then begin
+        f := AddNewFile;
+        Result := f;
+      end
+      else begin
+        for i := 0 to FileCount - 1 do begin
+          if (cmbFiles.Items[cmbFiles.ItemIndex] = GetFileName(FileByIndex(i))) then begin
+            Result := FileByIndex(i);
+            Continue;
+          end;
+          if i = FileCount - 1 then begin
+            AddMessage('The script couldn''t find the file you entered.');
+            Result := FileSelectM(lbl);
+          end;
+        end;
+      end;
+    end;
+  finally
+    frm.Free;
+  end;
+end;
+
+//=========================================================================
+// UsingModOrganizer: Toggle for controls
+procedure ofrm.UsingModOrganizer;
+begin
+  ed1.Enabled := (not ed1.Enabled);
+  btnFind.Enabled := (not btnFind.Enabled);
+  cb2.Enabled := (not cb2.Enabled);
+end;
+
+//=========================================================================
+procedure ofrm.DetectModOrganizer;
+var
+  i: int;
+  modOrganizerPath, paths, v: string;
+  pathList: TStringList;
+  rec: TSearchRec;
+begin
+  for i := 65 to 90 do begin
+    paths := paths + chr(i) + ':\Program Files;' + chr(i) + ':\Program Files (x86);';
+  end;
+  
+  modOrganizerPath := FileSearch('Mod Organizer\ModOrganizer.exe', paths);
+  if (modOrganizerPath = '') then begin
+    // search each folder in each valid Program Files directory for ModOrganizer.exe
+    pathList := TStringList.Create;
+    while (Pos(';', paths) > 0) do begin
+      pathList.Add(Copy(paths, 1, Pos(';', paths) - 1));
+      paths := Copy(paths, Pos(';', paths) + 1, Length(paths));
+    end;
+    for i := 0 to pathList.Count - 1 do begin
+      if FindFirst(pathList[i] + '\*', faDirectory, rec) = 0 then begin
+        repeat
+          if debugsearch then AddMessage('Searching '+pathList[i]+'\'+rec.Name);
+          modOrganizerPath := FileSearch('ModOrganizer.exe', pathList[i] + '\' + rec.Name);
+          if (modOrganizerPath <> '') then begin
+            //modOrganizerPath := Copy(modOrganizerPath, 1, Length(modOrganizerPath) - 1);
+            break;
+          end;
+        until FindNext(rec) <> 0;
+        
+        FindClose(rec);
+        if (modOrganizerPath <> '') then break;
+      end;
+    end;
+  end;
+  
+  if (modOrganizerPath <> '') then begin
+    ed1.Caption := Copy(modOrganizerPath, 1, length(modOrganizerPath) - 16);
+  end
+  else begin
+    AddMessage('Couldn''t automatically detect Mod Organizer''s file path.  Please enter it manually.');
+    ed1.Caption := '?';
+  end;
+end;
+
+//=========================================================================
+// SaveSettings: Saves the current script settings/options
+procedure SaveSettings;
+var
+  ini: TMemIniFile;
+begin
+  ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
+  if usingMO then ini.WriteString('Config', 'usingMO', '1')
+  else ini.WriteString('Config', 'usingMO', '0');
+  ini.WriteString('Config', 'moPath', moPath);
+  if copyAll then ini.WriteString('Config', 'copyAllAssets', '1')
+  else ini.WriteString('Config', 'copyAllAssets', '0');
+  ini.WriteString('Config', 'renumberingMode', IntToStr(rn));
+  ini.WriteString('Config', 'copyMode', IntToStr(mm));
+  ini.WriteString('Config', 'secondPassMode', IntToStr(sp));
+  if disableColoring then ini.WriteString('Config', 'disableColoring', '1')
+  else ini.WriteString('Config', 'disableColoring', '0');
+  if extractBSAs then ini.WriteString('Config', 'extractBSAs', '1')
+  else ini.WriteString('Config', 'extractBSAs', '0');
+  if disableESPs then ini.WriteString('Config', 'disableESPs', '1')
+  else ini.WriteString('Config', 'disableESPs', '0');
+  ini.UpdateFile;
+end;
+
+//=========================================================================
+// SaveSettings: Saves the current script settings/options
+procedure LoadSettings;
+var
+  ini: TMemIniFile;
+begin
+  ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
+  usingMO := (ini.ReadString('Config', 'usingMO', '1') = '1');
+  moPath := ini.ReadString('Config', 'moPath', '?');
+  copyAll := (ini.ReadString('Config', 'copyAllAssets', '0') = '1');
+  rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '2'));
+  mm := IntToStr(ini.ReadString('Config', 'copyMode', '1'));
+  sp := IntToStr(ini.ReadString('Config', 'secondPassMode', '1'));
+  disableColoring := (ini.ReadString('Config', 'disableColoring', '0') = '1');
+  extractBSAs := (ini.ReadString('Config', 'extractBSAs', '0') = '1');
+  disableESPs := (ini.ReadString('Config', 'disableESPs', '0') = '1');
+end;
+
+//=========================================================================
+// AdvancedOptions: 
+procedure AdvancedOptions;
+var
+  ofrm: TForm;
+  lbl1: TLabel;
+  cb1, cb3, cb4, cb5: TCheckBox;
+  gb1, gb2: TGroupBox;
+  btnOk, btnCancel: TButton;
+  rg1, rg2, rg3: TRadioGroup;
+  rb1, rb2, rb3, rb4, rb5, rb6, rb7, rb8, rb9: TRadioButton;
+begin
+  ofrm := TForm.Create(nil);
+  try
+    ofrm.Caption := 'Advanced Options';
+    ofrm.Width := 610;
+    ofrm.Position := poScreenCenter;
+    ofrm.Height := 520;
+    
+    gb1 := TGroupBox.Create(ofrm);
+    gb1.Parent := ofrm;
+    gb1.Left := 16;
+    gb1.Height := 120;
+    gb1.Top := 16;
+    gb1.Width := 560;
+    gb1.Caption := 'Mod Organizer options';
+    gb1.ClientHeight := 105;
+    gb1.ClientWidth := 556;
+    
+    cb1 := TCheckBox.Create(gb1);
+    cb1.Parent := gb1;
+    cb1.Left := 16;
+    cb1.Top := 20;
+    cb1.Width := 150;
+    cb1.Caption := ' I''m using Mod Organizer';
+    cb1.Checked := usingMO;
+    cb1.OnClick := UsingModOrganizer;
+    
+    lbl1 := TLabel.Create(gb1);
+    lbl1.Parent := gb1;
+    lbl1.Left := 16;
+    lbl1.Top := cb1.Top + cb1.Height + 12;
+    lbl1.Width := 90;
+    lbl1.Caption := 'Mod Organizer Directory: ';
+    
+    ed1 := TEdit.Create(gb1);
+    ed1.Parent := gb1;
+    ed1.Left := lbl1.Left + lbl1.Width + 16;
+    ed1.Top := lbl1.Top;
+    ed1.Width := 250;
+    ed1.Caption := moPath;
+    ed1.Enabled := usingMO;
+    
+    btnFind := TButton.Create(gb1);
+    btnFind.Parent := ofrm;
+    btnFind.Caption := 'Detect';
+    btnFind.Left := ed1.Left + ed1.Width + 24;
+    btnFind.Top := lbl1.Top + btnFind.Height div 2;
+    btnFind.OnClick := DetectModOrganizer;
+    btnFind.Enabled := usingMO;
+    
+    cb2 := TCheckBox.Create(gb1);
+    cb2.Parent := gb1;
+    cb2.Left := 16;
+    cb2.Top := lbl1.Top + lbl1.Height + 12;
+    cb2.Width := 140;
+    cb2.Caption := ' Copy All Assets';
+    cb2.Checked := copyAll;
+    cb2.Enabled := false; //usingMO;
+    
+    rg1 := TRadioGroup.Create(ofrm);
+    rg1.Parent := ofrm;
+    rg1.Left := 16;
+    rg1.Height := 60;
+    rg1.Top := gb1.Top + gb1.Height + 12;
+    rg1.Width := 560;
+    rg1.Caption := 'Renumbering options';
+    rg1.ClientHeight := 45;
+    rg1.ClientWidth := 556;
+    
+    rb1 := TRadioButton.Create(rg1);
+    rb1.Parent := rg1;
+    rb1.Left := 26;
+    rb1.Top := 18;
+    rb1.Caption := 'Don''t renumber FormIDs';
+    rb1.Width := 160;
+    rb1.Checked := (rn = 0);
+    
+    rb2 := TRadioButton.Create(rg1);
+    rb2.Parent := rg1;
+    rb2.Left := rb1.Left + rb1.Width + 16;
+    rb2.Top := rb1.Top;
+    rb2.Caption := 'Renumber conflicting FormIDs';
+    rb2.Width := 160;
+    rb2.Checked := (rn = 1);
+    rb2.Enabled := false;
+    
+    rb3 := TRadioButton.Create(rg1);
+    rb3.Parent := rg1;
+    rb3.Left := rb2.Left + rb2.Width + 16;
+    rb3.Top := rb1.Top;
+    rb3.Caption := 'Renumber all FormIDs';
+    rb3.Width := 160;
+    rb3.Checked := (rn = 2);
+    
+    rg2 := TRadioGroup.Create(ofrm);
+    rg2.Parent := ofrm;
+    rg2.Left := rg1.Left;
+    rg2.Height := rg1.Height;
+    rg2.Top := rg1.Top + rg1.Height + 16;
+    rg2.Width := rg1.Width;
+    rg2.Caption := 'Copying options';
+    rg2.ClientHeight := rg1.ClientHeight;
+    rg2.ClientWidth := rg1.ClientWidth;
+    
+    rb4 := TRadioButton.Create(rg2);
+    rb4.Parent := rg2;
+    rb4.Left := 26;
+    rb4.Top := 18;
+    rb4.Caption := 'Copy records';
+    rb4.Width := 160;
+    rb4.Checked := (mm = 0);
+    
+    rb5 := TRadioButton.Create(rg2);
+    rb5.Parent := rg2;
+    rb5.Left := rb4.Left + rb4.Width + 16;
+    rb5.Top := rb4.Top;
+    rb5.Caption := 'Copy intelligently';
+    rb5.Width := 160;
+    rb5.Checked := (mm = 1);
+    
+    rb6 := TRadioButton.Create(rg2);
+    rb6.Parent := rg2;
+    rb6.Left := rb5.Left + rb5.Width + 16;
+    rb6.Top := rb4.Top;
+    rb6.Caption := 'Copy groups';
+    rb6.Width := 160;
+    rb6.Checked := (mm = 2);
+    
+    rg3 := TRadioGroup.Create(ofrm);
+    rg3.Parent := ofrm;
+    rg3.Left := rg1.Left;
+    rg3.Height := rg1.Height;
+    rg3.Top := rg2.Top + rg2.Height + 16;
+    rg3.Width := rg1.Width;
+    rg3.Caption := 'Second pass copying options';
+    rg3.ClientHeight := rg1.ClientHeight;
+    rg3.ClientWidth := rg1.ClientWidth;
+    
+    rb7 := TRadioButton.Create(rg3);
+    rb7.Parent := rg3;
+    rb7.Left := 26;
+    rb7.Top := 18;
+    rb7.Caption := 'No second pass';
+    rb7.Width := 160;
+    rb7.Checked := (sp = 0);
+    
+    rb8 := TRadioButton.Create(rg3);
+    rb8.Parent := rg3;
+    rb8.Left := rb7.Left + rb7.Width + 16;
+    rb8.Top := rb7.Top;
+    rb8.Caption := 'Second pass same as first';
+    rb8.Width := 160;
+    rb8.Checked := (sp = 1);
+    
+    rb9 := TRadioButton.Create(rg3);
+    rb9.Parent := rg3;
+    rb9.Left := rb8.Left + rb8.Width + 16;
+    rb9.Top := rb7.Top;
+    rb9.Caption := 'Second pass copy by groups';
+    rb9.Width := 160;
+    rb9.Checked := (sp = 2);
+    
+    gb2 := TGroupBox.Create(ofrm);
+    gb2.Parent := ofrm;
+    gb2.Left := 16;
+    gb2.Height := 120;
+    gb2.Top := rg3.Top + rg3.Height + 16;
+    gb2.Width := 560;
+    gb2.Caption := 'Other options';
+    gb2.ClientHeight := 105;
+    gb2.ClientWidth := 556;
+    
+    cb3 := TCheckBox.Create(gb2);
+    cb3.Parent := gb2;
+    cb3.Left := 16;
+    cb3.Top := 20;
+    cb3.Width := 120;
+    cb3.Caption := ' Disable label coloring';
+    cb3.ShowHint := true;
+    cb3.Hint := 'Changing this option will require a restart of the script to take effect.'#13'Turn this on if you can''t see any of the filenames in the main merge window.';
+    cb3.Checked := disableColoring;
+    
+    cb4 := TCheckBox.Create(gb2);
+    cb4.Parent := gb2;
+    cb4.Left := cb3.Left;
+    cb4.Top := cb3.Top + cb3.Height + 8;
+    cb4.Width := 120;
+    cb4.Caption := ' Extract BSAs';
+    cb4.Checked := extractBSAs;
+    cb4.Enabled := false;
+    
+    cb5 := TCheckBox.Create(gb2);
+    cb5.Parent := gb2;
+    cb5.Left := cb3.Left;
+    cb5.Top := cb4.Top + cb4.Height + 8;
+    cb5.Width := 220;
+    cb5.Caption := ' Disable merged ESPs after merging';
+    cb5.Checked := disableESPs;
+    cb5.Enabled := false;
+    
+    btnOk := TButton.Create(ofrm);
+    btnOk.Parent := ofrm;
+    btnOk.Caption := 'OK';
+    btnOk.ModalResult := mrOk;
+    btnOk.Left := ofrm.Width div 2 - btnOk.Width - 8;
+    btnOk.Top := gb2.Top + gb2.Height + 15;
+    
+    btnCancel := TButton.Create(ofrm);
+    btnCancel.Parent := ofrm;
+    btnCancel.Caption := 'Cancel';
+    btnCancel.ModalResult := mrCancel;
+    btnCancel.Left := btnOk.Left + btnOk.Width + 16;
+    btnCancel.Top := btnOk.Top;
+    
+    ofrm.ActiveControl := btnOk;
+    
+    if ofrm.ShowModal = mrOk then begin
+      if rb1.Checked then rn := 0 else
+      if rb2.Checked then rn := 1 else
+      if rb3.Checked then rn := 2;
+      if rb4.Checked then mm := 0 else
+      if rb5.Checked then mm := 1 else
+      if rb6.Checked then mm := 2;
+      if rb7.Checked then sp := 0 else
+      if rb8.Checked then sp := 1 else
+      if rb9.Checked then sp := 2;
+      disableColoring := cb3.Checked;
+      extractBSAs := cb4.Checked;
+      disableESPs := cb5.Checked;
+      usingMO := cb1.Checked;
+      moPath := ed1.Caption;
+      copyAll := cb2.Checked;
+      SaveSettings;
+    end;
+  finally
+    ofrm.Free;
+  end;
+end;
+
+//=========================================================================
+// MergeForm: Provides user with options for merging
+procedure MergeForm;
+var
+  mfrm: TForm;
+  btnOk, btnCancel, btnFocus: TButton;
+  imgOptions: TImage;
+  lbl1, lbl2, lbl3: TLabel;
+  pnl: TPanel;
+  sb: TScrollBox;
+  i, j, k, height, m: integer;
+  holder: TObject;
+  masters, e, f: IInterface;
+  s: string;
+  slDefinition: TStringList;
+begin
+  LoadSettings;
+  mfrm := TForm.Create(nil);
+  try
+    mfrm.Caption := 'Merge Plugins';
+    mfrm.Width := 425;
+    mfrm.Position := poScreenCenter;
+    for i := 0 to FileCount - 1 do begin
+      s := GetFileName(FileByLoadOrder(i));
+      if Pos(s, bethesdaFiles) > 0 then Continue;
+      Inc(m);
+    end;
+    height := m*25 + 120;
+    if height > (Screen.Height - 100) then begin
+      mfrm.Height := Screen.Height - 100;
+      sb := TScrollBox.Create(mfrm);
+      sb.Parent := mfrm;
+      sb.Height := Screen.Height - 330;
+      sb.Align := alTop;
+      holder := sb;
+    end
+    else begin
+      mfrm.Height := height;
+      holder := mfrm;
+    end;
+
+    lbl1 := TLabel.Create(holder);
+    lbl1.Parent := holder;
+    lbl1.Top := 8;
+    lbl1.Left := 8;
+    lbl1.AutoSize := False;
+    lbl1.Wordwrap := True;
+    lbl1.Width := 300;
+    lbl1.Height := 50;
+    lbl1.Caption := 'Select the plugins you want to merge.';
+    
+    // create file list
+    for i := 0 to FileCount - 1 do begin
+      s := GetFileName(FileByIndex(i));
+      if (Pos(s, bethesdaFiles) > 0) or (s = '') then Continue;
+      j := 25 * k;
+      Inc(k);
+      
+      // load definition
+      slDefinition := TStringList.Create;
+      slDefinition.StrictDelimiter := true;
+      slDefinition.Delimiter := ';';
+      slDefinition.DelimitedText := GetDefinition(FileByIndex(i), false, false);
+      
+      // set up checkbox
+      cbArray[i] := TCheckBox.Create(holder);
+      cbArray[i].Parent := holder;
+      cbArray[i].Left := 24;
+      cbArray[i].Top := 40 + j;
+      cbArray[i].Width := 350;
+      cbArray[i].ShowHint := true;
+      cbArray[i].Hint := GetDefinitionHint(slDefinition);
+        
+      if (slSelectedFiles.IndexOf(s) > - 1) then 
+        cbArray[i].Checked := True;
+      
+      // set up label
+      lbArray[i] := TLabel.Create(holder);
+      lbArray[i].Parent := holder;
+      lbArray[i].Left := 44;
+      lbArray[i].Top := cbArray[i].Top;
+      lbArray[i].Caption := '  [' + IntToHex64(i + 1, 2) + ']  ' + s;
+      if not disableColoring then begin
+        lbArray[i].Font.Color := GetMergeColor(slDefinition);
+        if slDefinition.Count > 5 then
+          lbArray[i].Font.Style := lbArray[i].Font.Style + [fsbold];
+      end;
+      
+      // free definition
+      slDefinition.Free;
+    end;
+    
+    if holder = sb then begin
+      lbl2 := TLabel.Create(holder);
+      lbl2.Parent := holder;
+      lbl2.Top := j + 60;
+    end;
+    
+    pnl := TPanel.Create(mfrm);
+    pnl.Parent := mfrm;
+    pnl.BevelOuter := bvNone;
+    pnl.Align := alBottom;
+    pnl.Height := 50;
+    
+    imgOptions := TImage.Create(pnl);
+    imgOptions.Parent := pnl;
+    imgOptions.Picture := gear;
+    imgOptions.Width := 24;
+    imgOptions.Height := 24;
+    imgOptions.ShowHint := true;
+    imgOptions.Hint := 'Advanced Options';
+    imgOptions.OnClick := AdvancedOptions;
+    imgOptions.Left := mfrm.Width - 50;
+    imgOptions.Top := pnl.Height - 40;
+    
+    btnOk := TButton.Create(mfrm);
+    btnOk.Parent := pnl;
+    btnOk.Caption := 'OK';
+    btnOk.ModalResult := mrOk;
+    btnOk.Left := 120;
+    btnOk.Top := pnl.Height - 40;
+    
+    btnCancel := TButton.Create(mfrm);
+    btnCancel.Parent := pnl;
+    btnCancel.Caption := 'Cancel';
+    btnCancel.ModalResult := mrCancel;
+    btnCancel.Left := btnOk.Left + btnOk.Width + 16;
+    btnCancel.Top := btnOk.Top;
+    
+    mfrm.ActiveControl := btnOk;
+    
+    if mfrm.ShowModal = mrOk then begin
+      for i := 0 to FileCount - 1 do begin
+        f := FileByIndex(i);
+        s := GetFileName(f);
+        if Pos(s, bethesdaFiles) > 0 then Continue;        
+        
+        if cbArray[i].State = cbChecked then begin
+          slMerge.AddObject(s, TObject(GetLoadOrder(f)));
+          slMasters.Add(s);
+          // add masters from files to be merged
+          masters := ElementByName(ElementByIndex(f, 0), 'Master Files');
+          for j := 0 to ElementCount(masters) - 1 do begin
+            e := ElementByIndex(masters, j);
+            s := GetElementNativeValues(e, 'MAST');
+            slMasters.Add(s);
+          end;
+        end;
+      end;
+    end;
+  finally
+    mfrm.Free;
+  end;
+end;
+
+//======================================================================
+// ShowDetails: Enables the visibilty of the TMemo log
+procedure ShowDetails(Sender: TObject);
+begin
+  frm.Height := 600;
+  frm.Position := poScreenCenter;
+  memo.Height := frm.Height - 150;
+  btnDetails.Visible := false;
+  memo.Visible := true;
+end;
+
+
+{*************************************************************************}
+{**************************** Merge Functions ****************************}
+{*************************************************************************}
+
+//=========================================================================
 // CopyAssets: copies assets in filename specific directories
 procedure CopyAssets(s: string; mergeIndex: integer);
 var
@@ -135,10 +749,10 @@ begin
           repeat
             if Length(info2.Name) > 8 then begin
               src := info.Name+'\'+info2.name;
-              if renumber then begin
+              if (rn = 2) then begin
                 index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info2.name, 1, 8));
                 if (index = -1) then begin
-                  if not renumber then LogMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                  if not (rn = 2) then LogMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
                     else LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
                   dst := info2.Name;
                   CopyFile(PChar(src), PChar(dst), false);
@@ -192,11 +806,11 @@ begin
                 repeat
                   if Length(info3.Name) > 8 then begin
                     src := info.Name+'\'+info2.name+'\'+info3.Name;
-                    if renumber then begin
+                    if (rn = 2) then begin
                       index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info3.name, Pos('_0', info3.Name)+1, 8));
                       if (index = -1) then begin
                         if debug then begin
-                          if not renumber then LogMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
+                          if not (rn = 2) then LogMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
                           else LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
                         end;
                         dst := info2.Name+'\'+info3.name;
@@ -297,13 +911,6 @@ begin
     seev(e, 'MNAM\Camera Data\Max Height', '80000');
     seev(e, 'MNAM\Camera Data\Initial Pitch', '50');
   end;
-  
-  // skip NAVM/NAVI records if skipnavdata is true
-  if skipnavdata then
-    if (signature(e) = 'NAVM') or (signature(e) = 'NAVI') then begin
-      nddeleted := true;
-      exit;
-    end;
   
   // attempt to copy record to merged file, alert user on exception
   try
@@ -560,305 +1167,10 @@ begin
   SaveTranslations(DataPath + 'Interface\Translations\');
 end;
 
-//=========================================================================
-// FileSelectM: File selection window for merging
-function FileSelectM(lbl: string): IInterface;
-var
-  cmbFiles: TComboBox;
-  btnOk, btnCancel: TButton;
-  lbl01: TLabel;
-  i, j, llo: integer;
-  s: string;
-  f: IInterface;
-begin
-  frm := TForm.Create(frm);
-  try
-    frm.Caption := 'Select File';
-    frm.Width := 290;
-    frm.Height := 190;
-    frm.Position := poScreenCenter;
-    
-    lbl01 := TLabel.Create(frm);
-    lbl01.Parent := frm;
-    lbl01.Width := 250;
-    lbl01.Height := 60;
-    lbl01.Left := 8;
-    lbl01.Top := 8;
-    lbl01.Caption := lbl;
-    lbl01.Autosize := false;
-    lbl01.Wordwrap := True;
-    
-    cmbFiles := TComboBox.Create(frm);
-    cmbFiles.Parent := frm;
-    cmbFiles.Items.Add('-- CREATE NEW FILE --');
-    cmbFiles.Style := csDropDownList;
-    cmbFiles.Top := 33 + lbl01.Height;
-    cmbFiles.Left := 8;
-    cmbFiles.Width := 225;
-    llo := 0;
-    
-    for j := 0 to slMerge.Count - 1 do 
-      if llo < Integer(slMerge.Objects[j]) then 
-        llo := Integer(slMerge.Objects[j]);
-    for i := 0 to FileCount - 1 do begin
-      s := GetFileName(FileByIndex(i));
-      if Pos(s, bethesdaFiles) > 0 then Continue;
-      if slMerge.IndexOf(s) > -1 then Continue;
-      if GetLoadOrder(FileByIndex(i)) < llo then Continue;
-      cmbFiles.Items.Add(s);
-    end;
-    cmbFiles.ItemIndex := 0;
-    
-    ConstructOkCancelButtons(frm, frm, cmbFiles.Top + 50);
-    
-    if frm.ShowModal = mrOk then begin
-      if (cmbFiles.Items[cmbFiles.ItemIndex] = '-- CREATE NEW FILE --') then begin
-        f := AddNewFile;
-        Result := f;
-      end
-      else begin
-        for i := 0 to FileCount - 1 do begin
-          if (cmbFiles.Items[cmbFiles.ItemIndex] = GetFileName(FileByIndex(i))) then begin
-            Result := FileByIndex(i);
-            Continue;
-          end;
-          if i = FileCount - 1 then begin
-            AddMessage('The script couldn''t find the file you entered.');
-            Result := FileSelectM(lbl);
-          end;
-        end;
-      end;
-    end;
-  finally
-    frm.Free;
-  end;
-end;
 
-//=========================================================================
-// OptionsForm: Provides user with options for merging
-procedure OptionsForm;
-var
-  frm: TForm;
-  btnOk, btnCancel, btnFocus: TButton;
-  cb: TGroupBox;
-  cb1, cb2, cb3, cbRenumber: TCheckBox;
-  lbl1, lbl2: TLabel;
-  rg: TRadioGroup;
-  rb1, rb2, rb3: TRadioButton;
-  pnl: TPanel;
-  sb: TScrollBox;
-  i, j, k, height, m: integer;
-  holder: TObject;
-  masters, e, f: IInterface;
-  s: string;
-  slDefinition: TStringList;
-begin
-  frm := TForm.Create(nil);
-  try
-    frm.Caption := 'Merge Plugins';
-    frm.Width := 425;
-    frm.Position := poScreenCenter;
-    for i := 0 to FileCount - 1 do begin
-      s := GetFileName(FileByLoadOrder(i));
-      if Pos(s, bethesdaFiles) > 0 then Continue;
-      Inc(m);
-    end;
-    height := m*25 + 240;
-    if height > (Screen.Height - 100) then begin
-      frm.Height := Screen.Height - 100;
-      sb := TScrollBox.Create(frm);
-      sb.Parent := frm;
-      sb.Height := Screen.Height - 330;
-      sb.Align := alTop;
-      holder := sb;
-    end
-    else begin
-      frm.Height := height;
-      holder := frm;
-    end;
-
-    lbl1 := TLabel.Create(holder);
-    lbl1.Parent := holder;
-    lbl1.Top := 8;
-    lbl1.Left := 8;
-    lbl1.AutoSize := False;
-    lbl1.Wordwrap := True;
-    lbl1.Width := 300;
-    lbl1.Height := 50;
-    lbl1.Caption := 'Select the plugins you want to merge.';
-    
-    // create file list
-    for i := 0 to FileCount - 1 do begin
-      s := GetFileName(FileByIndex(i));
-      if (Pos(s, bethesdaFiles) > 0) or (s = '') then Continue;
-      j := 25 * k;
-      Inc(k);
-      
-      // load definition
-      slDefinition := TStringList.Create;
-      slDefinition.StrictDelimiter := true;
-      slDefinition.Delimiter := ';';
-      slDefinition.DelimitedText := GetDefinition(FileByIndex(i), false, false);
-      
-      // set up checkbox
-      cbArray[i] := TCheckBox.Create(holder);
-      cbArray[i].Parent := holder;
-      cbArray[i].Left := 24;
-      cbArray[i].Top := 40 + j;
-      cbArray[i].Width := 350;
-      cbArray[i].ShowHint := true;
-      cbArray[i].Hint := GetDefinitionHint(slDefinition);
-        
-      if (slSelectedFiles.IndexOf(s) > - 1) then 
-        cbArray[i].Checked := True;
-      
-      // set up label
-      lbArray[i] := TLabel.Create(holder);
-      lbArray[i].Parent := holder;
-      lbArray[i].Left := 44;
-      lbArray[i].Top := cbArray[i].Top;
-      lbArray[i].Caption := '  [' + IntToHex64(i + 1, 2) + ']  ' + s;
-      lbArray[i].Font.Color := GetMergeColor(slDefinition);
-      if slDefinition.Count > 5 then
-        lbArray[i].Font.Style := lbArray[i].Font.Style + [fsbold];
-      
-      // free definition
-      slDefinition.Free;
-    end;
-    
-    if holder = sb then begin
-      lbl2 := TLabel.Create(holder);
-      lbl2.Parent := holder;
-      lbl2.Top := j + 60;
-    end;
-    
-    pnl := TPanel.Create(frm);
-    pnl.Parent := frm;
-    pnl.BevelOuter := bvNone;
-    pnl.Align := alBottom;
-    pnl.Height := 190;
-    
-    rg := TRadioGroup.Create(frm);
-    rg.Parent := pnl;
-    rg.Left := 16;
-    rg.Height := 60;
-    rg.Top := 16;
-    rg.Width := 372;
-    rg.Caption := 'Merge Method';
-    rg.ClientHeight := 45;
-    rg.ClientWidth := 368;
-    
-    rb1 := TRadioButton.Create(rg);
-    rb1.Parent := rg;
-    rb1.Left := 26;
-    rb1.Top := 18;
-    rb1.Caption := 'Copy records';
-    rb1.Width := 80;
-    
-    rb2 := TRadioButton.Create(rg);
-    rb2.Parent := rg;
-    rb2.Left := rb1.Left + rb1.Width + 30;
-    rb2.Top := rb1.Top;
-    rb2.Caption := 'Copy intelligently';
-    rb2.Width := 100;
-    rb2.Checked := True;
-    
-    rb3 := TRadioButton.Create(rg);
-    rb3.Parent := rg;
-    rb3.Left := rb2.Left + rb2.Width + 30;
-    rb3.Top := rb1.Top;
-    rb3.Caption := 'Copy groups';
-    rb3.Width := 80;
-    
-    cb := TGroupBox.Create(frm);
-    cb.Parent := pnl;
-    cb.Left := 16;
-    cb.Height := 60;
-    cb.Top := 77;
-    cb.Width := 372;
-    cb.Caption := 'Advanced Merge Settings';
-    cb.ClientHeight := 50;
-    cb.ClientWidth := 368;
-    
-    cb1 := TCheckBox.Create(cb);
-    cb1.Parent := cb;
-    cb1.Left := 16;
-    cb1.Top := 20;
-    cb1.Caption := 'Renumber FormIDs';
-    cb1.Width := 110;
-    cb1.State := cbChecked;
-    
-    cb2 := TCheckBox.Create(cb);
-    cb2.Parent := cb;
-    cb2.Left := cb1.Left + cb1.Width + 20;
-    cb2.Top := cb1.Top;
-    cb2.Caption := 'Two-pass Copying';
-    cb2.Width := 110;
-    cb2.State := cbChecked;
-    
-    cb3 := TCheckBox.Create(cb);
-    cb3.Parent := cb;
-    cb3.Left := cb2.Left + cb2.Width + 20;
-    cb3.Top := cb1.Top;
-    cb3.Caption := 'Skip Navdata';
-    cb3.Width := 80;
-    
-    btnOk := TButton.Create(frm);
-    btnOk.Parent := pnl;
-    btnOk.Caption := 'OK';
-    btnOk.ModalResult := mrOk;
-    btnOk.Left := 120;
-    btnOk.Top := pnl.Height - 40;
-    
-    btnCancel := TButton.Create(frm);
-    btnCancel.Parent := pnl;
-    btnCancel.Caption := 'Cancel';
-    btnCancel.ModalResult := mrCancel;
-    btnCancel.Left := btnOk.Left + btnOk.Width + 16;
-    btnCancel.Top := btnOk.Top;
-    
-    frm.ActiveControl := btnOk;
-    
-    if frm.ShowModal = mrOk then begin
-      for i := 0 to FileCount - 1 do begin
-        f := FileByIndex(i);
-        s := GetFileName(f);
-        if Pos(s, bethesdaFiles) > 0 then Continue;        
-        
-        if cbArray[i].State = cbChecked then begin
-          slMerge.AddObject(s, TObject(GetLoadOrder(f)));
-          slMasters.Add(s);
-          // add masters from files to be merged
-          masters := ElementByName(ElementByIndex(f, 0), 'Master Files');
-          for j := 0 to ElementCount(masters) - 1 do begin
-            e := ElementByIndex(masters, j);
-            s := GetElementNativeValues(e, 'MAST');
-            slMasters.Add(s);
-          end;
-        end;
-        if rb1.Checked then mm := 0 else
-        if rb2.Checked then mm := 1 else
-        if rb3.Checked then mm := 2;
-        if cb1.State = cbChecked then renumber := true;
-        if cb2.State = cbChecked then twopasses := true;
-        if cb3.State = cbChecked then skipnavdata := true;
-      end;
-    end;
-  finally
-    frm.Free;
-  end;
-end;
-
-//======================================================================
-// ShowDetails: Enables the visibilty of the TMemo log
-procedure ShowDetails(Sender: TObject);
-begin
-  frm.Height := 600;
-  frm.Position := poScreenCenter;
-  memo.Height := frm.Height - 150;
-  btnDetails.Visible := false;
-  memo.Visible := true;
-end;
+{**************************************************************************}
+{**************************** Script Execution ****************************}
+{**************************************************************************}
 
 //=========================================================================
 // Initialize
@@ -883,6 +1195,10 @@ begin
   slTranslations := TStringList.Create;
   OldForms := TList.Create;
   NewForms := TList.Create;
+  
+  // load gui elements
+  gear := TPicture.Create;
+  gear.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\gear.png');
   
   // process only file elements
   try 
@@ -939,7 +1255,7 @@ begin
   end;
   
   // if 128 or more files loaded, alert user and terminate script
-  // unlesss version is 3.0.33 or newer
+  // unless version is 3.0.33 or newer
   if (FileCount >= 128) and (k < 50340096) then begin
     AddMessage('You cannot load 128 or more plugins into this version of TES5Edit when Merging Plugins.');
     AddMessage('Please reopen TES5Edit and select 127 or fewer plugins to load, or download and use TES5Edit 3.0.33.'+#13#10);
@@ -947,7 +1263,7 @@ begin
     exit;
   end;
   
-  OptionsForm;
+  MergeForm;
   
   // terminate script if mergelist contains less than one file
   if slMerge.Count < 1 then begin
@@ -1033,15 +1349,19 @@ begin
     AddMastersToFile(mgf, slMasters, true);
      
     // renumber forms in files to be merged
-    if renumber and (k >= 50340096) then begin
-      lbl.Caption := 'Renumbering FormIDs...';
+    if (rn = 2) and (k >= 50340096) then begin
+      lbl.Caption := 'Renumbering All FormIDs...';
       RenumberNew(pb);
     end
-    else if renumber and (FileCount < 128) then begin
-      lbl.Caption := 'Renumbering FormIDs...';
+    else if (rn = 2) and (FileCount < 128) then begin
+      lbl.Caption := 'Renumbering All FormIDs...';
       RenumberOld(pb);
     end
-    else if not renumber then begin
+    else if (rn = 1) then begin
+      lbl.Caption := 'Renumbering conflicting FormIDs...';
+      logMessage(#13#10+'Renumbering Conflicting FormIDs');
+    end
+    else if (rn = 0) then begin
       // make formID text files
       for i := 0 to slMerge.Count - 1 do begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
@@ -1116,7 +1436,7 @@ begin
     seev(ElementByIndex(mgf, 0), 'SNAM', desc);
     
     // second pass copying
-    if twopasses then begin
+    if (sp > 0) then begin
       // removing records for second pass copying
       pb.Position := 61;
       LogMessage(#13#10+'Removing records for second pass.');
@@ -1144,7 +1464,7 @@ begin
       for i := slMerge.Count - 1 downto 0 do begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
         LogMessage('    Copying records from '+GetFileName(f));
-        if (secondpassmm) then begin
+        if (sp = 1) then begin
           if mm = 0 then MergeByRecords(f) else 
           if mm = 1 then MergeIntelligently(f) else 
           if mm = 2 then MergeByGroups(f);
@@ -1173,32 +1493,12 @@ begin
       end;
       Application.processmessages;
     end;
-    
-    // remove NAVM/NAVI records if skipnavdata is true
-    if skipnavdata then begin
-      lbl.Caption := 'Removing Navdata...';
-      pb.Position := 99;
-      LogMessage(#13#10+'Deleting NAVM/NAVI data...');
-      rc := RecordCount(mgf) - 1;
-      for i := 0 to rc do
-        Records[i] := RecordByIndex(mgf, i);
-      for i := 0 to rc do begin
-          e := Records[i];
-          if (signature(e) = 'NAVM') or (signature(e) = 'NAVI') then begin
-            LogMessage('    Removed '+Name(e));
-            Remove(e);
-            nddeleted := true;
-          end;
-      end;
-    end;
     pb.Position := 100;
 
     // script is done, print confirmation messages
     LogMessage(#13#10);
     LogMessage(dashes);
     LogMessage('Your merged file has been created successfully.  It has '+IntToStr(RecordCount(mgf))+' records.');
-    if skipnavdata and nddeleted then 
-      LogMessage('    Some NAVM/NAVI records were deleted, you may want to re-generate them in the CK!');
     // inform user about records that failed to copy
     if (slFails.Count > 0) then begin
       ShowDetails;
@@ -1213,7 +1513,8 @@ begin
     LogMessage(#13#10);
   
     // save log
-    randomize();
+    SetCurrentDir(ScriptsPath + '\mp\');
+    CreateDir('logs'); // create directory if it doesn't already exist
     today := Now;
     s := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
         '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
@@ -1222,7 +1523,9 @@ begin
   finally
     frm.Free;
   end;
-  // clean stringlists
+  // free gui elements
+  gear.Free;
+  // free stringlists
   NewForms.Free; OldForms.Free; slMerge.Free;  slSelectedFiles.Free;  slMasters.Free;  slFails.Free;
   // return hinthidepasue to default value
   Application.HintHidePause := 1000;
