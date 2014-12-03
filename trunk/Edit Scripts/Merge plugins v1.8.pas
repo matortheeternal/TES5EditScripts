@@ -18,6 +18,8 @@
     settings are then loaded and used each time the script is run in the
     future.
   - Automatic detection of Mod Organizer's directory has been added.
+  - Log saves even if script terminates prematurely.
+  - Better messages when a record fails to copy.
   - Note: Several of the options in the Advanced Options window are
     disabled because they haven't been implemented yet.
     
@@ -917,9 +919,9 @@ begin
     cr := wbCopyElementToFile(e, mgf, False, True);
     if debug then LogMessage('        Copying '+SmallName(e));
   except
-    on Exception do begin
-      LogMessage('        Failed to copy '+Path(e));
-      slFails.Add(Name(e)+' from file '+GetFileName(GetFile(e)));
+    on x : Exception do begin
+      LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
+      slFails.Add(Path(e));
     end;
   end;
 end;
