@@ -713,7 +713,7 @@ end;
 
 //======================================================================
 // ShowDetails: Enables the visibilty of the TMemo log
-procedure ShowDetails(Sender: TObject);
+procedure ShowDetails;
 begin
   frm.Height := 600;
   frm.Position := poScreenCenter;
@@ -918,7 +918,7 @@ begin
     if debug then LogMessage('        Copying '+SmallName(e));
   except
     on Exception do begin
-      LogMessage('        Failed to copy '+SmallName(e));
+      LogMessage('        Failed to copy '+Path(e));
       slFails.Add(Name(e)+' from file '+GetFileName(GetFile(e)));
     end;
   end;
@@ -1231,7 +1231,7 @@ function Finalize: integer;
 var
   i, j, k, rc: integer;
   f, e, group, masters, master: IInterface;
-  merge, s, desc, version: string;
+  merge, s, desc, version, fn: string;
   done, b: boolean;
   lbl: TLabel;
   pb: TProgressBar;
@@ -1383,6 +1383,15 @@ begin
         CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
       end;
     end;
+    
+    // set up for saving
+    SetCurrentDir(ScriptsPath + '\mp\');
+    CreateDir('logs'); // create directory if it doesn't already exist
+    today := Now;
+    fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
+        '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
 
     // the merging process
     LogMessage(#13#10+'Copying records...');
@@ -1397,6 +1406,8 @@ begin
       pb.Position := pb.Position + 30/slMerge.Count;
       Application.processmessages;
     end;
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
    
     // removing masters
     LogMessage(#13#10+'Removing unnecessary masters...');
@@ -1434,6 +1445,8 @@ begin
     end;
     seev(ElementByIndex(mgf, 0), 'CNAM', 'Merge Plugins Script '+vs);
     seev(ElementByIndex(mgf, 0), 'SNAM', desc);
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
     // second pass copying
     if (sp > 0) then begin
@@ -1474,6 +1487,8 @@ begin
         Application.processmessages;
       end;
     end;
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
     // create formID list group
     Add(mgf, 'FLST', true);
@@ -1493,6 +1508,8 @@ begin
       end;
       Application.processmessages;
     end;
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     pb.Position := 100;
 
     // script is done, print confirmation messages
@@ -1513,12 +1530,7 @@ begin
     LogMessage(#13#10);
   
     // save log
-    SetCurrentDir(ScriptsPath + '\mp\');
-    CreateDir('logs'); // create directory if it doesn't already exist
-    today := Now;
-    s := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
-        '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
-    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+s);
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
   finally
     frm.Free;
