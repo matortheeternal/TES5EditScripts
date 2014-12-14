@@ -43,7 +43,7 @@ uses mteFunctions;
 const
   vs = 'v1.8';
   dashes = '-----------------------------------------------------------------------------';
-  debug = true; // debug messages
+  debug = false; // debug messages
   debugsearch = false;
 
 var
