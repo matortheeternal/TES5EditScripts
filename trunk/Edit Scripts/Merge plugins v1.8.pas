@@ -22,6 +22,16 @@
   - Better messages when a record fails to copy.
   - Note: Several of the options in the Advanced Options window are
     disabled because they haven't been implemented yet.
+  - New option: Renumber Conflicting FormIDs only renumbers FormIDs that 
+    conflict with each other.  
+  - Fixed asset copying to work with MO's virtual data directory as well as
+    a real Skyrim data directory (e.g. NMM or manual installation).
+  - Fixed renumbering methods to not terminate prematurely.
+  - Made it so the script will wait for the user to close the progress 
+    window after execution instead of closing it automatically.  NOTE: I'm 
+    currently doing this in a really ugly way because I don't have access to 
+    any sleep commands as far as I'm aware. TES5Edit will use all of the CPU
+    it can during this stage (so 1 core).
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -36,7 +46,7 @@ uses mteFunctions;
 const
   vs = 'v1.8';
   dashes = '-----------------------------------------------------------------------------';
-  debug = false; // debug messages
+  debug = true; // debug messages
   debugsearch = false;
 
 var
@@ -403,7 +413,6 @@ begin
     rb2.Caption := 'Renumber conflicting FormIDs';
     rb2.Width := 160;
     rb2.Checked := (rn = 1);
-    rb2.Enabled := false;
     
     rb3 := TRadioButton.Create(rg1);
     rb3.Parent := rg1;
@@ -590,7 +599,7 @@ begin
       mfrm.Height := Screen.Height - 100;
       sb := TScrollBox.Create(mfrm);
       sb.Parent := mfrm;
-      sb.Height := Screen.Height - 330;
+      sb.Height := Screen.Height - 210;
       sb.Align := alTop;
       holder := sb;
     end
@@ -730,52 +739,70 @@ end;
 {*************************************************************************}
 
 //=========================================================================
-// CopyAssets: copies assets in filename specific directories
-procedure CopyAssets(s: string; mergeIndex: integer);
+// FindFolder: looks for a folder matching the given name at the given path
+function FindFolder(path: string; filename: string): string;
 var
-  info, info2: TSearchRec;
-  src, dst, old, new, fn: string;
+  info: TSearchRec;
+begin
+  Result := '';
+  if FindFirst(path+'*', faDirectory, info) = 0 then begin
+    repeat
+      if Lowercase(info.Name) = Lowercase(filename) then begin
+        Result := path + info.Name +'\';
+        break;
+      end;
+    until FindNext(info) <> 0;
+  end;
+end;
+
+//=========================================================================
+// CopyAssets: copies assets in filename specific directories
+procedure CopyAssets(path: string; mergeIndex: integer);
+var
+  info: TSearchRec;
+  src, dst, newForm, srcPath, dstPath: string;
   index: integer;
 begin
-  fn := slMerge[mergeIndex];
-  SetCurrentDir(s);
-  if FindFirst(s+'*', faAnyFile and faDirectory, info) = 0 then begin
+  // see if there is a folder matching the filename
+  srcPath := FindFolder(path, slMerge[mergeIndex]);
+  
+  // if no folder found, exit
+  if (srcPath = '') then exit;
+  
+  // prepare destination
+  if (usingMO) then begin
+    dstPath : = StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll]);
+    ForceDirectories(dstPath);
+  end
+  else begin
+    dstPath := path + GetFileName(mgf) + '\');
+    ForceDirectories(dstpath);
+  end;
+  
+  // copy all assets
+  index := -1;
+  LogMessage('        Copying assets from directory "'+srcPath+'"');
+  LogMessage('        Copying assets to directory "'+dstPath+'"');
+  if FindFirst(srcPath+'*', faAnyFile, info) = 0 then begin
     repeat
-      //LogMessage(Lowercase(info.Name) + ' = ' + Lowercase(fn) + ' ? ');
-      if Lowercase(info.Name) = Lowercase(fn) then begin
-        CreateDir(GetFileName(mgf));
-        SetCurrentDir(s+GetFileName(mgf)+'\');
-        LogMessage('        Copying assets from directory "'+Copy(s, Pos('\Data', s) + 1, Length(s))+info.Name+'"');
-        // copy contents of found directory
-        if FindFirst(s+info.Name+'\'+'*', faAnyFile and faDirectory, info2) = 0 then begin
-          repeat
-            if Length(info2.Name) > 8 then begin
-              src := info.Name+'\'+info2.name;
-              if (rn = 2) then begin
-                index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info2.name, 1, 8));
-                if (index = -1) then begin
-                  if not (rn = 2) then LogMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
-                    else LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                  dst := info2.Name;
-                  CopyFile(PChar(src), PChar(dst), false);
-                end
-                else begin
-                  old := TStringList(OldForms[mergeIndex]).Strings[index];
-                  new := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
-                  dst := StringReplace(Lowercase(info2.name), Lowercase(old), new, [rfReplaceAll]);
-                  CopyFile(PChar(src), PChar(dst), false);
-                  LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                end;
-              end
-              else begin
-                dst := info2.name;
-                CopyFile(PChar(src), PChar(dst), false);
-                if debug then LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-              end;
-            end;
-          until FindNext(info2) <> 0;
+      src := info.Name;
+      // skip . and ..
+      if (Length(src) >= 8) then begin
+        if (rn > 0) then
+          index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(src, 1, 8));
+        // asset not renumbered
+        if (index = -1) then begin
+          dst := info.Name;
+          LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
+          CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+        end
+        // asset renumbered
+        else begin
+          newForm := '00' + Copy(NewForms[index], 3, 6);
+          dst := StringReplace(info.Name, Copy(src, 1, 8), newForm, [rfReplaceAll]);
+          CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+          LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
         end;
-        Break;
       end;
     until FindNext(info) <> 0;
   end;
@@ -783,61 +810,57 @@ end;
 
 //=========================================================================
 // CopyVoiceAssets: copies voice assets in filename specific directories
-procedure CopyVoiceAssets(s: string; mergeIndex: integer);
+procedure CopyVoiceAssets(path: string; mergeIndex: integer);
 var
-  info, info2, info3: TSearchRec;
-  src, dst, old, new, fn: string;
+  info, info2: TSearchRec;
+  src, dst, newForm, srcPath, dstPath: string;
   index: integer;
 begin
-  fn := slMerge[mergeIndex];
-  SetCurrentDir(s);
-  if FindFirst(s+'*.*', faAnyFile and faDirectory, info) = 0 then begin
+  // see if there is a folder matching the filename
+  srcPath := FindFolder(path, slMerge[mergeIndex]);
+  
+  // if no folder found, exit
+  if (srcPath = '') then exit;
+  
+  // prepare destination
+  if (usingMO) then
+    dstPath : = StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll])
+  else
+    dstPath := path + GetFileName(mgf) + '\');
+  ForceDirectories(dstPath);
+  
+  // copy subfolders and their contents
+  index := -1;
+  LogMessage('        Copying voice assets from directory "'+srcPath+'"');
+  LogMessage('        Copying voice assets to directory "'+dstPath+'"');
+  if FindFirst(srcPath+'*', faDirectory, info) = 0 then begin
     repeat
-      //LogMessage(Lowercase(info.Name) + ' = ' + Lowercase(fn) + ' ? ');
-      if Lowercase(info.Name) = Lowercase(fn) then begin
-        CreateDir(GetFileName(mgf));
-        LogMessage('        Copying voice assets from directory "'+Copy(s, Pos('\Data', s) + 1, Length(s))+info.Name+'"');
-        // copy subfolders of found directory
-        if FindFirst(s+info.Name+'\'+'*', faAnyFile and faDirectory, info2) = 0 then begin
+      if (Pos('.', info.Name) <> 1) then begin
+        CreateDir(dstPath+info.Name);
+        // copy contents of subdirectory into new directory
+        if FindFirst(srcPath+info.Name+'\'+'*', faAnyFile, info2) = 0 then begin
           repeat
-            if ((info2.Attr and faDirectory) = faDirectory) and (Pos('.', info2.Name) <> 1) then begin
-              SetCurrentDir(s+GetFileName(mgf)+'\');
-              CreateDir(info2.Name);
-              // copy contents of subdirectory into new directory
-              if FindFirst(s+info.Name+'\'+info2.Name+'\'+'*.*', faAnyFile and faDirectory, info3) = 0 then begin
-                repeat
-                  if Length(info3.Name) > 8 then begin
-                    src := info.Name+'\'+info2.name+'\'+info3.Name;
-                    if (rn = 2) then begin
-                      index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info3.name, Pos('_0', info3.Name)+1, 8));
-                      if (index = -1) then begin
-                        if debug then begin
-                          if not (rn = 2) then LogMessage('            Couldn''t find new FormID of asset "'+src+'", copied anyways.')
-                          else LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                        end;
-                        dst := info2.Name+'\'+info3.name;
-                        CopyFile(PChar(src), PChar(dst), false);
-                      end
-                      else begin
-                        old := TStringList(OldForms[mergeIndex]).Strings[index];
-                        new := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
-                        dst := info2.Name+'\'+StringReplace(Lowercase(info3.name), Lowercase(old), new, [rfReplaceAll]);
-                        CopyFile(PChar(src), PChar(dst), false);
-                        if debug then LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                      end;
-                    end
-                    else begin
-                      dst := info2.Name+'\'+info3.name;
-                      CopyFile(PChar(src), PChar(dst), false);
-                      if debug then LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                    end;
-                  end;
-                until FindNext(info3) <> 0;
+            // skip '.' and '..'
+            if (Length(info2.Name) >= 8) then begin
+              src := info.Name + '\' + info2.Name;
+              if (rn > 0) then 
+                index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info2.Name, 1, 8));
+              // asset not renumbered
+              if (index = -1) then begin
+                dst := info.Name + '\' + info2.Name;
+                LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
+                CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+              end
+              // asset renumbered
+              else begin
+                newForm := '00' + Copy(NewForms[index], 3, 6);
+                dst := info.Name + '\' + StringReplace(info.Name + '\' + info2.Name, Copy(info2.Name, 1, 8), newForm, [rfReplaceAll]);
+                CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+                LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
               end;
             end;
           until FindNext(info2) <> 0;
         end;
-        Break;
       end;
     until FindNext(info) <> 0;
   end;
@@ -845,32 +868,36 @@ end;
 
 //=========================================================================
 // CopyTranslations: copies MCM translation files
-procedure CopyTranslations(s: string; mergeIndex: integer);
+procedure CopyTranslations(path: string; mergeIndex: integer);
 var
   info: TSearchRec;
-  src, dst, t, fn: string;
+  t, fn, srcPath, dstPath: string;
   slSrc: TStringList;
   index: integer;
 begin
   fn := slMerge[mergeIndex];
   fn := Lowercase(Copy(fn, 1, Length(fn) - 4)); // trim .esp off
-  SetCurrentDir(s);
-  if FindFirst(s+'*.txt', faAnyFile and faDirectory, info) = 0 then begin
+  
+  // search for translation files
+  if FindFirst(path+'*.txt', faAnyFile and faDirectory, info) = 0 then begin
     repeat
+      // translation file found
       if (Pos(fn, Lowercase(info.Name)) = 1) then begin
         t := StringReplace(Lowercase(info.Name), fn, '', [rfReplaceAll]);
         index := slTranslations.IndexOf(t);
+        // other translation files for same language found, concatenate
         if index > -1 then begin
           slSrc := TStringList.Create;
-          if debug then LogMessage('            LoadFromFile: "'+s+info.Name+'"');
-          slSrc.LoadFromFile(s+info.Name);
+          if debug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
+          slSrc.LoadFromFile(path+info.Name);
           slArray[index].Text := slArray[index].Text + #13#13 + slSrc.Text;
           slSrc.Free;
         end
+        // add new translation to stringlist
         else begin
           slArray[slTranslations.Count] := TStringList.Create;
-          if debug then LogMessage('            LoadFromFile: "'+s+info.Name+'"');
-          slArray[slTranslations.Count].LoadFromFile(s+info.Name);
+          if debug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
+          slArray[slTranslations.Count].LoadFromFile(path+info.Name);
           slTranslations.Add(t);
         end;
         if debug then LogMessage('            Copying MCM translation "'+info.Name+'"');
@@ -881,14 +908,25 @@ end;
 
 //=========================================================================
 // SaveTranslations
-procedure SaveTranslations(s: string);
+procedure SaveTranslations(path: string);
 var
   i: integer;
 begin
+  // terminate if we have no translation files to save
+  if slTranslations.Count = 0 then
+    exit;
+  
+  // use MO's overwrite folder as destination if user is using MO
+  if (usingMO) then begin
+    path := StringReplace(path, DataPath, moPath + 'overwrite\', [rfReplaceAll]);
+    ForceDirectories(path);
+  end;
+  
+  // save all new translation files
   for i := 0 to slTranslations.Count - 1 do begin
     if debug then 
-      LogMessage('            Output MCM translation "'+s+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
-    slArray[i].SaveToFile(s + Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
+      LogMessage('            Output MCM translation "'+path+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
+    slArray[i].SaveToFile(path + Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
     slArray[i].Free;
   end;
   slTranslations.Free;
@@ -921,7 +959,7 @@ begin
   except
     on x : Exception do begin
       LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
-      slFails.Add(Path(e));
+      slFails.Add(FullPath(e)+'; '+x.Message);
     end;
   end;
 end;
@@ -973,28 +1011,24 @@ begin
   end;
 end;
 
-//=========================================================================
-// RenumberOld: the old renumbering method, pre 3.0.33
-procedure RenumberOld(pb: TProgressBar);
+// ========================================================================
+// FindHighestFormID: find highest formID in files to be merged
+function FindHighestFormID(): Cardinal;
 var
-  i, j, k, rc: integer;
-  HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Int64;
+  i, j: integer;
+  x: Cardinal;
   e, f: IInterface;
-  Records: array [0..$FFFFFF] of IInterface;
-  self: boolean;
-  s: String;
 begin
-  pb.Position := 1;
-  LogMessage(#13#10+'Renumbering FormIDs before merging...');
+  Result := 0;
   
-  // find the ideal NewFormID to start at
+  // check files to be merged for highest formID
   for i := 0 to slMerge.Count - 1 do begin
     f := FileByLoadOrder(Integer(slMerge.Objects[i]));
     for j := 0 to RecordCount(f) - 1 do begin
       e := RecordByIndex(f, j);
       if not Equals(e, MasterOrSelf(e)) then Continue;
       x := FileFormID(e);
-      if x > HighestFormID then HighestFormID := x;
+      if x > Result then Result := x;
     end;
   end;
   
@@ -1003,8 +1037,120 @@ begin
     if not Equals(e, MasterOrSelf(e)) then Continue;
     e := RecordByIndex(mgf, i);
     x := FileFormID(e);
-    if x > HighestFormID then HighestFormID := x;
+    if x > Result then Result := x;
   end;
+end;
+
+// ========================================================================
+// RenumberConflicting: renumber only conflicting FormIDs.
+procedure RenumberConflicting(pb: TProgressBar);
+var
+  i, j, k, rc, pre: integer;
+  HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Cardinal;
+  e, f: IInterface;
+  Records: array [0..$FFFFFF] of IInterface;
+  self: boolean;
+  loadFormID, fileFormID: String;
+  slAllForms: TStringList;
+begin
+  pb.Position := 1;
+  slAllForms := TStringList.Create;
+  LogMessage(#13#10+'Renumbering Conflicting FormIDs before merging...');
+  
+  // find a safe NewFormID to start at
+  HighestFormID := FindHighestFormID();
+  BaseFormID := HighestFormID + 4096;
+  
+  // form id renumbering for each file
+  for i := 0 to slMerge.Count - 1 do begin
+    f := FileByLoadOrder(Integer(slMerge.Objects[i]));
+    RC := RecordCount(f) - 1;
+    LogMessage('    Renumbering records in file '+GetFileName(f));
+    OldForms.Add(TStringList.Create);
+    NewForms.Add(TStringList.Create);
+    
+    // create records array for file because the indexed order of records changes as we alter their formIDs
+    for j := 0 to RC do
+      Records[j] := RecordByIndex(f, j);
+    
+    // set newformID to use the load order of the file currently being processed.
+    offset := Integer(slMerge.Objects[i]) * 16777216;
+    NewFormID := BaseFormID + offset;
+
+    // renumber the records in the file
+    for j := 0 to RC do begin
+      e := Records[j];
+      // skip header record
+      if (Signature(e) = 'TES4') then Continue;
+      
+      loadFormID := HexFormID(e);
+      // skip non-file records (overwrite and injected)
+      pre := StrToInt('$' + Copy(loadFormID, 1, 2));
+      if (pre <> Integer(slMerge.Objects[i])) then begin
+        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(NewForms[i]).Add(loadFormID);
+        Continue;
+      end;
+      
+      fileFormID := '00' + Copy(loadFormID, 3, 6);
+      // if not conflicting FormID, add to list and continue.
+      if (slAllForms.IndexOf(fileFormID) = -1) then begin
+        slAllForms.Add(fileFormID);
+        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(NewForms[i]).Add(loadFormID);
+        Continue;
+      end
+      else begin
+        // else renumber it
+        // print log message first, then change references, then change form
+        if debug then 
+          LogMessage(Format('        Changing FormID to [%s] on %s', 
+          [IntToHex64(NewFormID, 8), SmallName(e)]));
+        prc := 0;
+        while ReferencedByCount(e) > 0 do begin
+          if prc = ReferencedByCount(e) then break;
+          prc := ReferencedByCount(e);
+          CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
+        end;
+        SetLoadOrderFormID(e, NewFormID);
+        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
+        
+        // increment formid
+        Inc(BaseFormID);
+        Inc(NewFormID);
+      end;
+    end;
+    
+    // Copy assets when done renumbering
+    // copy File/FormID specific assets
+    CopyAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
+    CopyAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
+    CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
+    CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
+    
+    pb.Position := pb.Position + 18/slMerge.Count;
+  end;
+  SaveTranslations(DataPath + 'Interface\Translations\');
+  slAllForms.Free;
+end;
+
+//=========================================================================
+// RenumberOld: the old renumbering method, pre 3.0.33
+procedure RenumberOld(pb: TProgressBar);
+var
+  i, j, k, rc, pre: integer;
+  HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Int64;
+  e, f: IInterface;
+  Records: array [0..$FFFFFF] of IInterface;
+  self: boolean;
+  loadFormID, fileFormID: String;
+begin
+  pb.Position := 1;
+  Lo gMessage(#13#10+'Renumbering FormIDs before merging...');
+  
+  // find a safe NewFormID to start at
+  HighestFormID := FindHighestFormID();
   BaseFormID := HighestFormID + 4096;
   
   // form id renumbering for each file
@@ -1026,33 +1172,31 @@ begin
     // renumber the records in the file
     for j := 0 to RC do begin
       e := Records[j];
-      if SameText(Signature(e), 'TES4') then Continue;
+      if (Signature(e) = 'TES4') then Continue;
       
-      // continue if formIDs are identical or if record is override
-      s := HexFormID(e);
-      OldFormID := StrToInt64('$' + s);
-      s := '00' + Copy(s, 3, 6);
-      if NewFormID = OldFormID then Continue;
-      self := Equals(MasterOrSelf(e), e);
-      if not self then begin
-        if debug then LogMessage('        Skipping renumbering '+SmallName(e)+', it''s an override record.');
-        TStringList(OldForms[i]).Add(s);
-        TStringList(NewForms[i]).Add(IntToHex64(OldFormID, 8));
+      loadFormID := HexFormID(e);
+      // skip non-file records (overwrite and injected)
+      pre := StrToInt('$' + Copy(loadFormID, 1, 2));
+      if (pre <> Integer(slMerge.Objects[i])) then begin
+        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end;
       
       // print log message first, then change references, then change form
+      OldFormID := StrToInt64('$' + loadFormID);
+      fileFormID := '00' + Copy(loadFormID, 3, 6);
       if debug then 
         LogMessage(Format('        Changing FormID to [%s] on %s', 
-        [IntToHex64(OldFormID, 8), SmallName(e)]));
+        [IntToHex64(NewFormID, 8), SmallName(e)]));
       prc := 0;
       while ReferencedByCount(e) > 0 do begin
-        if prc = ReferencedByCount(e) then exit;
+        if prc = ReferencedByCount(e) then break;
         prc := ReferencedByCount(e);
         CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
       end;
       SetLoadOrderFormID(e, NewFormID);
-      TStringList(OldForms[i]).Add(s);
+      TStringList(OldForms[i]).Add(loadFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
       // increment formid
@@ -1075,34 +1219,18 @@ end;
 // RenumberNew: the new renumbering method, for 3.033 and above
 procedure RenumberNew(pb: TProgressBar);
 var
-  i, j, k, rc: integer;
+  i, j, k, rc, pre: integer;
   HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Cardinal;
   e, f: IInterface;
   Records: array [0..$FFFFFF] of IInterface;
   self: boolean;
-  s: String;
+  fileFormID, loadFormID: String;
 begin
   pb.Position := 1;
   LogMessage(#13#10+'Renumbering FormIDs before merging...');
   
-  // find the ideal NewFormID to start at
-  for i := 0 to slMerge.Count - 1 do begin
-    f := FileByLoadOrder(Integer(slMerge.Objects[i]));
-    for j := 0 to RecordCount(f) - 1 do begin
-      e := RecordByIndex(f, j);
-      if not Equals(e, MasterOrSelf(e)) then Continue;
-      x := FileFormID(e);
-      if x > HighestFormID then HighestFormID := x;
-    end;
-  end;
-  
-  // check merge file for a higher form ID
-  for i := 0 to RecordCount(mgf) - 1 do begin
-    if not Equals(e, MasterOrSelf(e)) then Continue;
-    e := RecordByIndex(mgf, i);
-    x := FileFormID(e);
-    if x > HighestFormID then HighestFormID := x;
-  end;
+  // find a safe NewFormID to start at
+  HighestFormID := FindHighestFormID();
   BaseFormID := HighestFormID + 4096;
   
   // form id renumbering for each file
@@ -1124,33 +1252,31 @@ begin
     // renumber the records in the file
     for j := 0 to RC do begin
       e := Records[j];
-      if SameText(Signature(e), 'TES4') then Continue;
+      if (Signature(e) = 'TES4') then Continue;
       
-      // continue if formIDs are identical or if record is override
-      s := HexFormID(e);
-      OldFormID := GetLoadOrderFormID(e);
-      s := '00' + Copy(s, 3, 6);
-      if NewFormID = OldFormID then Continue;
-      self := Equals(MasterOrSelf(e), e);
-      if not self then begin
-        if debug then LogMessage('        Skipping renumbering '+SmallName(e)+', it''s an override record.');
-        TStringList(OldForms[i]).Add(s);
-        TStringList(NewForms[i]).Add(IntToHex64(OldFormID, 8));
+      loadFormID := HexFormID(e);
+      // skip non-file records (overwrite and injected)
+      pre := StrToInt('$' + Copy(loadFormID, 1, 2));
+      if (pre <> Integer(slMerge.Objects[i])) then begin
+        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end;
       
       // print log message first, then change references, then change form
+      OldFormID := GetLoadOrderFormID(e);
+      fileFormID := '00' + Copy(loadFormID, 3, 6);
       if debug then 
         LogMessage(Format('        Changing FormID to [%s] on %s', 
-        [IntToHex64(OldFormID, 8), SmallName(e)]));
+        [IntToHex64(NewFormID, 8), SmallName(e)]));
       prc := 0;
       while ReferencedByCount(e) > 0 do begin
-        if prc = ReferencedByCount(e) then exit;
+        if prc = ReferencedByCount(e) then break;
         prc := ReferencedByCount(e);
         CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
       end;
       SetLoadOrderFormID(e, NewFormID);
-      TStringList(OldForms[i]).Add(s);
+      TStringList(OldForms[i]).Add(loadFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
       // increment formid
@@ -1231,10 +1357,10 @@ end;
 // Finalize: this is where all the good stuff happens
 function Finalize: integer;
 var
-  i, j, k, rc: integer;
+  i, j, k, rc, wait, waitTick: integer;
   f, e, group, masters, master: IInterface;
   merge, s, desc, version, fn: string;
-  done, b: boolean;
+  done, b, recordFromMerge: boolean;
   lbl: TLabel;
   pb: TProgressBar;
   today : TDateTime;
@@ -1275,7 +1401,7 @@ begin
   end;
   
   // create or identify merge file
-  Done := False;
+  done := False;
   mgf := nil;
   AddMessage(#13#10+'Preparing merged file...');
   mgf := FileSelectM('Choose the file you want to merge into below, or '+#13#10+'choose -- CREATE NEW FILE -- to create a new one.');
@@ -1359,9 +1485,9 @@ begin
       lbl.Caption := 'Renumbering All FormIDs...';
       RenumberOld(pb);
     end
-    else if (rn = 1) then begin
+    else if (rn = 1) and (k >= 50340096) then begin
       lbl.Caption := 'Renumbering conflicting FormIDs...';
-      logMessage(#13#10+'Renumbering Conflicting FormIDs');
+      RenumberConflicting(pb);
     end
     else if (rn = 0) then begin
       // make formID text files
@@ -1371,7 +1497,7 @@ begin
         NewForms.Add(TStringList.Create);
         for j := 0 to RC do begin
           e := RecordByIndex(f, j);
-          if SameText(Signature(e), 'TES4') then Continue;
+          if (Signature(e) = 'TES4') then Continue;
           TStringList(NewForms[i]).Add(HexFormID(e));
         end;
       end;
@@ -1460,7 +1586,8 @@ begin
         e := RecordByIndex(mgf, i);
         s := HexFormID(e);
         for j := 0 to slMerge.Count - 1 do begin
-          if TStringList(NewForms[j]).IndexOf(s) > -1 then begin
+          recordFromMerge := TStringList(NewForms[j]).IndexOf(s) > -1;
+          if (recordFromMerge) then begin
             b := true;
             break;
           end;
@@ -1533,6 +1660,14 @@ begin
   
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+    
+    // wait for user to close form
+    while frm.Visible do begin
+      Application.processmessages;
+      for wait := 0 to 1000 do begin
+        waitTick := (waitTick + 1) mod 1000;
+      end;
+    end;
     
   finally
     frm.Free;
