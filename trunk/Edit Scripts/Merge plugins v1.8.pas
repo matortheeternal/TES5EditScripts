@@ -28,10 +28,7 @@
     a real Skyrim data directory (e.g. NMM or manual installation).
   - Fixed renumbering methods to not terminate prematurely.
   - Made it so the script will wait for the user to close the progress 
-    window after execution instead of closing it automatically.  NOTE: I'm 
-    currently doing this in a really ugly way because I don't have access to 
-    any sleep commands as far as I'm aware. TES5Edit will use all of the CPU
-    it can during this stage (so 1 core).
+    window after execution instead of closing it automatically.
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1662,12 +1659,8 @@ begin
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
     // wait for user to close form
-    while frm.Visible do begin
-      Application.processmessages;
-      for wait := 0 to 1000 do begin
-        waitTick := (waitTick + 1) mod 1000;
-      end;
-    end;
+    frm.Visible := false;
+    frm.ShowModal;
     
   finally
     frm.Free;
