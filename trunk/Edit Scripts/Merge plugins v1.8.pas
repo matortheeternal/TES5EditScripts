@@ -53,7 +53,7 @@ var
   rn, mm, sp: integer;
   moPath: string;
   SkipProcess, disableColoring, extractBSAs, disableESPs, 
-  usingMo, copyAll: boolean;
+  usingMo, copyAll, firstRun: boolean;
   mgf: IInterface;
   cbArray: Array[0..254] of TCheckBox;
   lbArray: Array[0..254] of TLabel;
@@ -269,7 +269,7 @@ begin
   end
   else begin
     AddMessage('Couldn''t automatically detect Mod Organizer''s file path.  Please enter it manually.');
-    ed1.Caption := '?';
+    ed1.Caption := '';
   end;
 end;
 
@@ -302,12 +302,21 @@ end;
 procedure LoadSettings;
 var
   ini: TMemIniFile;
+  cfgPath: string;
 begin
+  cfgPath := FileSearch('mp\config.ini', ScriptsPath);
+  if (cfgPath = '') then begin
+    MessageDlg('It seems this is the first time you''re running the script.  Please set up your '
+      'advanced options for future merges.  The window will come up automatically, and you can '
+      'get back to it at any time by clicking the gear in the bottom right corner of the script '
+      'window.', mtConfirmation, [mbOk], 0);
+    firstRun := true;
+  end;
   ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
-  usingMO := (ini.ReadString('Config', 'usingMO', '1') = '1');
-  moPath := ini.ReadString('Config', 'moPath', '?');
+  usingMO := (ini.ReadString('Config', 'usingMO', '0') = '1');
+  moPath := ini.ReadString('Config', 'moPath', '');
   copyAll := (ini.ReadString('Config', 'copyAllAssets', '0') = '1');
-  rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '2'));
+  rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '1'));
   mm := IntToStr(ini.ReadString('Config', 'copyMode', '1'));
   sp := IntToStr(ini.ReadString('Config', 'secondPassMode', '1'));
   disableColoring := (ini.ReadString('Config', 'disableColoring', '0') = '1');
@@ -352,6 +361,10 @@ begin
     cb1.Caption := ' I''m using Mod Organizer';
     cb1.Checked := usingMO;
     cb1.OnClick := UsingModOrganizer;
+    cb1.Hint := 'You must check this for asset copying to work correctly if you''re '#13
+      'using Mod Organizer.  This must not be checked if you''re not using '#13
+      'Mod Organizer.';
+    cb1.ShowHint := true;
     
     lbl1 := TLabel.Create(gb1);
     lbl1.Parent := gb1;
@@ -367,6 +380,10 @@ begin
     ed1.Width := 250;
     ed1.Caption := moPath;
     ed1.Enabled := usingMO;
+    ed1.Hint := 'If you checked the "I''m using Mod Organizer" checkbox, you need to '#13
+      'enter Mod Organizer''s full path here.  The script can often detect this path '#13
+      'automatically if you click the Detect button.';
+    ed1.ShowHint := true;
     
     btnFind := TButton.Create(gb1);
     btnFind.Parent := ofrm;
@@ -384,6 +401,8 @@ begin
     cb2.Caption := ' Copy All Assets';
     cb2.Checked := copyAll;
     cb2.Enabled := false; //usingMO;
+    cb2.Hint := 'Not available yet.';
+    cb2.ShowHint := true;
     
     rg1 := TRadioGroup.Create(ofrm);
     rg1.Parent := ofrm;
@@ -504,7 +523,8 @@ begin
     cb3.Width := 120;
     cb3.Caption := ' Disable label coloring';
     cb3.ShowHint := true;
-    cb3.Hint := 'Changing this option will require a restart of the script to take effect.'#13'Turn this on if you can''t see any of the filenames in the main merge window.';
+    cb3.Hint := 'Changing this option will require a restart of the script to take effect.'#13
+      'Check this if you can''t see any of the filenames in the main merge window.';
     cb3.Checked := disableColoring;
     
     cb4 := TCheckBox.Create(gb2);
@@ -694,6 +714,8 @@ begin
     btnCancel.Top := btnOk.Top;
     
     mfrm.ActiveControl := btnOk;
+    
+    if (firstRun) then AdvancedOptions;
     
     if mfrm.ShowModal = mrOk then begin
       for i := 0 to FileCount - 1 do begin
@@ -1126,7 +1148,7 @@ begin
     CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
     CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
     
-    pb.Position := pb.Position + 18/slMerge.Count;
+    pb.Position := pb.Position + 29/slMerge.Count;
   end;
   SaveTranslations(DataPath + 'Interface\Translations\');
   slAllForms.Free;
@@ -1207,7 +1229,7 @@ begin
     CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
     CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
     
-    pb.Position := pb.Position + 18/slMerge.Count;
+    pb.Position := pb.Position + 29/slMerge.Count;
   end;
   SaveTranslations(DataPath + 'Interface\Translations\');
 end;
@@ -1287,7 +1309,7 @@ begin
     CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
     CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
     
-    pb.Position := pb.Position + 18/slMerge.Count;
+    pb.Position := pb.Position + 29/slMerge.Count;
   end;
   SaveTranslations(DataPath + 'Interface\Translations\');
 end;
@@ -1393,6 +1415,16 @@ begin
   // terminate script if mergelist contains less than one file
   if slMerge.Count < 1 then begin
     AddMessage(#13#10+'Select at least 1 file to merge!  Terminating script.'+#13#10);
+    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    exit;
+  end;
+  
+  // terminate script if usingMO is true but moPath isn't correct
+  if (usingMO) and (moPath = '') or (moPath = '?') then begin
+    AddMessage(#13#10+
+    'Mod Organizer path invalid.  If you''re not using Mod Organizer, please uncheck '#13#10
+    'the checkbox saying that you are from the Advanced Options window. If you are '#13#10
+    'using Mod Organzier please enter it''s path on the Advanced Options window.'#13#10);
     slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
     exit;
   end;
@@ -1637,6 +1669,7 @@ begin
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     pb.Position := 100;
+    lbl.Caption := 'Merge Completed.';
 
     // script is done, print confirmation messages
     LogMessage(#13#10);
@@ -1658,9 +1691,11 @@ begin
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
-    // wait for user to close form
-    frm.Visible := false;
-    frm.ShowModal;
+    // wait for user to close form if details visible
+    if (memo.Visible) then begin
+      frm.Visible := false;
+      frm.ShowModal;
+    end;
     
   finally
     frm.Free;
