@@ -794,7 +794,7 @@ begin
     ForceDirectories(dstPath);
   end
   else begin
-    dstPath := path + GetFileName(mgf) + '\');
+    dstPath := path + GetFileName(mgf) + '\';
     ForceDirectories(dstpath);
   end;
   
@@ -845,7 +845,7 @@ begin
   if (usingMO) then
     dstPath : = StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll])
   else
-    dstPath := path + GetFileName(mgf) + '\');
+    dstPath := path + GetFileName(mgf) + '\';
   ForceDirectories(dstPath);
   
   // copy subfolders and their contents
