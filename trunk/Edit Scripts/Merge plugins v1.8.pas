@@ -29,6 +29,8 @@
   - Fixed renumbering methods to not terminate prematurely.
   - Made it so the script will wait for the user to close the progress 
     window after execution instead of closing it automatically.
+  - Fixed reference redirection error in Renumber Conflicting FormIDs 
+    method.
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -790,7 +792,7 @@ begin
   
   // prepare destination
   if (usingMO) then begin
-    dstPath : = StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll]);
+    dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll]);
     ForceDirectories(dstPath);
   end
   else begin
@@ -843,7 +845,7 @@ begin
   
   // prepare destination
   if (usingMO) then
-    dstPath : = StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll])
+    dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll])
   else
     dstPath := path + GetFileName(mgf) + '\';
   ForceDirectories(dstPath);
@@ -1111,6 +1113,7 @@ begin
         Continue;
       end;
       
+      OldFormID := StrToInt64('$' + loadFormID);
       fileFormID := '00' + Copy(loadFormID, 3, 6);
       // if not conflicting FormID, add to list and continue.
       if (slAllForms.IndexOf(fileFormID) = -1) then begin
