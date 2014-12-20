@@ -38,6 +38,7 @@
   - [HasItem]: Checks if a record has an item matching the input EditorID.
   - [HasPerkCondition]: Checks if a record has a perk condition for a perk matching the
     input EditorID.
+  - [ExtractBSA]: Extracts the contents of a BSA to the specified path.
   - [AddMastersToFile]: Adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
@@ -297,7 +298,21 @@ begin
       Result := 'caConflictCritical';
   end;
 end;
+
+{
+  CopyDirectory:
+  Recursively copies a directory and all of its contents.
   
+  Example usage:
+  slIgnore := TStringList.Create;
+  slIgnore.Add('mteFunctions.pas');
+  CopyDirectory(ScriptsPath, 'C:\ScriptsBackup', slIgnore);
+}
+procedure CopyDirectory(src, dst: string; ignore: TStringList);
+begin
+  // working...
+end;
+
 {
   BoolToStr:
   Converts a boolean value into a string.
@@ -798,6 +813,37 @@ begin
       Remove(ElementByIndex(masters, i));
       break;
     end;
+  end;
+end;
+
+{
+  ExtractBSA:
+  Extracts BSA matching aContainerName to aPath.
+  
+  Example usage:
+  ExtractBSA(dataPath + 'Update.bsa', 'C:\TestExtract\');
+}
+procedure ExtractBSA(aContainerName, aPath: string);
+var
+  i: integer;
+  slAssets: TStringList;
+begin
+  // create directories
+  ForceDirectories(aPath);
+  
+  // enumerate assets
+  slAssets := TStringList.Create;
+  ResourceList(aContainerName, slAssets);
+  
+  // save assets
+  try
+    for i := 0 to Pred(slAssets.Count) do begin
+      AddMessage(slAssets[i]);
+      ResourceCopy(aContainerName, slAssets[i], aPath);
+    end;
+  except
+    on E: Exception do
+      AddMessage('Error copying file ' + slAssets[i] + ': ' + E.Message);
   end;
 end;
 

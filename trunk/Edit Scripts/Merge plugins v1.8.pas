@@ -50,7 +50,7 @@ const
 
 var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
-  slTranslations: TStringList;
+  slTranslations, slCopiedFrom: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp: integer;
   moPath, astPath: string;
@@ -63,7 +63,7 @@ var
   frm: TForm;
   memo: TMemo;
   btnDetails: TButton;
-  gear: TPicture;
+  gear, browse: TPicture;
   cb2: TCheckbox;
   btnFind: TButton;
   ed1, ed2: TEdit;
@@ -221,12 +221,36 @@ begin
 end;
 
 //=========================================================================
+// AssetPathBrowse: Browse for asset destination path
+procedure ofrm.AssetPathBrowse;
+var
+  s: string;
+begin
+  s := SelectDirectory('Select a directory', '', ed2.Text, '');
+  if s <> '' then begin
+    ed2.Text := s + '\';
+  end;
+end;
+
+//=========================================================================
+// MoPathBrowse: Browse for Mod Organizer path
+procedure ofrm.MoPathBrowse;
+var
+  s: string;
+begin
+  s := SelectDirectory('Select a directory', '', ed1.Text, '');
+  if s <> '' then begin
+    ed1.Text := s + '\';
+  end;
+end;
+
+//=========================================================================
 // UsingModOrganizer: Toggle for controls
 procedure ofrm.UsingModOrganizer;
 begin
   ed1.Enabled := (not ed1.Enabled);
   btnFind.Enabled := (not btnFind.Enabled);
-  //cb2.Enabled := (not cb2.Enabled);
+  cb2.Enabled := (not cb2.Enabled);
 end;
 
 //=========================================================================
@@ -319,7 +343,7 @@ begin
   ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
   usingMO := (ini.ReadString('Config', 'usingMO', '0') = '1');
   moPath := ini.ReadString('Config', 'moPath', '');
-  astPath := ini.ReadSTring('Config', 'dstPath', DataPath);
+  astPath := ini.ReadSTring('Config', 'astPath', DataPath);
   copyAll := (ini.ReadString('Config', 'copyAllAssets', '0') = '1');
   rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '1'));
   mm := IntToStr(ini.ReadString('Config', 'copyMode', '1'));
@@ -340,6 +364,7 @@ var
   btnOk, btnCancel: TButton;
   rg1, rg2, rg3: TRadioGroup;
   rb1, rb2, rb3, rb4, rb5, rb6, rb7, rb8, rb9: TRadioButton;
+  imgBrowse1, imgBrowse2: TImage;
 begin
   ofrm := TForm.Create(nil);
   try
@@ -366,8 +391,9 @@ begin
     cb1.Caption := ' I''m using Mod Organizer';
     cb1.Checked := usingMO;
     cb1.OnClick := UsingModOrganizer;
-    cb1.Hint := 'You must check this for asset copying to work correctly if you''re '#13
-      'using Mod Organizer.  This must not be checked if you''re not using '#13
+    cb1.Hint := 
+      'You must check this for asset copying to work correctly if you''re'#13
+      'using Mod Organizer.  This must not be checked if you''re not using'#13
       'Mod Organizer.';
     cb1.ShowHint := true;
     
@@ -385,15 +411,27 @@ begin
     ed1.Width := 250;
     ed1.Caption := moPath;
     ed1.Enabled := usingMO;
-    ed1.Hint := 'If you checked the "I''m using Mod Organizer" checkbox, you need to '#13
-      'enter Mod Organizer''s full path here.  The script can often detect this path '#13
+    ed1.Hint := 
+      'If you checked the "I''m using Mod Organizer" checkbox, you need to enter'#13
+      'Mod Organizer''s full path here.  The script can often detect this path'#13
       'automatically if you click the Detect button.';
     ed1.ShowHint := true;
+    
+    imgBrowse1 := TImage.Create(gb1);
+    imgBrowse1.Parent := gb1;
+    imgBrowse1.Picture := browse;
+    imgBrowse1.Width := 18;
+    imgBrowse1.Height := 18;
+    imgBrowse1.ShowHint := true;
+    imgBrowse1.Hint := 'Browse';
+    imgBrowse1.OnClick := MoPathBrowse;
+    imgBrowse1.Left := ed1.Left + ed1.Width + 8;
+    imgBrowse1.Top := ed1.Top;
     
     btnFind := TButton.Create(gb1);
     btnFind.Parent := ofrm;
     btnFind.Caption := 'Detect';
-    btnFind.Left := ed1.Left + ed1.Width + 24;
+    btnFind.Left := imgBrowse1.Left + imgBrowse1.Width + 24;
     btnFind.Top := lbl1.Top + btnFind.Height div 2;
     btnFind.OnClick := DetectModOrganizer;
     btnFind.Enabled := usingMO;
@@ -405,8 +443,8 @@ begin
     cb2.Width := 140;
     cb2.Caption := ' Copy All Assets';
     cb2.Checked := copyAll;
-    cb2.Enabled := false; //usingMO;
-    cb2.Hint := 'Not available yet.';
+    cb2.Enabled := usingMO;
+    cb2.Hint := 'Not fully functional yet.';
     cb2.ShowHint := true;
     
     rg1 := TRadioGroup.Create(ofrm);
@@ -534,8 +572,23 @@ begin
     ed2.Top := lbl2.Top;
     ed2.Width := 350;
     ed2.Caption := astPath;
-    ed2.Hint := 'Destination path for assets that are copied by the script.';
+    ed2.Hint := 
+      'Destination path for assets that are copied by the script.  If you''re using'#13
+      'Mod Organizer this should be the overwrite folder in Mod Organizer''s'#13
+      'directory.  If you''re not using Mod Organizer this should be your Skyrim'#13
+      'data folder or another location you''ve decided on for holding assets.';
     ed2.ShowHint := true;
+    
+    imgBrowse2 := TImage.Create(gb2);
+    imgBrowse2.Parent := gb2;
+    imgBrowse2.Picture := browse;
+    imgBrowse2.Width := 18;
+    imgBrowse2.Height := 18;
+    imgBrowse2.ShowHint := true;
+    imgBrowse2.Hint := 'Browse';
+    imgBrowse2.OnClick := AssetPathBrowse;
+    imgBrowse2.Left := ed2.Left + ed2.Width + 8;
+    imgBrowse2.Top := ed2.Top;
     
     cb3 := TCheckBox.Create(gb2);
     cb3.Parent := gb2;
@@ -544,7 +597,8 @@ begin
     cb3.Width := 120;
     cb3.Caption := ' Disable label coloring';
     cb3.ShowHint := true;
-    cb3.Hint := 'Changing this option will require a restart of the script to take effect.'#13
+    cb3.Hint := 
+      'Changing this option will require a restart of the script to take effect.'#13
       'Check this if you can''t see any of the filenames in the main merge window.';
     cb3.Checked := disableColoring;
     
@@ -793,6 +847,56 @@ begin
         break;
       end;
     until FindNext(info) <> 0;
+  end;
+end;
+
+//=========================================================================
+// CopyAllAssets: copies all assets from a matching Mod Organizer folder
+procedure CopyAllAssets(filename: string);
+var
+  rec: TSearchRec;
+  src, dst, modPath: string;
+begin
+  // construct ignore stringlist to ignore filename spe
+  slIgnore := TStringList.Create;
+  slIgnore.Add('facegendata');
+  slIgnore.Add('voice');
+  slIgnore.Add('translations');
+  
+  // find mod directory in Mod Organizer's mods folder
+  if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
+    repeat
+      modPath := FileSearch(filename, moPath + 'mods\' + rec.Name);
+      if (modPath <> '') then begin
+        modPath := moPath + 'mods\'+ rec.Name;
+        break;
+      end;
+    until FindNext(rec) <> 0;
+    
+    FindClose(rec);
+    if (modPath = '') then exit;
+  end;
+  
+  // copy assets from folder
+  if slCopiedFrom.IndexOf(modPath) = -1 then begin
+    slCopiedFrom.Add(modPath);
+    LogMessage('        Copying all assets from directory "'+modPath+'"');
+    LogMessage('        Copying all assets to directory "'+astPath+'"');
+    if FindFirst(modPath + '\*', faAnyFile, rec) = 0 then begin
+      repeat
+        // skip . and .. and meta.ini and .esp files
+        if (rec.Name <> '.') and (rec.Name <> '..') and (rec.Name <> 'meta.ini')
+        and (Pos('.esp', rec.Name) <> Length(rec.Name) - 3) then begin 
+          LogMessage('            Copying "'+rec.Name+'"');
+          if (Pos('.', recName) = 0)
+            CopyDirectory(modPath + '\' + rec.Name, astPath + '\' + rec.Name, slIgnore)
+          else
+            CopyFile(PChar(modPath + '\' + rec.Name), PChar(astPath + '\' + rec.Name), false);
+        end;
+      until FindNext(rec) <> 0;
+      
+      FindClose(rec);
+    end;
   end;
 end;
 
@@ -1352,12 +1456,15 @@ begin
   slDictionary := TStringList.Create;
   slDictionary.LoadFromFile(ScriptsPath + '\mp\dictionary.txt');
   slTranslations := TStringList.Create;
+  slCopiedFrom := TStringList.Create;
   OldForms := TList.Create;
   NewForms := TList.Create;
   
   // load gui elements
   gear := TPicture.Create;
   gear.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\gear.png');
+  browse := TPicture.Create;
+  browse.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\browse.png');
   
   // process only file elements
   try 
@@ -1551,6 +1658,13 @@ begin
         CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
         CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
       end;
+    end;
+    
+    // mod organizer CopyAllAssets option
+    if copyAll then begin
+      LogMessage(#13#10+'Copying all assets from Mod Organizer directories.');
+      for i := 0 to slMerge.Count - 1 do
+        CopyAllAssets(slMerge[i]);
     end;
     
     // set up for saving
