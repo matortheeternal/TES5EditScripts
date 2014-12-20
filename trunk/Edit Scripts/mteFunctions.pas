@@ -300,8 +300,51 @@ begin
 end;
 
 {
+  Matches:
+  Checks if an input string matches a basic regex input.
+  
+  Example usage:
+  if Matches('This.is.a.test.bak', 'This.*.*.*.bak') then
+    AddMessage('Works!');
+}
+function Matches(input, expression: string): boolean;
+var
+  slExpr: TStringList;
+  regex: TRegEx;
+  pPos, i: integer;
+begin
+  Result := false;
+  
+  // use stringlist to determine if input matches expression
+  slExpr := TStringList.Create;
+  slExpr.Delimiter := '*';
+  slExpr.StrictDelimiter := true;
+  slExpr.DelimitedText := expression;
+  for i := Pred(slExpr.Count) downto 0 do begin
+    if slExpr[i] = '' then
+      slExpr.Delete(i);
+  end;
+  
+  if Pos('*', expression) > 0 then begin
+    pPos := 0;
+    for i := 0 to Pred(slExpr.Count) do begin
+      if Pos(slExpr[i], input) > pPos then begin
+        pPos := Pos(slExpr[i], input);
+        input := Copy(input, Pos(slExpr[i], input) + Length(slExpr[i]) + 1, Length(input));
+      end
+      else
+        break;
+      if i = Pred(slExpr.Count) then
+        Result := true;
+    end;
+  end
+  else
+    Result := (input = expression);
+end;
+
+{
   CopyDirectory:
-  Recursively copies a directory and all of its contents.
+  Recursively copies all of the contents of a directory.
   
   Example usage:
   slIgnore := TStringList.Create;
@@ -309,8 +352,27 @@ end;
   CopyDirectory(ScriptsPath, 'C:\ScriptsBackup', slIgnore);
 }
 procedure CopyDirectory(src, dst: string; ignore: TStringList);
+var
+  i: integer;
+  rec: TInfoRec;
 begin
-  // working...
+  if FindFirst(src + '\*', faAnyFile, rec) = 0 then begin
+    repeat
+      for i := 0 to Pred(ignore.Count) do begin
+        ignore := Matches(rec.Name, ignore[i]);
+        if ignore then
+          break;
+      end;
+      if ignore then continue;
+      ForceDirectories(dst);
+      if Pos('.', rec.Name) then 
+        CopyFile(PChar(src+'\'+rec.Name), PChar(dst+'\'+rec.Name), false)
+      else
+        CopyDirectory(src+'\'+rec.Name, dst+'\'+rec.Name, ignore);
+    until FindNext(rec) <> 0;
+    
+    FindClose(rec);
+  end;
 end;
 
 {

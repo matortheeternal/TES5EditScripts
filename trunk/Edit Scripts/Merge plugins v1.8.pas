@@ -862,6 +862,9 @@ begin
   slIgnore.Add('facegendata');
   slIgnore.Add('voice');
   slIgnore.Add('translations');
+  slIgnore.Add('.');
+  slIgnore.Add('..');
+  slIgnore.Add('.esp');
   
   // find mod directory in Mod Organizer's mods folder
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
@@ -882,21 +885,7 @@ begin
     slCopiedFrom.Add(modPath);
     LogMessage('        Copying all assets from directory "'+modPath+'"');
     LogMessage('        Copying all assets to directory "'+astPath+'"');
-    if FindFirst(modPath + '\*', faAnyFile, rec) = 0 then begin
-      repeat
-        // skip . and .. and meta.ini and .esp files
-        if (rec.Name <> '.') and (rec.Name <> '..') and (rec.Name <> 'meta.ini')
-        and (Pos('.esp', rec.Name) <> Length(rec.Name) - 3) then begin 
-          LogMessage('            Copying "'+rec.Name+'"');
-          if (Pos('.', recName) = 0)
-            CopyDirectory(modPath + '\' + rec.Name, astPath + '\' + rec.Name, slIgnore)
-          else
-            CopyFile(PChar(modPath + '\' + rec.Name), PChar(astPath + '\' + rec.Name), false);
-        end;
-      until FindNext(rec) <> 0;
-      
-      FindClose(rec);
-    end;
+    CopyDirectory(modPath, astPath, slIgnore);
   end;
 end;
 
@@ -944,6 +933,7 @@ begin
         end;
       end;
     until FindNext(info) <> 0;
+    FindClose(info);
   end;
 end;
 
