@@ -1423,7 +1423,7 @@ begin
   end;
   
   // terminate script if usingMO is true but moPath isn't correct
-  if (usingMO) and (moPath = '') or (moPath = '?') then begin
+  if (usingMO) and ((moPath = '') or (moPath = '?')) then begin
     AddMessage(#13#10+
     'Mod Organizer path invalid.  If you''re not using Mod Organizer, please uncheck '#13#10
     'the checkbox saying that you are from the Advanced Options window. If you are '#13#10
