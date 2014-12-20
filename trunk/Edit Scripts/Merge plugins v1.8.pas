@@ -53,7 +53,7 @@ var
   slTranslations: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp: integer;
-  moPath: string;
+  moPath, astPath: string;
   SkipProcess, disableColoring, extractBSAs, disableESPs, 
   usingMo, copyAll, firstRun: boolean;
   mgf: IInterface;
@@ -66,7 +66,7 @@ var
   gear: TPicture;
   cb2: TCheckbox;
   btnFind: TButton;
-  ed1: TEdit;
+  ed1, ed2: TEdit;
  
  
 {*************************************************************************}
@@ -226,7 +226,7 @@ procedure ofrm.UsingModOrganizer;
 begin
   ed1.Enabled := (not ed1.Enabled);
   btnFind.Enabled := (not btnFind.Enabled);
-  cb2.Enabled := (not cb2.Enabled);
+  //cb2.Enabled := (not cb2.Enabled);
 end;
 
 //=========================================================================
@@ -268,6 +268,7 @@ begin
   
   if (modOrganizerPath <> '') then begin
     ed1.Caption := Copy(modOrganizerPath, 1, length(modOrganizerPath) - 16);
+    ed2.Caption := ed1.Caption + 'overwrite\';
   end
   else begin
     AddMessage('Couldn''t automatically detect Mod Organizer''s file path.  Please enter it manually.');
@@ -285,6 +286,7 @@ begin
   if usingMO then ini.WriteString('Config', 'usingMO', '1')
   else ini.WriteString('Config', 'usingMO', '0');
   ini.WriteString('Config', 'moPath', moPath);
+  ini.WriteString('Config', 'astPath', astPath);
   if copyAll then ini.WriteString('Config', 'copyAllAssets', '1')
   else ini.WriteString('Config', 'copyAllAssets', '0');
   ini.WriteString('Config', 'renumberingMode', IntToStr(rn));
@@ -317,6 +319,7 @@ begin
   ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
   usingMO := (ini.ReadString('Config', 'usingMO', '0') = '1');
   moPath := ini.ReadString('Config', 'moPath', '');
+  astPath := ini.ReadSTring('Config', 'dstPath', DataPath);
   copyAll := (ini.ReadString('Config', 'copyAllAssets', '0') = '1');
   rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '1'));
   mm := IntToStr(ini.ReadString('Config', 'copyMode', '1'));
@@ -331,7 +334,7 @@ end;
 procedure AdvancedOptions;
 var
   ofrm: TForm;
-  lbl1: TLabel;
+  lbl1, lbl2: TLabel;
   cb1, cb3, cb4, cb5: TCheckBox;
   gb1, gb2: TGroupBox;
   btnOk, btnCancel: TButton;
@@ -343,7 +346,7 @@ begin
     ofrm.Caption := 'Advanced Options';
     ofrm.Width := 610;
     ofrm.Position := poScreenCenter;
-    ofrm.Height := 520;
+    ofrm.Height := 550;
     
     gb1 := TGroupBox.Create(ofrm);
     gb1.Parent := ofrm;
@@ -377,7 +380,7 @@ begin
     
     ed1 := TEdit.Create(gb1);
     ed1.Parent := gb1;
-    ed1.Left := lbl1.Left + lbl1.Width + 16;
+    ed1.Left := lbl1.Left + lbl1.Width + 24;
     ed1.Top := lbl1.Top;
     ed1.Width := 250;
     ed1.Caption := moPath;
@@ -511,17 +514,33 @@ begin
     gb2 := TGroupBox.Create(ofrm);
     gb2.Parent := ofrm;
     gb2.Left := 16;
-    gb2.Height := 120;
+    gb2.Height := 150;
     gb2.Top := rg3.Top + rg3.Height + 16;
     gb2.Width := 560;
     gb2.Caption := 'Other options';
-    gb2.ClientHeight := 105;
+    gb2.ClientHeight := 135;
     gb2.ClientWidth := 556;
+    
+    lbl2 := TLabel.Create(gb2);
+    lbl2.Parent := gb2;
+    lbl2.Left := 16;
+    lbl2.Top := 25;
+    lbl2.Width := 90;
+    lbl2.Caption := 'Asset destination directory: ';
+    
+    ed2 := TEdit.Create(gb2);
+    ed2.Parent := gb2;
+    ed2.Left := ed1.Left;
+    ed2.Top := lbl2.Top;
+    ed2.Width := 350;
+    ed2.Caption := astPath;
+    ed2.Hint := 'Destination path for assets that are copied by the script.';
+    ed2.ShowHint := true;
     
     cb3 := TCheckBox.Create(gb2);
     cb3.Parent := gb2;
-    cb3.Left := 16;
-    cb3.Top := 20;
+    cb3.Left := lbl2.Left;
+    cb3.Top := lbl2.Top +lbl2.Height + 12;
     cb3.Width := 120;
     cb3.Caption := ' Disable label coloring';
     cb3.ShowHint := true;
@@ -579,6 +598,7 @@ begin
       usingMO := cb1.Checked;
       moPath := ed1.Caption;
       copyAll := cb2.Checked;
+      astPath := ed2.Caption;
       SaveSettings;
     end;
   finally
@@ -791,14 +811,8 @@ begin
   if (srcPath = '') then exit;
   
   // prepare destination
-  if (usingMO) then begin
-    dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll]);
-    ForceDirectories(dstPath);
-  end
-  else begin
-    dstPath := path + GetFileName(mgf) + '\';
-    ForceDirectories(dstpath);
-  end;
+  dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
+  ForceDirectories(dstPath);
   
   // copy all assets
   index := -1;
@@ -844,10 +858,7 @@ begin
   if (srcPath = '') then exit;
   
   // prepare destination
-  if (usingMO) then
-    dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, moPath + 'overwrite\', [rfReplaceAll])
-  else
-    dstPath := path + GetFileName(mgf) + '\';
+  dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
   ForceDirectories(dstPath);
   
   // copy subfolders and their contents
@@ -938,10 +949,8 @@ begin
     exit;
   
   // use MO's overwrite folder as destination if user is using MO
-  if (usingMO) then begin
-    path := StringReplace(path, DataPath, moPath + 'overwrite\', [rfReplaceAll]);
-    ForceDirectories(path);
-  end;
+  path := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
+  ForceDirectories(path);
   
   // save all new translation files
   for i := 0 to slTranslations.Count - 1 do begin
@@ -1479,7 +1488,7 @@ begin
     memo.Left := 20;
     memo.Width := pb.Width;
     memo.WordWrap := false;
-    memo.ScrollBars := ssVertical;
+    memo.ScrollBars := ssBoth;
     memo.Visible := false;
     memo.ReadOnly := true;
     
