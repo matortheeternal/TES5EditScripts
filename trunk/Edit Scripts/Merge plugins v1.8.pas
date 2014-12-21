@@ -1272,7 +1272,7 @@ var
   loadFormID, fileFormID: String;
 begin
   pb.Position := 1;
-  Lo gMessage(#13#10+'Renumbering FormIDs before merging...');
+  LogMessage(#13#10+'Renumbering FormIDs before merging...');
   
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
