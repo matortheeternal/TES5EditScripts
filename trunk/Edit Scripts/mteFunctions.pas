@@ -13,6 +13,10 @@
     and outputs a string.
   - [ConflictAllString]: Uses ConflictAllForNode or ConflictAllForMainRecord 
     and outputs a string.
+  - [Matches]: returns true or false on whether or not an input string matches a
+    basic regular expression (e.g. *.esp)
+  - [CopyDirectory]: recursively copies the contents of a directory to a new destination
+    path.
   - [BoolToStr]: converts a boolean value to a string.
   - [ReverseString]: reverses a string.
   - [ItPos]: finds the position of an iteration of a substring in a string.
@@ -354,21 +358,26 @@ end;
 procedure CopyDirectory(src, dst: string; ignore: TStringList);
 var
   i: integer;
-  rec: TInfoRec;
+  rec: TSearchRec;
+  skip: boolean;
 begin
   if FindFirst(src + '\*', faAnyFile, rec) = 0 then begin
     repeat
+      skip := false;
       for i := 0 to Pred(ignore.Count) do begin
-        ignore := Matches(rec.Name, ignore[i]);
-        if ignore then
+        skip := Matches(rec.Name, ignore[i]);
+        if skip then
           break;
       end;
-      if ignore then continue;
-      ForceDirectories(dst);
-      if Pos('.', rec.Name) then 
-        CopyFile(PChar(src+'\'+rec.Name), PChar(dst+'\'+rec.Name), false)
-      else
-        CopyDirectory(src+'\'+rec.Name, dst+'\'+rec.Name, ignore);
+      if not skip then begin
+        ForceDirectories(dst);
+        if Pos('.', rec.Name) > 0 then begin
+          //AddMessage('    Copying file from '+src+'\'+rec.Name+' to '+dst+'\'+rec.Name);
+          CopyFile(PChar(src+'\'+rec.Name), PChar(dst+'\'+rec.Name), false);
+        end
+        else
+          CopyDirectory(src+'\'+rec.Name, dst+'\'+rec.Name, ignore);
+      end;
     until FindNext(rec) <> 0;
     
     FindClose(rec);

@@ -854,6 +854,7 @@ end;
 // CopyAllAssets: copies all assets from a matching Mod Organizer folder
 procedure CopyAllAssets(filename: string);
 var
+  slIgnore: TStringList;
   rec: TSearchRec;
   src, dst, modPath: string;
 begin
