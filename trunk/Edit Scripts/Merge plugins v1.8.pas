@@ -803,7 +803,7 @@ begin
       'You''re using Skyrim''s data directory as the destination directory '+
       'for assets copied by the script.  This will make your data directory '+
       'very messy over time, and isn''t recommended.  Are you sure you '+
-      'want to continue?',  mtCustom, [mbYes,mbNo], 0) = mbYes);
+      'want to continue?',  mtCustom, [mbYes,mbNo], 0) = mrYes);
   end
   else if not IsDirectoryEmpty(astPath) then begin
     afrm := TForm.Create(nil);
