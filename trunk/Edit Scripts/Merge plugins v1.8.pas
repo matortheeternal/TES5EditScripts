@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8
+  Merge Plugins Script v1.8.6
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8
+  v1.8.6
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -24,13 +24,25 @@
     disabled because they haven't been implemented yet.
   - New option: Renumber Conflicting FormIDs only renumbers FormIDs that 
     conflict with each other.  
-  - Fixed asset copying to work with MO's virtual data directory as well as
-    a real Skyrim data directory (e.g. NMM or manual installation).
+  - Fixed asset copying to work with MO's virtual data directory as well 
+    as a real Skyrim data directory (e.g. NMM or manual installation).
   - Fixed renumbering methods to not terminate prematurely.
   - Made it so the script will wait for the user to close the progress 
     window after execution instead of closing it automatically.
+  - Enhanced the advanced options GUI with hints and messages to help 
+    the user use the script properly.
+  - Added separate Asset destination directory so the user can set where 
+    the script copies assets to.
+  - Added CopyAll option, which copies assets from Mod Organizer mod 
+    folders to the asset destination folder.
   - Fixed reference redirection error in Renumber Conflicting FormIDs 
     method.
+  - Added BSA extraction.
+  - Added asset destination directory helper which will help the user if 
+    the directory they have set isn't empty. 
+  - Improved logging and clearer difference between normal mode and 
+    debug mode.
+  
     
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -43,7 +55,7 @@ unit mergePlugins;
 uses mteFunctions;
 
 const
-  vs = 'v1.8';
+  vs = 'v1.8.6';
   dashes = '-----------------------------------------------------------------------------';
   debug = false; // debug messages
   debugsearch = false;
@@ -62,12 +74,13 @@ var
   slArray: Array[0..30] of TStringList;
   frm: TForm;
   memo: TMemo;
+  mnPopup: TPopupMenu;
   btnDetails, btnSave: TButton;
   gear, browse: TPicture;
   cb1, cb2: TCheckbox;
   btnFind: TButton;
   ed1, ed2: TEdit;
-  imgBrowse1, imgBrowse2: TImage;
+  imgBrowse1, imgBrowse2, imgBrowse3: TImage;
  
  
 {*************************************************************************}
@@ -247,12 +260,31 @@ begin
 end;
 
 //=========================================================================
+// AssetPathHelper: Tells the user if their asset path is invalid
+procedure ofrm.AssetPathHelper;
+var
+  astValid: boolean;
+begin
+  astValid := DirectoryExists(ed2.Caption);
+  if not astValid then begin
+    // tell user their asset is invalid
+    MessageDlg('Your asset destination directory is invalid. Please enter '
+      'a valid path.', mtConfirmation, [mbOk], 0);
+  end;
+end;
+
+//=========================================================================
 // AssetPathBrowse: Browse for asset destination path
 procedure ofrm.AssetPathBrowse;
 var
   s: string;
 begin
-  s := SelectDirectory('Select a directory', '', ed2.Text, '');
+  if DirectoryExists(ed2.Caption) then
+    s := SelectDirectory('Select a directory', '', ed2.Text, '')
+  else if cb1.Checked and DirectoryExists(ed1.Caption) then
+    s := SelectDirectory('Select a directory', '', ed1.Text, '')
+  else
+    s := SelectDirectory('Select a directory', '', DataPath, '');
   if s <> '' then begin
     ed2.Text := s + '\';
   end;
@@ -429,7 +461,7 @@ begin
     lbl1.Left := 16;
     lbl1.Top := cb1.Top + cb1.Height + 12;
     lbl1.Width := 90;
-    lbl1.Caption := 'Mod Organizer Directory: ';
+    lbl1.Caption := 'Mod Organizer directory: ';
     
     ed1 := TEdit.Create(gb1);
     ed1.Parent := gb1;
@@ -439,9 +471,8 @@ begin
     ed1.Caption := moPath;
     ed1.Enabled := usingMO;
     ed1.Hint := 
-      'If you checked the "I''m using Mod Organizer" checkbox, you need to enter'#13
-      'Mod Organizer''s full path here.  The script can often detect this path'#13
-      'automatically if you click the Detect button.';
+      'The path to the folder containing ModOrganizer.exe.  This path must be entered'#13
+      'if you checked the "I''m using Mod Organizer" checkbox.';
     ed1.ShowHint := true;
     ed1.OnChange := CheckDirectories;
     ed1.OnExit := MoPathHelper;
@@ -452,7 +483,7 @@ begin
     imgBrowse1.Width := 18;
     imgBrowse1.Height := 18;
     imgBrowse1.ShowHint := true;
-    imgBrowse1.Hint := 'Browse';
+    imgBrowse1.Hint := 'Browse for Mod Organizer';
     imgBrowse1.Enabled := usingMO;
     imgBrowse1.OnClick := MoPathBrowse;
     imgBrowse1.Left := ed1.Left + ed1.Width + 8;
@@ -461,6 +492,11 @@ begin
     btnFind := TButton.Create(gb1);
     btnFind.Parent := ofrm;
     btnFind.Caption := 'Detect';
+    btnFind.ShowHint := true;
+    btnFind.Hint :=
+      'Have the script attempt to find Mod Organizer on your hard drive by searching'#13
+      'locations where it is usually installed.  If MO is found, directories will be'#13
+      'automatically updated.';
     btnFind.Left := imgBrowse1.Left + imgBrowse1.Width + 24;
     btnFind.Top := lbl1.Top + btnFind.Height div 2;
     btnFind.OnClick := DetectModOrganizer;
@@ -471,10 +507,13 @@ begin
     cb2.Left := 16;
     cb2.Top := lbl1.Top + lbl1.Height + 12;
     cb2.Width := 140;
-    cb2.Caption := ' Copy All Assets';
+    cb2.Caption := ' Copy general assets';
     cb2.Checked := copyAll;
     cb2.Enabled := usingMO;
-    cb2.Hint := 'Not fully functional yet.';
+    cb2.Hint := 
+      'Have the script copy general assets from the Mod Organizer mod folders associated'#13
+      'with the ESPs you''re merging.  This will make it so you have to do no file copying'#13
+      'in Mod Organizer after merging.';
     cb2.ShowHint := true;
     
     rg1 := TRadioGroup.Create(ofrm);
@@ -492,6 +531,10 @@ begin
     rb1.Left := 26;
     rb1.Top := 18;
     rb1.Caption := 'Don''t renumber FormIDs';
+    rb1.ShowHint := true;
+    rb1.Hint := 
+      'You can use this option, but if there are any records with the same local FormIDs'#13
+      'in the files you''re merging, they will cause errors ingame.';
     rb1.Width := 160;
     rb1.Checked := (rn = 0);
     
@@ -500,6 +543,10 @@ begin
     rb2.Left := rb1.Left + rb1.Width + 16;
     rb2.Top := rb1.Top;
     rb2.Caption := 'Renumber conflicting FormIDs';
+    rb2.ShowHint := true;
+    rb2.Hint :=
+      'This is the best option for you to use.  Only FormIDs that conflict are renumbered'#13
+      'when you use this option.';
     rb2.Width := 160;
     rb2.Checked := (rn = 1);
     
@@ -508,6 +555,10 @@ begin
     rb3.Left := rb2.Left + rb2.Width + 16;
     rb3.Top := rb1.Top;
     rb3.Caption := 'Renumber all FormIDs';
+    rb3.ShowHint := true;
+    rb3.Hint :=
+      'This will make sure there are no conflicts in any FormIDs, but it can also create'#13
+      'problems.  It''s best to use Renumber conflicting FormIDs.';
     rb3.Width := 160;
     rb3.Checked := (rn = 2);
     
@@ -526,6 +577,11 @@ begin
     rb4.Left := 26;
     rb4.Top := 18;
     rb4.Caption := 'Copy records';
+    rb4.ShowHint := true;
+    rb4.Hint :=
+      'This option will copy every record in the files to be merged to the merged file.'#13
+      'Because some records actually hold other records (e.g. Cells), this can lead to'#13
+      'the same records being copied twice, making it slower than it needs to be.';
     rb4.Width := 160;
     rb4.Checked := (mm = 0);
     
@@ -534,6 +590,11 @@ begin
     rb5.Left := rb4.Left + rb4.Width + 16;
     rb5.Top := rb4.Top;
     rb5.Caption := 'Copy intelligently';
+    rb5.ShowHint := true;
+    rb5.Hint :=
+      'This option will recursively traverse the record groups in the files to be merged,'#13
+      'copying found records to the merged file.  The recursion will stop at records that'#13
+      'hold other records (e.g. Cells), so no record will be copied twice.';
     rb5.Width := 160;
     rb5.Checked := (mm = 1);
     
@@ -542,6 +603,12 @@ begin
     rb6.Left := rb5.Left + rb5.Width + 16;
     rb6.Top := rb4.Top;
     rb6.Caption := 'Copy groups';
+    rb6.ShowHint := true;
+    rb6.Hint :=
+      'This option will copy the record groups from the files to be merged to the merged file.'#13
+      'The issue with this option is if something goes wrong copying any record in a group,'#13
+      'the entire record group may fail to copy and you will have trouble finding the record'#13
+      'responsible for the failure.';
     rb6.Width := 160;
     rb6.Checked := (mm = 2);
     
@@ -560,6 +627,11 @@ begin
     rb7.Left := 26;
     rb7.Top := 18;
     rb7.Caption := 'No second pass';
+    rb7.ShowHint := true;
+    rb7.Hint :=
+      'Second pass copying forces certain records which often fail to associate with each other'#13
+      'to work more often.  Not using a second pass will save on merge time, but can lead to issues'#13
+      'with mods that alter NavMeshs or that are heavily scripted.';
     rb7.Width := 160;
     rb7.Checked := (sp = 0);
     
@@ -568,6 +640,10 @@ begin
     rb8.Left := rb7.Left + rb7.Width + 16;
     rb8.Top := rb7.Top;
     rb8.Caption := 'Second pass same as first';
+    rb8.ShowHint := true;
+    rb8.Hint :=
+      'This second pass method will use the same copying method you selected above.  This is the'#13
+      'best option for second pass copying.';
     rb8.Width := 160;
     rb8.Checked := (sp = 1);
     
@@ -576,6 +652,11 @@ begin
     rb9.Left := rb8.Left + rb8.Width + 16;
     rb9.Top := rb7.Top;
     rb9.Caption := 'Second pass copy by groups';
+    rb9.ShowHint := true;
+    rb9.Hint :=
+      'The original second pass copying routine.  It''s main downfall is if a single record in'#13
+      'a record group fails to copy, the entire record group may fail to copy.  May be more stable'#13
+      'than the Second pass same as first option.';
     rb9.Width := 160;
     rb9.Checked := (sp = 2);
     
@@ -603,12 +684,13 @@ begin
     ed2.Width := 350;
     ed2.Caption := astPath;
     ed2.Hint := 
-      'Destination path for assets that are copied by the script.  If you''re using'#13
+      'Destination folder for assets that are copied by the script.  If you''re using'#13
       'Mod Organizer this should be the overwrite folder in Mod Organizer''s'#13
       'directory.  If you''re not using Mod Organizer this should be your Skyrim'#13
       'data folder or another location you''ve decided on for holding assets.';
     ed2.ShowHint := true;
     ed2.OnChange := CheckDirectories;
+    ed2.OnExit := AssetPathHelper;
     
     imgBrowse2 := TImage.Create(gb2);
     imgBrowse2.Parent := gb2;
@@ -616,7 +698,7 @@ begin
     imgBrowse2.Width := 18;
     imgBrowse2.Height := 18;
     imgBrowse2.ShowHint := true;
-    imgBrowse2.Hint := 'Browse';
+    imgBrowse2.Hint := 'Browse for asset destination directory';
     imgBrowse2.OnClick := AssetPathBrowse;
     imgBrowse2.Left := ed2.Left + ed2.Width + 8;
     imgBrowse2.Top := ed2.Top;
@@ -639,8 +721,11 @@ begin
     cb4.Top := cb3.Top + cb3.Height + 8;
     cb4.Width := 120;
     cb4.Caption := ' Extract BSAs';
+    cb4.ShowHint := true;
+    cb4.Hint :=
+      'If this is checked, the script will extract all BSAs associated with the'#13
+      'plugins being merged into the asset destination directory.';
     cb4.Checked := extractBSAs;
-    cb4.Enabled := false;
     
     cb5 := TCheckBox.Create(gb2);
     cb5.Parent := gb2;
@@ -654,6 +739,9 @@ begin
     btnSave := TButton.Create(ofrm);
     btnSave.Parent := ofrm;
     btnSave.Caption := 'Save';
+    btnSave.ShowHint := true;
+    btnSave.Hint :=
+      'Click to save these options for this merge and all future merges.';
     btnSave.ModalResult := mrOk;
     btnSave.Left := ofrm.Width div 2 - btnSave.Width - 8;
     btnSave.Top := gb2.Top + gb2.Height + 15;
@@ -661,6 +749,9 @@ begin
     btnDiscard := TButton.Create(ofrm);
     btnDiscard.Parent := ofrm;
     btnDiscard.Caption := 'Discard';
+    btnDiscard.ShowHint := true;
+    btnDiscard.Hint :=
+      'Click to discard changes to options.';
     btnDiscard.ModalResult := mrCancel;
     btnDiscard.Left := btnSave.Left + btnSave.Width + 16;
     btnDiscard.Top := btnSave.Top;
@@ -688,6 +779,82 @@ begin
     end;
   finally
     ofrm.Free;
+  end;
+end;
+
+//=========================================================================
+// AssetPathBrowse: Browse for asset destination path
+procedure afrm.AssetHelperBrowse;
+begin
+  ShellExecute(TForm(frmMain).Handle, 'open', astPath, '', '', SW_SHOWNORMAL)
+end;
+
+//=========================================================================
+// AssetHelper: Helps the user set up their asset destination folder
+function AssetHelper: boolean;
+var
+  afrm: TForm;
+  lbl1: TLabel;
+  btnBrowse, btnOk, btnCancel: TButton;
+begin
+  Result := true;
+  if (astPath = DataPath) then begin
+    Result := (MessageDlg(
+      'You''re using Skyrim''s data directory as the destination directory'+
+      'for assets copied by the script.  This will make your data directory'+
+      'very messy over time, and isn''t recommended.  Are you sure you'+
+      'want to continue?', [mtConfirmation], [mbYes,mbNo], 0) = mbOk);
+  end
+  else if not IsDirectoryEmpty(astPath) then begin
+    afrm := TForm.Create(nil);
+    try
+      afrm.Caption := 'Asset Destination Helper';
+      afrm.Width := 300;
+      afrm.Position := poScreenCenter;
+      afrm.Height := 130;
+      
+      lbl1 := TLabel.Create(afrm);
+      lbl1.Parent := afrm;
+      lbl1.Top := 8;
+      lbl1.Width := 250;
+      lbl1.Height := 30;
+      lbl1.AutoSize := False;
+      lbl1.Wordwrap := True;
+      lbl1.Caption := 'Your asset destination directory isn''t empty.  You should clear it before proceeding.';
+      lbl1.Left := 8;
+      
+      btnOk := TButton.Create(afrm);
+      btnOk.Parent := afrm;
+      btnOk.Caption := 'Proceed';
+      btnOk.ShowHint := true;
+      btnOk.Hint := 'Proceed with the merge';
+      btnOk.ModalResult := mrOk;
+      btnOk.Left := (afrm.Width - 10) div 2 - (btnOk.Width * 1.5 + 8);
+      btnOk.Top := lbl1.Top + lbl1.Height + 16;
+      
+      btnBrowse := TButton.Create(afrm);
+      btnBrowse.Parent := afrm;
+      btnBrowse.Caption := 'Browse';
+      btnBrowse.ShowHint := true;
+      btnBrowse.Hint := 'Browse asset destination directory';
+      btnBrowse.OnClick := AssetHelperBrowse;
+      btnBrowse.Left := btnOk.Left + btnOk.Width + 8;
+      btnBrowse.Top := btnOk.Top;
+      
+      btnCancel := TButton.Create(afrm);
+      btnCancel.Parent := afrm;
+      btnCancel.Caption := 'Cancel';
+      btnCancel.ShowHint := true;
+      btnCancel.Hint := 'Cancel the merge';
+      btnCancel.ModalResult := mrCancel;
+      btnCancel.Left := btnBrowse.Left + btnBrowse.Width + 8;
+      btnCancel.Top := btnOk.Top;
+      
+      if afrm.ShowModal = mrCancel then
+        Result := false;
+    finally
+      afrm.Free;
+    end;
   end;
 end;
 
@@ -898,6 +1065,7 @@ begin
   slIgnore.Add('.');
   slIgnore.Add('..');
   slIgnore.Add('*.esp');
+  slIgnore.Add('*.esm');
   if extractBSAs then
     slIgnore.Add('*.bsa');
   
@@ -918,8 +1086,7 @@ begin
   // copy assets from folder
   if slCopiedFrom.IndexOf(modPath) = -1 then begin
     slCopiedFrom.Add(modPath);
-    LogMessage('        Copying all assets from directory "'+modPath+'"');
-    LogMessage('        Copying all assets to directory "'+astPath+'"');
+    LogMessage('    Copying all assets from directory "'+modPath+'"');
     CopyDirectory(modPath, astPath, slIgnore, debug);
   end;
 end;
@@ -1214,7 +1381,7 @@ var
 begin
   pb.Position := 1;
   slAllForms := TStringList.Create;
-  LogMessage(#13#10+'Renumbering Conflicting FormIDs before merging...');
+  LogMessage(#13#10+'Renumbering conflicting FormIDs before merging...');
   
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
@@ -1522,8 +1689,8 @@ function Finalize: integer;
 var
   i, j, k, rc, wait, waitTick: integer;
   f, e, group, masters, master: IInterface;
-  merge, s, desc, version, fn: string;
-  done, b, recordFromMerge: boolean;
+  merge, id, desc, version, fn, bsaName, masterName, mergeDesc: string;
+  done, b, recordFromMerge, didNothing: boolean;
   lbl: TLabel;
   pb: TProgressBar;
   today : TDateTime;
@@ -1569,6 +1736,13 @@ begin
     'Mod Organizer path invalid.  If you''re not using Mod Organizer, please uncheck '#13#10
     'the checkbox saying that you are from the Advanced Options window. If you are '#13#10
     'using Mod Organzier please enter it''s path on the Advanced Options window.'#13#10);
+    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    exit;
+  end;
+  
+  // provide user with asset destination helper
+  if not AssetHelper then begin
+    AddMessage(#13#10'User canceled merge.  Terminating script.'#13#10);
     slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
     exit;
   end;
@@ -1635,6 +1809,7 @@ begin
     frm.Show;
     application.processmessages;
     
+    // print initial log messages
     LogMessage(dashes);
     LogMessage('Merge Plugins '+vs+': Merges files.  For use with TES5Edit and FNVEdit.');
     LogMessage(dashes);
@@ -1643,6 +1818,13 @@ begin
       LogMessage('Merging '+slMerge[i]);
     
     LogMessage(#13#10+'Script is using ' + GetFileName(mgf) + ' as the merge file.');
+    
+    // set up for saving log
+    SetCurrentDir(ScriptsPath + '\mp\');
+    CreateDir('logs'); // create directory if it doesn't already exist
+    today := Now;
+    fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
+        '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
   
     // add masters
     lbl.Caption := 'Adding masters...';
@@ -1676,7 +1858,8 @@ begin
       end;
       
       // copy File specific asets
-      LogMessage(#13#10+'Copying Assets...');
+      LogMessage(#13#10+'Copying file specific Assets...');
+      lbl.Caption := 'Copying file specific Assets...';
       for i := 0 to slMerge.Count - 1 do begin
         CopyAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
         CopyAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
@@ -1685,19 +1868,46 @@ begin
       end;
     end;
     
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+    
     // mod organizer CopyAllAssets option
     if copyAll then begin
-      LogMessage(#13#10+'Copying all assets from Mod Organizer directories.');
-      for i := 0 to slMerge.Count - 1 do
+      didNothing := true;
+      LogMessage(#13#10+'Copying general assets from Mod Organizer directories.');
+      lbl.Caption := 'Copying general assets from Mod Organizer directories...';
+      for i := 0 to slMerge.Count - 1 do begin
         CopyAllAssets(slMerge[i]);
+        Application.processmessages;
+        didNothing := false;
+      end;
+      if didNothing then
+        LogMessage('    No general assets copied.');
     end;
     
-    // set up for saving log
-    SetCurrentDir(ScriptsPath + '\mp\');
-    CreateDir('logs'); // create directory if it doesn't already exist
-    today := Now;
-    fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
-        '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
+    // save log
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+    
+    // extract BSAs option
+    if extractBSAs then begin
+      didNothing := true;
+      LogMessage(#13#10+'Extracting BSAs.');
+      lbl.Caption := 'Extracting BSAs';
+      for i := 0 to slMerge.Count - 1 do begin
+        if (Pos('.esp', slMerge[i]) > 0) then
+          bsaName := StringReplace(slMerge[i], '.esp', '.bsa', [rfReplaceAll]);
+        if (Pos('.esm', slMerge[i]) > 0) then
+          bsaName := StringReplace(slMerge[i], '.esm', '.bsa', [rfReplaceAll]);
+        if (Pos('.bsa', bsaName) > 0) and FileExists(DataPath + bsaName) then begin
+          LogMessage('    Extracting '+bsaName+' to '+astPath);
+          ExtractBSA(DataPath + bsaName, astPath);
+          Application.processmessages;
+          didNothing := false;
+        end;
+      end;
+      if didNothing then
+        LogMessage('    No BSAs extracted.');
+    end;
     
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
@@ -1715,6 +1925,7 @@ begin
       pb.Position := pb.Position + 30/slMerge.Count;
       Application.processmessages;
     end;
+    
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
    
@@ -1725,11 +1936,11 @@ begin
     masters := ElementByName(ElementByIndex(mgf, 0), 'Master Files');
     for i := ElementCount(masters) - 1 downto 0 do begin
       e := ElementByIndex(masters, i);
-      s := GetElementNativeValues(e, 'MAST');
-      if (s = '') then Continue;
+      masterName := GetElementNativeValues(e, 'MAST');
+      if (masterName = '') then Continue;
       for j := 0 to slMerge.Count - 1 do begin
-        if (slMerge[j] = s) then begin
-          LogMessage('    Removing master '+s);
+        if (slMerge[j] = masterName) then begin
+          LogMessage('    Removing master '+masterName);
           RemoveElement(masters, e);
         end;
       end;
@@ -1739,21 +1950,22 @@ begin
     desc := 'Merged Plugin: ';
     lbl.Caption := 'Creating description';
     pb.Position := 60;
-    s := nil;
-    s := geev(ElementByIndex(mgf, 0), 'SNAM');
-    if not Assigned(s) then
+    desc := nil;
+    desc := geev(ElementByIndex(mgf, 0), 'SNAM');
+    if not Assigned(desc) then
       Add(ElementByIndex(mgf, 0), 'SNAM', True)
-    else if Pos('Merged Plugin', s) > 0 then 
-      desc := s;
+    else if Pos('Merged Plugin', desc) = 0 then 
+      desc := '';
     for i := 0 to slMerge.Count - 1 do begin
-      s := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
-      if Pos('Merged Plugin', s) > 0 then
+      mergeDesc := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
+      if Pos('Merged Plugin', mergeDesc) > 0 then
         desc := desc+StringReplace(s, 'Merged Plugin: ', '', [rfReplaceAll])
       else
         desc := desc+#13#10+'  '+slMerge[i];
     end;
     seev(ElementByIndex(mgf, 0), 'CNAM', 'Merge Plugins Script '+vs);
     seev(ElementByIndex(mgf, 0), 'SNAM', desc);
+    
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
@@ -1765,9 +1977,9 @@ begin
       lbl.Caption := 'Removing records...';
       for i := RecordCount(mgf) - 1 downto 1 do begin
         e := RecordByIndex(mgf, i);
-        s := HexFormID(e);
+        id := HexFormID(e);
         for j := 0 to slMerge.Count - 1 do begin
-          recordFromMerge := TStringList(NewForms[j]).IndexOf(s) > -1;
+          recordFromMerge := TStringList(NewForms[j]).IndexOf(id) > -1;
           if (recordFromMerge) then begin
             b := true;
             break;
@@ -1782,7 +1994,7 @@ begin
       LogMessage('    '+IntToStr(rCount)+' records removed.');
       
       // copy records again
-      LogMessage('Performing second pass copying...');
+      LogMessage(#13#10+'Performing second pass copying...');
       pb.Position := 65;
       lbl.Caption := 'Copying records (second pass)...';
       for i := slMerge.Count - 1 downto 0 do begin
@@ -1798,6 +2010,7 @@ begin
         Application.processmessages;
       end;
     end;
+    
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
@@ -1819,12 +2032,13 @@ begin
       end;
       Application.processmessages;
     end;
+    
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
-    pb.Position := 100;
-    lbl.Caption := 'Merge Completed.';
 
     // script is done, print confirmation messages
+    pb.Position := 100;
+    lbl.Caption := 'Merge Completed.';
     LogMessage(#13#10);
     LogMessage(dashes);
     LogMessage('Your merged file has been created successfully.  It has '+IntToStr(RecordCount(mgf))+' records.');

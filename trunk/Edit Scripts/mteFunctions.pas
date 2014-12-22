@@ -5,14 +5,15 @@
   A set of useful functions for use in TES5Edit scripts.
   
   **LIST OF INCLUDED FUNCTIONS**
-  - [GetVersionString]: Gets TES5Edit's version as a string.
-  - [ColorToInt]: Gets an integer value representing a color from a TColor record.
-  - [ElementTypeString]: Uses ElementType and outputs a string.
-  - [DefTypeString]: Uses DefType and outputs a string.
-  - [ConflictThisString]: Uses ConflictThisForNode or ConflictThisForMainRecord 
+  - [GetVersionString]: gets TES5Edit's version as a string.
+  - [ColorToInt]: gets an integer value representing a color from a TColor record.
+  - [ElementTypeString]: uses ElementType and outputs a string.
+  - [DefTypeString]: uses DefType and outputs a string.
+  - [ConflictThisString]: uses ConflictThisForNode or ConflictThisForMainRecord 
     and outputs a string.
-  - [ConflictAllString]: Uses ConflictAllForNode or ConflictAllForMainRecord 
+  - [ConflictAllString]: uses ConflictAllForNode or ConflictAllForMainRecord 
     and outputs a string.
+  - [IsDirectoryEmpty]: returns true if a directory is empty.  False otherwise.
   - [Matches]: returns true or false on whether or not an input string matches a
     basic regular expression (e.g. *.esp)
   - [CopyDirectory]: recursively copies the contents of a directory to a new destination
@@ -28,9 +29,9 @@
   - [FileFormID]: gets the FileFormID of a record as a cardinal.
   - [SmallName]: gets the FormID and editor ID as a string.
   - [ElementByIP]: loads an element by an indexed path.
-  - [SetListEditValues]: Sets the edit values in a list of elements to the values 
+  - [SetListEditValues]: sets the edit values in a list of elements to the values 
     stored in a stringlist.
-  - [SetListNativeValues]: Sets the native values in a list of elements to the values
+  - [SetListNativeValues]: sets the native values in a list of elements to the values
     stored in a TList.
   - [geev]: GetElementEditValues enhanced with ElementByIP.
   - [genv]: GetElementNativeValues enhanced with ElementByIP.
@@ -38,22 +39,22 @@
   - [senv]: SetElementNativeValues enhanced with ElementByIP.
   - [slev]: SetListEditValues shortened function name.
   - [slnv]: SetListNativeValues shortened function name.
-  - [HasKeyword]: Checks if a record has a keyword matching the input EditorID.
-  - [HasItem]: Checks if a record has an item matching the input EditorID.
-  - [HasPerkCondition]: Checks if a record has a perk condition for a perk matching the
+  - [HasKeyword]: checks if a record has a keyword matching the input EditorID.
+  - [HasItem]: checks if a record has an item matching the input EditorID.
+  - [HasPerkCondition]: checks if a record has a perk condition for a perk matching the
     input EditorID.
-  - [ExtractBSA]: Extracts the contents of a BSA to the specified path.
-  - [AddMastersToFile]: Adds masters to the specified file from the specified stringlist.
+  - [ExtractBSA]: extracts the contents of a BSA to the specified path.
+  - [AddMastersToFile]: adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
-  - [RemoveMaster]: Removes a master of the specified name from the specified file.
+  - [RemoveMaster]: removes a master of the specified name from the specified file.
     NOTE: This function can be dangerous if used improperly.
-  - [FileSelect]: Creates a window from which the user can select or create a file.
+  - [FileSelect]: creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
-  - [ConstructCheckBox]: An all-in-one checkbox constructor.
-  - [ConstructLabel]: An all-in-one label constructor.
-  - [ConstructButton]: An all-in-one button constructor.
-  - [ConstructOkCancelButtons]: A procedure to make the standard OK and Cancel buttons on a form.
+  - [ConstructCheckBox]: an all-in-one checkbox constructor.
+  - [ConstructLabel]: an all-in-one label constructor.
+  - [ConstructButton]: an all-in-one button constructor.
+  - [ConstructOkCancelButtons]: a procedure to make the standard OK and Cancel buttons on a form.
 }
 
 unit mteFunctions;
@@ -300,6 +301,27 @@ begin
       Result := 'caOverride'
     else if ConflictAllForNode(e) = caConflictCritical then 
       Result := 'caConflictCritical';
+  end;
+end;
+
+{
+  IsDirectoryEmpty:
+  Checks if a given directory is empty.
+  
+  Example usage:
+  if not IsDirectoryEmpty(ScriptsPath) then
+    AddMessage('You have scripts!  That''s good.');
+}
+function IsDirectoryEmpty(const directory: string): boolean;
+var
+ searchRec: TSearchRec;
+begin
+  try
+    result := (FindFirst(directory+'\*.*', faAnyFile, searchRec) = 0) AND
+      (FindNext(searchRec) = 0) AND
+      (FindNext(searchRec) <> 0);
+  finally
+    FindClose(searchRec) ;
   end;
 end;
 
@@ -911,7 +933,7 @@ begin
   // save assets
   try
     for i := 0 to Pred(slAssets.Count) do begin
-      AddMessage(slAssets[i]);
+      //AddMessage(slAssets[i]);
       ResourceCopy(aContainerName, slAssets[i], aPath);
     end;
   except
