@@ -355,7 +355,7 @@ end;
   slIgnore.Add('mteFunctions.pas');
   CopyDirectory(ScriptsPath, 'C:\ScriptsBackup', slIgnore);
 }
-procedure CopyDirectory(src, dst: string; ignore: TStringList);
+procedure CopyDirectory(src, dst: string; ignore: TStringList; verbose: boolean);
 var
   i: integer;
   rec: TSearchRec;
@@ -365,19 +365,21 @@ begin
     repeat
       skip := false;
       for i := 0 to Pred(ignore.Count) do begin
-        skip := Matches(rec.Name, ignore[i]);
+        skip := Matches(Lowercase(rec.Name), ignore[i]);
         if skip then
           break;
       end;
       if not skip then begin
         ForceDirectories(dst);
         if Pos('.', rec.Name) > 0 then begin
-          //AddMessage('    Copying file from '+src+'\'+rec.Name+' to '+dst+'\'+rec.Name);
+          if verbose then AddMessage('    Copying file from '+src+'\'+rec.Name+' to '+dst+'\'+rec.Name);
           CopyFile(PChar(src+'\'+rec.Name), PChar(dst+'\'+rec.Name), false);
         end
         else
-          CopyDirectory(src+'\'+rec.Name, dst+'\'+rec.Name, ignore);
-      end;
+          CopyDirectory(src+'\'+rec.Name, dst+'\'+rec.Name, ignore, verbose);
+      end
+      else if verbose then
+        AddMessage('    Skipping file '+src+'\'+rec.Name);
     until FindNext(rec) <> 0;
     
     FindClose(rec);

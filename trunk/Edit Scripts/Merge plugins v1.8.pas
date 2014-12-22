@@ -52,7 +52,7 @@ var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
   slTranslations, slCopiedFrom: TStringList;
   OldForms, NewForms: TList;
-  rn, mm, sp: integer;
+  rn, mm, sp, rCount: integer;
   moPath, astPath: string;
   SkipProcess, disableColoring, extractBSAs, disableESPs, 
   usingMo, copyAll, firstRun: boolean;
@@ -62,11 +62,12 @@ var
   slArray: Array[0..30] of TStringList;
   frm: TForm;
   memo: TMemo;
-  btnDetails: TButton;
+  btnDetails, btnSave: TButton;
   gear, browse: TPicture;
-  cb2: TCheckbox;
+  cb1, cb2: TCheckbox;
   btnFind: TButton;
   ed1, ed2: TEdit;
+  imgBrowse1, imgBrowse2: TImage;
  
  
 {*************************************************************************}
@@ -221,6 +222,31 @@ begin
 end;
 
 //=========================================================================
+// CheckDirectories: Checks if ed1 and ed2 directories are valid.
+procedure ofrm.CheckDirectories;
+var
+  moValid, astValid: boolean;
+begin
+  moValid := DirectoryExists(ed1.Caption);
+  astValid := DirectoryExists(ed2.Caption);
+  btnSave.Enabled := (moValid or not cb1.Checked) and astValid;
+end;
+
+//=========================================================================
+// MoPathHelper: Tells the user if their Mod Organizer path is invalid
+procedure ofrm.MoPathHelper;
+var
+  moValid: boolean;
+begin
+  moValid := DirectoryExists(ed1.Caption);
+  if not moValid then begin
+    // tell user their mod organizer path is invalid
+    MessageDlg('Your Mod Organizer path is invalid. Either enter a valid '
+      'path or uncheck "I''m using Mod Organizer".', mtConfirmation, [mbOk], 0);
+  end;
+end;
+
+//=========================================================================
 // AssetPathBrowse: Browse for asset destination path
 procedure ofrm.AssetPathBrowse;
 var
@@ -248,9 +274,11 @@ end;
 // UsingModOrganizer: Toggle for controls
 procedure ofrm.UsingModOrganizer;
 begin
-  ed1.Enabled := (not ed1.Enabled);
-  btnFind.Enabled := (not btnFind.Enabled);
-  cb2.Enabled := (not cb2.Enabled);
+  ed1.Enabled := cb1.Checked;
+  btnFind.Enabled := cb1.Checked;
+  cb2.Enabled := cb1.Checked;
+  imgBrowse1.Enabled := cb1.Checked;
+  CheckDirectories;
 end;
 
 //=========================================================================
@@ -359,12 +387,11 @@ procedure AdvancedOptions;
 var
   ofrm: TForm;
   lbl1, lbl2: TLabel;
-  cb1, cb3, cb4, cb5: TCheckBox;
+  cb3, cb4, cb5: TCheckBox;
   gb1, gb2: TGroupBox;
-  btnOk, btnCancel: TButton;
+  btnDiscard: TButton;
   rg1, rg2, rg3: TRadioGroup;
   rb1, rb2, rb3, rb4, rb5, rb6, rb7, rb8, rb9: TRadioButton;
-  imgBrowse1, imgBrowse2: TImage;
 begin
   ofrm := TForm.Create(nil);
   try
@@ -416,6 +443,8 @@ begin
       'Mod Organizer''s full path here.  The script can often detect this path'#13
       'automatically if you click the Detect button.';
     ed1.ShowHint := true;
+    ed1.OnChange := CheckDirectories;
+    ed1.OnExit := MoPathHelper;
     
     imgBrowse1 := TImage.Create(gb1);
     imgBrowse1.Parent := gb1;
@@ -424,6 +453,7 @@ begin
     imgBrowse1.Height := 18;
     imgBrowse1.ShowHint := true;
     imgBrowse1.Hint := 'Browse';
+    imgBrowse1.Enabled := usingMO;
     imgBrowse1.OnClick := MoPathBrowse;
     imgBrowse1.Left := ed1.Left + ed1.Width + 8;
     imgBrowse1.Top := ed1.Top;
@@ -578,6 +608,7 @@ begin
       'directory.  If you''re not using Mod Organizer this should be your Skyrim'#13
       'data folder or another location you''ve decided on for holding assets.';
     ed2.ShowHint := true;
+    ed2.OnChange := CheckDirectories;
     
     imgBrowse2 := TImage.Create(gb2);
     imgBrowse2.Parent := gb2;
@@ -620,21 +651,21 @@ begin
     cb5.Checked := disableESPs;
     cb5.Enabled := false;
     
-    btnOk := TButton.Create(ofrm);
-    btnOk.Parent := ofrm;
-    btnOk.Caption := 'OK';
-    btnOk.ModalResult := mrOk;
-    btnOk.Left := ofrm.Width div 2 - btnOk.Width - 8;
-    btnOk.Top := gb2.Top + gb2.Height + 15;
+    btnSave := TButton.Create(ofrm);
+    btnSave.Parent := ofrm;
+    btnSave.Caption := 'Save';
+    btnSave.ModalResult := mrOk;
+    btnSave.Left := ofrm.Width div 2 - btnSave.Width - 8;
+    btnSave.Top := gb2.Top + gb2.Height + 15;
     
-    btnCancel := TButton.Create(ofrm);
-    btnCancel.Parent := ofrm;
-    btnCancel.Caption := 'Cancel';
-    btnCancel.ModalResult := mrCancel;
-    btnCancel.Left := btnOk.Left + btnOk.Width + 16;
-    btnCancel.Top := btnOk.Top;
+    btnDiscard := TButton.Create(ofrm);
+    btnDiscard.Parent := ofrm;
+    btnDiscard.Caption := 'Discard';
+    btnDiscard.ModalResult := mrCancel;
+    btnDiscard.Left := btnSave.Left + btnSave.Width + 16;
+    btnDiscard.Top := btnSave.Top;
     
-    ofrm.ActiveControl := btnOk;
+    ofrm.ActiveControl := btnSave;
     
     if ofrm.ShowModal = mrOk then begin
       if rb1.Checked then rn := 0 else
@@ -863,9 +894,12 @@ begin
   slIgnore.Add('facegendata');
   slIgnore.Add('voice');
   slIgnore.Add('translations');
+  slIgnore.Add('meta.ini');
   slIgnore.Add('.');
   slIgnore.Add('..');
-  slIgnore.Add('.esp');
+  slIgnore.Add('*.esp');
+  if extractBSAs then
+    slIgnore.Add('*.bsa');
   
   // find mod directory in Mod Organizer's mods folder
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
@@ -886,7 +920,7 @@ begin
     slCopiedFrom.Add(modPath);
     LogMessage('        Copying all assets from directory "'+modPath+'"');
     LogMessage('        Copying all assets to directory "'+astPath+'"');
-    CopyDirectory(modPath, astPath, slIgnore);
+    CopyDirectory(modPath, astPath, slIgnore, debug);
   end;
 end;
 
@@ -1658,16 +1692,17 @@ begin
         CopyAllAssets(slMerge[i]);
     end;
     
-    // set up for saving
+    // set up for saving log
     SetCurrentDir(ScriptsPath + '\mp\');
     CreateDir('logs'); // create directory if it doesn't already exist
     today := Now;
     fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
         '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
+    
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
 
-    // the merging process
+    // copy records
     LogMessage(#13#10+'Copying records...');
     lbl.Caption := 'Copying records...';
     pb.Position := 29;
@@ -1740,10 +1775,11 @@ begin
         end;
         if b then begin
           b := false;
-          if debug then LogMessage('    Removing '+SmallName(e));
+          Inc(rCount);
           Remove(e);
         end;
       end;
+      LogMessage('    '+IntToStr(rCount)+' records removed.');
       
       // copy records again
       LogMessage('Performing second pass copying...');
