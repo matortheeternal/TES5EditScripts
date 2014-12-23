@@ -1959,7 +1959,7 @@ begin
     for i := 0 to slMerge.Count - 1 do begin
       mergeDesc := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
       if Pos('Merged Plugin', mergeDesc) > 0 then
-        desc := desc+StringReplace(s, 'Merged Plugin: ', '', [rfReplaceAll])
+        desc := desc+StringReplace(mergeDesc, 'Merged Plugin: ', '', [rfReplaceAll])
       else
         desc := desc+#13#10+'  '+slMerge[i];
     end;
