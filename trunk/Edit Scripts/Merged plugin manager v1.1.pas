@@ -1,5 +1,5 @@
 {
-  Merged Plugin Manager v1.0
+  Merged Plugin Manager v1.1
   Created by matortheeternal
   
   * DESCRIPTION *
@@ -12,7 +12,7 @@ unit mpManager;
 uses mteFunctions;
 
 const
-  vs = 'v1.0';
+  vs = 'v1.1';
   notesmax = 255;
   smartremove = false;
   // smart removal!  if true RemovePlugin won't remove forms that
@@ -93,17 +93,17 @@ begin
 end;
 
 //=========================================================================
-procedure rfrm.SubmitReport(Sender: TObject);
+procedure rfrm.SaveReport(Sender: TObject);
 var
   slReport: TStringList;
   s: String;
   p: TObject;
 begin
-  if MessageDlg('Are you sure you want to submit this report?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
+  if MessageDlg('Are you sure you want to save this report?', mtConfirmation, [mbYes, mbNo], 0) = mrNo then
     exit
   else begin
     p := Sender.Parent;
-    AddMessage('Submitting '+ p.Caption);
+    AddMessage('Saving '+ p.Caption);
     slReport := TStringList.Create;
     oldIndex := p.Components[5].ItemIndex;
     oldNotes := p.Components[8].Lines.Text;
@@ -117,7 +117,7 @@ begin
 end;
 
 //=========================================================================
-procedure rfrm.EnableSubmit(Sender: TObject);
+procedure rfrm.EnableSave(Sender: TObject);
 var
   p: TObject;
 begin
@@ -143,7 +143,7 @@ end;
 procedure MakeReport(fn: string; fc: Integer);
 var
   rfrm: TForm;
-  btnSubmit, btnCancel: TButton;
+  btnSave, btnCancel: TButton;
   lbl01, lbl02, lbl03, lbl04, lbl05: TLabel;
   ed01, ed02, ed03: TEdit;
   cb01: TComboBox;
@@ -203,7 +203,7 @@ begin
     cb01.Items.Text := 'Cannot be merged'#13'Merges with errors'#13'Merges but CTDs ingame'#13'Merges, no CTDs'#13'Merges perfectly';
     if (oldIndex > -1) then
       cb01.ItemIndex := oldIndex;
-    cb01.OnChange := EnableSubmit;
+    cb01.OnChange := EnableSave;
     
     lbl04 := TLabel.Create(rfrm);
     lbl04.Parent := rfrm;
@@ -224,7 +224,7 @@ begin
     end
     else begin
       ed03.Text := '?';
-      ed03.OnChange := EnableSubmit;
+      ed03.OnChange := EnableSave;
     end;
     
     mm01 := TMemo.Create(rfrm);
@@ -234,7 +234,7 @@ begin
     mm01.Width := 350;
     mm01.Height := 150;
     mm01.Lines.Text := oldNotes;
-    mm01.OnChange := EnableSubmit;
+    mm01.OnChange := EnableSave;
     
     lbl05 := TLabel.Create(rfrm);
     lbl05.Parent := rfrm;
@@ -243,27 +243,27 @@ begin
     lbl05.Left := rfrm.Width - lbl05.Width - 45;
     lbl05.Top := lbl04.Top + 190;
     
-    btnSubmit := TButton.Create(rfrm);
-    btnSubmit.Parent := rfrm;
-    btnSubmit.ModalResult := mrOk;
-    btnSubmit.OnClick := SubmitReport;
-    btnSubmit.Caption := 'Submit';
-    btnSubmit.Left := (rfrm.Width div 2) - btnSubmit.Width - 8;
-    btnSubmit.Top := rfrm.Height - 80;
-    btnSubmit.Enabled := false;
+    btnSave := TButton.Create(rfrm);
+    btnSave.Parent := rfrm;
+    btnSave.ModalResult := mrOk;
+    btnSave.OnClick := SaveReport;
+    btnSave.Caption := 'Save';
+    btnSave.Left := (rfrm.Width div 2) - btnSave.Width - 8;
+    btnSave.Top := rfrm.Height - 80;
+    btnSave.Enabled := false;
     
     btnCancel := TButton.Create(rfrm);
     btnCancel.Parent := rfrm;
     btnCancel.ShowHint := true;
-    btnCancel.Hint := 'You must fill in all enabled fields before you can submit a report.';
+    btnCancel.Hint := 'You must fill in all enabled fields before you can save a report.';
     btnCancel.Caption := 'Cancel';
     btnCancel.ModalResult := mrCancel;
-    btnCancel.Left := btnSubmit.Left + btnSubmit.Width + 16;
-    btnCancel.Top := btnSubmit.top;
+    btnCancel.Left := btnSave.Left + btnSave.Width + 16;
+    btnCancel.Top := btnSave.top;
     
-    EnableSubmit(mm01);
-    if btnSubmit.Enabled then
-      rfrm.ActiveControl := btnSubmit
+    EnableSave(mm01);
+    if btnSave.Enabled then
+      rfrm.ActiveControl := btnSave
     else
       rfrm.ActiveControl := btnCancel;
     if rfrm.ShowModal = mrOk then begin
@@ -278,7 +278,7 @@ end;
 procedure frm.Report(Sender: TObject);
 var
   x, i: integer;
-  s, fn: string;
+  s, dlg, fn: string;
   group, forms: IInterface;
   mp: boolean;
 begin
@@ -302,6 +302,10 @@ begin
         MakeReport(s, RecordCount(FileByName(s)));
     end;
   end;
+  s := ScriptsPath + 'mp\Merge Plugins Report Client.jar';
+  dlg := 'Would you like to submit the reports you just generated?';
+  if (MessageDlg(dlg, mtCustom, [mbYes,mbNo], 0) = mrYes) then
+    ShellExecute(TForm(frmMain).Handle, 'open', s, '', '', SW_SHOWNORMAL);
   frm.ActiveControl := btnClose;
 end;
 
