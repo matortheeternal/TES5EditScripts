@@ -783,7 +783,7 @@ begin
 end;
 
 //=========================================================================
-// AssetPathBrowse: Browse for asset destination path
+// AssetHelperBrowse: Show user their asset destination directory
 procedure afrm.AssetHelperBrowse;
 begin
   ShellExecute(TForm(frmMain).Handle, 'open', astPath, '', '', SW_SHOWNORMAL)
@@ -799,11 +799,12 @@ var
 begin
   Result := true;
   if (astPath = DataPath) then begin
-    Result := (MessageDlg(
-      'You''re using Skyrim''s data directory as the destination directory '+
-      'for assets copied by the script.  This will make your data directory '+
-      'very messy over time, and isn''t recommended.  Are you sure you '+
-      'want to continue?',  mtCustom, [mbYes,mbNo], 0) = mrYes);
+    if firstrun then 
+      Result := (MessageDlg(
+        'You''re using Skyrim''s data directory as the destination directory '+
+        'for assets copied by the script.  This will make your data directory '+
+        'very messy over time, and isn''t recommended.  Are you sure you '+
+        'want to continue?',  mtCustom, [mbYes,mbNo], 0) = mrYes);
   end
   else if not IsDirectoryEmpty(astPath) then begin
     afrm := TForm.Create(nil);
@@ -1066,8 +1067,10 @@ begin
   slIgnore.Add('..');
   slIgnore.Add('*.esp');
   slIgnore.Add('*.esm');
-  if extractBSAs then
+  if extractBSAs then begin
     slIgnore.Add('*.bsa');
+    slIgnore.Add('*.bsl');
+  end;
   
   // find mod directory in Mod Organizer's mods folder
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
@@ -1086,7 +1089,7 @@ begin
   // copy assets from folder
   if slCopiedFrom.IndexOf(modPath) = -1 then begin
     slCopiedFrom.Add(modPath);
-    LogMessage('    Copying all assets from directory "'+modPath+'"');
+    LogMessage('    Copying assets from directory "'+modPath+'"');
     CopyDirectory(modPath, astPath, slIgnore, debug);
   end;
 end;
