@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.6
+  Merge Plugins Script v1.8.7
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.6
+  v1.8.7
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -42,6 +42,7 @@
     the directory they have set isn't empty. 
   - Improved logging and clearer difference between normal mode and 
     debug mode.
+  - File Specific asset copying fixed to also copy from BSAs.
   
     
   *DESCRIPTION*
@@ -55,10 +56,10 @@ unit mergePlugins;
 uses mteFunctions;
 
 const
-  vs = 'v1.8.6';
+  vs = 'v1.8.7';
   dashes = '-----------------------------------------------------------------------------';
   debug = false; // debug messages
-  mcmdebug = true;
+  mcmdebug = false;
   debugsearch = false;
 
 var
