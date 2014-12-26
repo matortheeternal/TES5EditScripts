@@ -1210,7 +1210,7 @@ var
 begin
   fn := slMerge[mergeIndex];
   fn := Lowercase(Copy(fn, 1, Length(fn) - 4)); // trim .esp off
-  LogMessage('     Copying MCM Translations associated with '+fn);
+  if mcmdebug then LogMessage('     Copying MCM Translations associated with '+fn);
   
   // search for translation files
   if FindFirst(path+'*.txt', faAnyFile and faDirectory, info) = 0 then begin
