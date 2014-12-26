@@ -58,6 +58,7 @@ const
   vs = 'v1.8.6';
   dashes = '-----------------------------------------------------------------------------';
   debug = false; // debug messages
+  mcmdebug = true;
   debugsearch = false;
 
 var
@@ -65,7 +66,7 @@ var
   slTranslations, slCopiedFrom: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp, rCount: integer;
-  moPath, astPath: string;
+  moPath, astPath, bsaName: string;
   SkipProcess, disableColoring, extractBSAs, disableESPs, 
   usingMo, copyAll, firstRun: boolean;
   mgf: IInterface;
@@ -1050,8 +1051,8 @@ begin
 end;
 
 //=========================================================================
-// CopyAllAssets: copies all assets from a matching Mod Organizer folder
-procedure CopyAllAssets(filename: string);
+// CopyGeneralAssets: copies all assets from a matching Mod Organizer folder
+procedure CopyGeneralAssets(filename: string);
 var
   slIgnore: TStringList;
   rec: TSearchRec;
@@ -1096,7 +1097,7 @@ end;
 
 //=========================================================================
 // CopyAssets: copies assets in filename specific directories
-procedure CopyAssets(path: string; mergeIndex: integer);
+procedure CopyActorAssets(path: string; mergeIndex: integer);
 var
   info: TSearchRec;
   src, dst, newForm, srcPath, dstPath: string;
@@ -1208,6 +1209,7 @@ var
 begin
   fn := slMerge[mergeIndex];
   fn := Lowercase(Copy(fn, 1, Length(fn) - 4)); // trim .esp off
+  LogMessage('     Copying MCM Translations associated with '+fn);
   
   // search for translation files
   if FindFirst(path+'*.txt', faAnyFile and faDirectory, info) = 0 then begin
@@ -1219,19 +1221,19 @@ begin
         // other translation files for same language found, concatenate
         if index > -1 then begin
           slSrc := TStringList.Create;
-          if debug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
+          if mcmdebug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
           slSrc.LoadFromFile(path+info.Name);
-          slArray[index].Text := slArray[index].Text + #13#13 + slSrc.Text;
+          slArray[index].Text := slArray[index].Text + #13#10#13#10 + slSrc.Text;
           slSrc.Free;
         end
         // add new translation to stringlist
         else begin
           slArray[slTranslations.Count] := TStringList.Create;
-          if debug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
+          if mcmdebug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
           slArray[slTranslations.Count].LoadFromFile(path+info.Name);
           slTranslations.Add(t);
         end;
-        if debug then LogMessage('            Copying MCM translation "'+info.Name+'"');
+        if mcmdebug then LogMessage('            Copying MCM translation "'+info.Name+'"');
       end;
     until FindNext(info) <> 0;
   end;
@@ -1253,7 +1255,7 @@ begin
   
   // save all new translation files
   for i := 0 to slTranslations.Count - 1 do begin
-    if debug then 
+    if mcmdebug then 
       LogMessage('            Output MCM translation "'+path+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
     slArray[i].SaveToFile(path + Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
     slArray[i].Free;
@@ -1370,6 +1372,36 @@ begin
   end;
 end;
 
+//=========================================================================
+// CopyFileSpecificAssets: performs all file specific asset copying
+procedure CopyFileSpecificAssets(i: integer);
+begin
+  // extract assets from BSAs if necessary
+  if (Pos('.esp', slMerge[i]) > 0) then
+    bsaName := StringReplace(slMerge[i], '.esp', '.bsa', [rfReplaceAll]);
+  if (Pos('.esm', slMerge[i]) > 0) then
+    bsaName := StringReplace(slMerge[i], '.esm', '.bsa', [rfReplaceAll]);
+  if (Pos('.bsa', bsaName) > 0) and FileExists(DataPath + bsaName) then begin
+    ExtractPathBSA(DataPath + bsaName, TempPath, 'textures\actors\character\facegendata\facetint\');
+    ExtractPathBSA(DataPath + bsaName, TempPath, 'meshes\actors\character\facegendata\facegeom\');
+    ExtractPathBSA(DataPath + bsaName, TempPath, 'sound\voice');
+    ExtractPathBSA(DataPath + bsaName, TempPath, 'interface\translations\');
+  end;
+  
+  // Copy assets when done renumbering
+  // copy loose File/FormID specific assets
+  CopyActorAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
+  CopyActorAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
+  CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
+  CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
+  
+  // copy archived File/FormID specific assets
+  CopyActorAssets(TempPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
+  CopyActorAssets(TempPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
+  CopyVoiceAssets(TempPath + 'Sound\Voice\', i); // copy voice assets
+  CopyTranslations(TempPath + 'Interface\Translations\', i); // copy MCM translation files
+end;
+
 // ========================================================================
 // RenumberConflicting: renumber only conflicting FormIDs.
 procedure RenumberConflicting(pb: TProgressBar);
@@ -1446,18 +1478,15 @@ begin
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
         
+        Inc(rCount);
         // increment formid
         Inc(BaseFormID);
         Inc(NewFormID);
       end;
     end;
     
-    // Copy assets when done renumbering
-    // copy File/FormID specific assets
-    CopyAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
-    CopyAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
-    CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
-    CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
+    // copy file specific assets
+    CopyFileSpecificAssets(i);
     
     pb.Position := pb.Position + 29/slMerge.Count;
   end;
@@ -1529,16 +1558,14 @@ begin
       TStringList(OldForms[i]).Add(loadFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
+      Inc(rCount);
       // increment formid
       Inc(BaseFormID);
       Inc(NewFormID);
     end;
     
-    // copy File/FormID specific assets
-    CopyAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
-    CopyAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
-    CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
-    CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
+    // copy file specific assets
+    CopyFileSpecificAssets(i);
     
     pb.Position := pb.Position + 29/slMerge.Count;
   end;
@@ -1609,16 +1636,14 @@ begin
       TStringList(OldForms[i]).Add(loadFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
+      Inc(rCount);
       // increment formid
       Inc(BaseFormID);
       Inc(NewFormID);
     end;
     
-    // copy File/FormID specific assets
-    CopyAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
-    CopyAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
-    CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
-    CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
+    // copy file specific assets
+    CopyFileSpecificAssets(i);
     
     pb.Position := pb.Position + 29/slMerge.Count;
   end;
@@ -1692,7 +1717,7 @@ function Finalize: integer;
 var
   i, j, k, rc, wait, waitTick: integer;
   f, e, group, masters, master: IInterface;
-  merge, id, desc, version, fn, bsaName, masterName, mergeDesc: string;
+  merge, id, desc, version, fn, masterName, mergeDesc: string;
   done, b, recordFromMerge, didNothing: boolean;
   lbl: TLabel;
   pb: TProgressBar;
@@ -1835,17 +1860,21 @@ begin
     AddMastersToFile(mgf, slMasters, true);
      
     // renumber forms in files to be merged
+    rCount := 0;
     if (rn = 2) and (k >= 50340096) then begin
       lbl.Caption := 'Renumbering All FormIDs...';
       RenumberNew(pb);
+      LogMessage('    '+IntToStr(rCount)+' records renumbered.');
     end
     else if (rn = 2) and (FileCount < 128) then begin
       lbl.Caption := 'Renumbering All FormIDs...';
       RenumberOld(pb);
+      LogMessage('    '+IntToStr(rCount)+' records renumbered.');
     end
     else if (rn = 1) and (k >= 50340096) then begin
       lbl.Caption := 'Renumbering conflicting FormIDs...';
       RenumberConflicting(pb);
+      LogMessage('    '+IntToStr(rCount)+' records renumbered.');
     end
     else if (rn = 0) then begin
       // make formID text files
@@ -1863,24 +1892,19 @@ begin
       // copy File specific asets
       LogMessage(#13#10+'Copying file specific Assets...');
       lbl.Caption := 'Copying file specific Assets...';
-      for i := 0 to slMerge.Count - 1 do begin
-        CopyAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
-        CopyAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
-        CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
-        CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
-      end;
+      for i := 0 to slMerge.Count - 1 do CopyFileSpecificAssets(i);
     end;
     
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
-    // mod organizer CopyAllAssets option
+    // mod organizer CopyGeneralAssets option
     if copyAll then begin
       didNothing := true;
       LogMessage(#13#10+'Copying general assets from Mod Organizer directories.');
       lbl.Caption := 'Copying general assets from Mod Organizer directories...';
       for i := 0 to slMerge.Count - 1 do begin
-        CopyAllAssets(slMerge[i]);
+        CopyGeneralAssets(slMerge[i]);
         Application.processmessages;
         didNothing := false;
       end;

@@ -44,6 +44,9 @@
   - [HasPerkCondition]: checks if a record has a perk condition for a perk matching the
     input EditorID.
   - [ExtractBSA]: extracts the contents of a BSA to the specified path.
+  - [ExtractPathBSA]: extracts the contents of a BSA from a specified subpath to the 
+    specified path.
+  - [PrintBSAContents]: prints the contents of a BSA to xEdit's message log.
   - [AddMastersToFile]: adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
@@ -940,6 +943,59 @@ begin
     on E: Exception do
       AddMessage('Error copying file ' + slAssets[i] + ': ' + E.Message);
   end;
+end;
+
+{
+  ExtractPathBSA:
+  Extracts assets from a BSA that match a specified path.
+  
+  Example usage:
+  ExtractPathBSA(DataPath + 'SkyUI.esp', TempPath, 'interface\translations');
+} 
+procedure ExtractPathBSA(aContainerName, aPath, aSubPath: string);
+var
+  i: integer;
+  slAssets: TStringList;
+begin
+  // create directories
+  ForceDirectories(aPath);
+  
+  // enumerate assets
+  slAssets := TStringList.Create;
+  ResourceList(aContainerName, slAssets);
+  
+  // save assets
+  try
+    for i := 0 to Pred(slAssets.Count) do begin
+      //AddMessage(slAssets[i]);
+      if Pos(Lowercase(aSubPath), LowerCase(slAssets[i])) = 1 then
+        ResourceCopy(aContainerName, slAssets[i], aPath);
+    end;
+  except
+    on E: Exception do
+      AddMessage('Error copying file ' + slAssets[i] + ': ' + E.Message);
+  end;
+end;
+
+{
+  PrintBSAContents:
+  Prints to the log the contents of a BSA file.
+  
+  Example usage:
+  PrintBSAContents(dataPath + 'Update.bsa');
+}
+procedure PrintBSAContents(aContainerName);
+var
+  i: integer;
+  slAssets: TStringList;
+begin
+  // enumerate assets
+  slAssets := TStringList.Create;
+  ResourceList(aContainerName, slAssets);
+  
+  // print assets
+  for i := 0 to Pred(slAssets.Count) do
+    AddMessage(slAssets[i]);
 end;
 
 {
