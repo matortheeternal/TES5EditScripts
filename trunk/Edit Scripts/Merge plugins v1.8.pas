@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.7
+  Merge Plugins Script v1.8.8
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.7
+  v1.8.8
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -43,6 +43,7 @@
   - Improved logging and clearer difference between normal mode and 
     debug mode.
   - File Specific asset copying fixed to also copy from BSAs.
+  - Fixed asset copying not handling renumbered FormIDs correctly.
   
     
   *DESCRIPTION*
@@ -56,11 +57,13 @@ unit mergePlugins;
 uses mteFunctions;
 
 const
-  vs = 'v1.8.7';
-  dashes = '-----------------------------------------------------------------------------';
+  vs = 'v1.8.8';
+  dashes = '-----------------------------------------------------------------------------------';
   debug = false; // debug messages
-  mcmdebug = false;
-  debugsearch = false;
+  debugMCM = false;
+  debugRenumbering = false;
+  debugAssetCopying = false;
+  debugSearch = false;
 
 var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
@@ -338,7 +341,7 @@ begin
     for i := 0 to pathList.Count - 1 do begin
       if FindFirst(pathList[i] + '\*', faDirectory, rec) = 0 then begin
         repeat
-          if debugsearch then AddMessage('Searching '+pathList[i]+'\'+rec.Name);
+          if debugSearch then AddMessage('Searching '+pathList[i]+'\'+rec.Name);
           modOrganizerPath := FileSearch('ModOrganizer.exe', pathList[i] + '\' + rec.Name);
           if (modOrganizerPath <> '') then begin
             //modOrganizerPath := Copy(modOrganizerPath, 1, Length(modOrganizerPath) - 1);
@@ -1097,11 +1100,11 @@ begin
 end;
 
 //=========================================================================
-// CopyAssets: copies assets in filename specific directories
+// CopyAssets: copies assets in filename specific directories 
 procedure CopyActorAssets(path: string; mergeIndex: integer);
 var
   info: TSearchRec;
-  src, dst, newForm, srcPath, dstPath: string;
+  src, dst, newForm, oldForm, srcPath, dstPath: string;
   index: integer;
 begin
   // see if there is a folder matching the filename
@@ -1120,21 +1123,25 @@ begin
   LogMessage('        Copying assets to directory "'+dstPath+'"');
   if FindFirst(srcPath+'*', faAnyFile, info) = 0 then begin
     repeat
-      src := info.Name;
       // skip . and ..
-      if (Length(src) >= 8) then begin
+      if (Length(info.Name) >= 8) then begin
+        src := info.Name;
+        oldForm := Copy(src, 1, 8);
+        if debugAssetCopying then LogMessage('          Attempting to copy '+src+', oldForm = '+oldForm);
         if (rn > 0) then
-          index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(src, 1, 8));
+          index := TStringList(OldForms[mergeIndex]).IndexOf(oldForm);
         // asset not renumbered
         if (index = -1) then begin
+          if debugAssetCopying then LogMessage('          Asset not renumbered.');
           dst := info.Name;
           LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
           CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
         end
         // asset renumbered
         else begin
-          newForm := '00' + Copy(NewForms[index], 3, 6);
-          dst := StringReplace(info.Name, Copy(src, 1, 8), newForm, [rfReplaceAll]);
+          if debugAssetCopying then LogMessage('          Asset renumbered to '+TStringList(NewForms[mergeIndex]).Strings[index]);
+          newForm := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
+          dst := StringReplace(info.Name, oldForm, newForm, [rfReplaceAll]);
           CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
           LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
         end;
@@ -1149,7 +1156,7 @@ end;
 procedure CopyVoiceAssets(path: string; mergeIndex: integer);
 var
   info, info2: TSearchRec;
-  src, dst, newForm, srcPath, dstPath: string;
+  src, dst, newForm, srcPath, dstPath, oldForm: string;
   index: integer;
 begin
   // see if there is a folder matching the filename
@@ -1176,8 +1183,9 @@ begin
             // skip '.' and '..'
             if (Length(info2.Name) >= 8) then begin
               src := info.Name + '\' + info2.Name;
+              oldForm := Copy(info2.Name, Pos('.', info2.Name) - 10, 8);
               if (rn > 0) then 
-                index := TStringList(OldForms[mergeIndex]).IndexOf(Copy(info2.Name, 1, 8));
+                index := TStringList(OldForms[mergeIndex]).IndexOf(oldForm);
               // asset not renumbered
               if (index = -1) then begin
                 dst := info.Name + '\' + info2.Name;
@@ -1186,8 +1194,8 @@ begin
               end
               // asset renumbered
               else begin
-                newForm := '00' + Copy(NewForms[index], 3, 6);
-                dst := info.Name + '\' + StringReplace(info.Name + '\' + info2.Name, Copy(info2.Name, 1, 8), newForm, [rfReplaceAll]);
+                newForm := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
+                dst := info.Name + '\' + StringReplace(info.Name + '\' + info2.Name, oldForm, newForm, [rfReplaceAll]);
                 CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
                 LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
               end;
@@ -1210,7 +1218,7 @@ var
 begin
   fn := slMerge[mergeIndex];
   fn := Lowercase(Copy(fn, 1, Length(fn) - 4)); // trim .esp off
-  if mcmdebug then LogMessage('     Copying MCM Translations associated with '+fn);
+  if debugMCM then LogMessage('     Copying MCM Translations associated with '+fn);
   
   // search for translation files
   if FindFirst(path+'*.txt', faAnyFile and faDirectory, info) = 0 then begin
@@ -1222,7 +1230,7 @@ begin
         // other translation files for same language found, concatenate
         if index > -1 then begin
           slSrc := TStringList.Create;
-          if mcmdebug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
+          if debugMCM then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
           slSrc.LoadFromFile(path+info.Name);
           slArray[index].Text := slArray[index].Text + #13#10#13#10 + slSrc.Text;
           slSrc.Free;
@@ -1230,11 +1238,11 @@ begin
         // add new translation to stringlist
         else begin
           slArray[slTranslations.Count] := TStringList.Create;
-          if mcmdebug then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
+          if debugMCM then LogMessage('            LoadFromFile: "'+path+info.Name+'"');
           slArray[slTranslations.Count].LoadFromFile(path+info.Name);
           slTranslations.Add(t);
         end;
-        if mcmdebug then LogMessage('            Copying MCM translation "'+info.Name+'"');
+        if debugMCM then LogMessage('            Copying MCM translation "'+info.Name+'"');
       end;
     until FindNext(info) <> 0;
   end;
@@ -1256,7 +1264,7 @@ begin
   
   // save all new translation files
   for i := 0 to slTranslations.Count - 1 do begin
-    if mcmdebug then 
+    if debugMCM then 
       LogMessage('            Output MCM translation "'+path+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
     slArray[i].SaveToFile(path + Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
     slArray[i].Free;
@@ -1466,7 +1474,7 @@ begin
       else begin
         // else renumber it
         // print log message first, then change references, then change form
-        if debug then 
+        if debugRenumbering then 
           LogMessage(Format('        Changing FormID to [%s] on %s', 
           [IntToHex64(NewFormID, 8), SmallName(e)]));
         prc := 0;
@@ -1476,7 +1484,7 @@ begin
           CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
         end;
         SetLoadOrderFormID(e, NewFormID);
-        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(OldForms[i]).Add(fileFormID);
         TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
         
         Inc(rCount);
@@ -1546,7 +1554,7 @@ begin
       // print log message first, then change references, then change form
       OldFormID := StrToInt64('$' + loadFormID);
       fileFormID := '00' + Copy(loadFormID, 3, 6);
-      if debug then 
+      if debugRenumbering then 
         LogMessage(Format('        Changing FormID to [%s] on %s', 
         [IntToHex64(NewFormID, 8), SmallName(e)]));
       prc := 0;
@@ -1556,7 +1564,7 @@ begin
         CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
       end;
       SetLoadOrderFormID(e, NewFormID);
-      TStringList(OldForms[i]).Add(loadFormID);
+      TStringList(OldForms[i]).Add(fileFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
       Inc(rCount);
@@ -1624,7 +1632,7 @@ begin
       // print log message first, then change references, then change form
       OldFormID := GetLoadOrderFormID(e);
       fileFormID := '00' + Copy(loadFormID, 3, 6);
-      if debug then 
+      if debugRenumbering then 
         LogMessage(Format('        Changing FormID to [%s] on %s', 
         [IntToHex64(NewFormID, 8), SmallName(e)]));
       prc := 0;
@@ -1634,7 +1642,7 @@ begin
         CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
       end;
       SetLoadOrderFormID(e, NewFormID);
-      TStringList(OldForms[i]).Add(loadFormID);
+      TStringList(OldForms[i]).Add(fileFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
       Inc(rCount);
@@ -1788,6 +1796,13 @@ begin
     exit;
   end;
   AddMessage('    Script is using ' + GetFileName(mgf) + ' as the merge file.');
+    
+  // set up for saving log
+  SetCurrentDir(ScriptsPath + '\mp\');
+  CreateDir('logs'); // create directory if it doesn't already exist
+  today := Now;
+  fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
+      '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
   
   // display progress bar
   frm := TForm.Create(nil);
@@ -1847,13 +1862,6 @@ begin
       LogMessage('Merging '+slMerge[i]);
     
     LogMessage(#13#10+'Script is using ' + GetFileName(mgf) + ' as the merge file.');
-    
-    // set up for saving log
-    SetCurrentDir(ScriptsPath + '\mp\');
-    CreateDir('logs'); // create directory if it doesn't already exist
-    today := Now;
-    fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
-        '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
   
     // add masters
     lbl.Caption := 'Adding masters...';
@@ -2091,7 +2099,19 @@ begin
       frm.Visible := false;
       frm.ShowModal;
     end;
-    
+  
+  except on x : Exception do
+    begin
+      // merge failed
+      LogMessage(#13#10'Merge failed.  Exception: '+x.Message);
+      memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+      pb.Position := 0;
+      lbl.Caption := 'Merge Failed.  Exception: '+x.Message;
+      ShowDetails;
+      frm.Visible := false;
+      frm.ShowModal;
+      frm.Free;
+    end;
   finally
     frm.Free;
   end;
