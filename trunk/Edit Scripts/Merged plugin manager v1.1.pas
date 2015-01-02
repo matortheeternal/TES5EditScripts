@@ -305,7 +305,7 @@ begin
   s := ScriptsPath + 'mp\Merge Plugins Report Client.jar';
   dlg := 'Would you like to submit the reports you just generated?';
   if (MessageDlg(dlg, mtCustom, [mbYes,mbNo], 0) = mrYes) then
-    ShellExecute(TForm(frmMain).Handle, 'open', s, '', '', SW_SHOWNORMAL);
+    ShellExecute(TForm(frmMain).Handle, 'open', s, '', ExtractFilePath(s), SW_SHOWNORMAL);
   frm.ActiveControl := btnClose;
 end;
 
