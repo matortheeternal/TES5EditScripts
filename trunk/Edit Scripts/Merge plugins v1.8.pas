@@ -319,20 +319,33 @@ begin
 end;
 
 //=========================================================================
+// DetectModOrganizer: searches for ModOrganizer.exe
 procedure ofrm.DetectModOrganizer;
 var
   i: int;
   modOrganizerPath, paths, v: string;
-  pathList: TStringList;
+  pathList, ignore: TStringList;
   rec: TSearchRec;
 begin
+  // search for installations in ?:\Program Files and ?:\Program Files (x86)
   for i := 65 to 90 do begin
-    paths := paths + chr(i) + ':\Program Files;' + chr(i) + ':\Program Files (x86);';
+    if DirectoryExists(chr(i) + ':\Program Files') then
+      paths := paths + chr(i) + ':\Program Files;';
+    if DirectoryExists(chr(i) + ':\Program Files (x86)') then
+      paths := paths + chr(i) + ':\Program Files (x86);';
   end;
   
   modOrganizerPath := FileSearch('Mod Organizer\ModOrganizer.exe', paths);
+  
+  // search for installations in GamePath
   if (modOrganizerPath = '') then begin
-    // search each folder in each valid Program Files directory for ModOrganizer.exe
+    ignore := TStringList.Create;
+    ignore.Add('data');
+    modOrganizerPath := RecursiveFileSearch('ModOrganizer.exe', GamePath, ignore, 2, debugSearch);
+  end;
+  
+  // search each folder in each valid Program Files directory for ModOrganizer.exe
+  if (modOrganizerPath = '') then begin
     pathList := TStringList.Create;
     while (Pos(';', paths) > 0) do begin
       pathList.Add(Copy(paths, 1, Pos(';', paths) - 1));
@@ -355,6 +368,7 @@ begin
     end;
   end;
   
+  // if found, set TEdit captions, else alert user
   if (modOrganizerPath <> '') then begin
     ed1.Caption := Copy(modOrganizerPath, 1, length(modOrganizerPath) - 16);
     ed2.Caption := ed1.Caption + 'overwrite\';
@@ -1058,23 +1072,21 @@ end;
 // CopyGeneralAssets: copies all assets from a matching Mod Organizer folder
 procedure CopyGeneralAssets(filename: string);
 var
-  slIgnore: TStringList;
+  ignore: TStringList;
   rec: TSearchRec;
   src, dst, modPath: string;
 begin
   // construct ignore stringlist to ignore filename spe
-  slIgnore := TStringList.Create;
-  slIgnore.Add('facegendata');
-  slIgnore.Add('voice');
-  slIgnore.Add('translations');
-  slIgnore.Add('meta.ini');
-  slIgnore.Add('.');
-  slIgnore.Add('..');
-  slIgnore.Add('*.esp');
-  slIgnore.Add('*.esm');
+  ignore := TStringList.Create;
+  ignore.Add('facegendata');
+  ignore.Add('voice');
+  ignore.Add('translations');
+  ignore.Add('meta.ini');
+  ignore.Add('*.esp');
+  ignore.Add('*.esm');
   if extractBSAs then begin
-    slIgnore.Add('*.bsa');
-    slIgnore.Add('*.bsl');
+    ignore.Add('*.bsa');
+    ignore.Add('*.bsl');
   end;
   
   // find mod directory in Mod Organizer's mods folder
@@ -1095,7 +1107,7 @@ begin
   if slCopiedFrom.IndexOf(modPath) = -1 then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
-    CopyDirectory(modPath, astPath, slIgnore, debug);
+    CopyDirectory(modPath, astPath, ignore, debug);
   end;
 end;
 

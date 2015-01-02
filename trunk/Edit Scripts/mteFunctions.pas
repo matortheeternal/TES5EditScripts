@@ -18,8 +18,14 @@
     basic regular expression (e.g. *.esp)
   - [CopyDirectory]: recursively copies the contents of a directory to a new destination
     path.
+  - [RecursiveFileSearch]: recursively searches for a file in all the folders at a path.
+    Returns the path of the first file matching the given filename, if it is found.
   - [BoolToStr]: converts a boolean value to a string.
   - [ReverseString]: reverses a string.
+  - [StrEndsWith]: checks if a string ends with a substring.
+  - [RemoveFromEnd]: removes a substring from the end of a string, if found.
+  - [AppendIfMissing]: appends a substring to the end of a string, if it's not already 
+    there.
   - [ItPos]: finds the position of an iteration of a substring in a string.
   - [CopyFromTo]: copies all characters in a string from a starting position to an 
     ending position.
@@ -54,10 +60,13 @@
     NOTE: This function can be dangerous if used improperly.
   - [FileSelect]: creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
+  - [ChooseRecord]: creates a window from which the user can choose a record from
+    a specified record group from a specified file.
   - [ConstructCheckBox]: an all-in-one checkbox constructor.
   - [ConstructLabel]: an all-in-one label constructor.
   - [ConstructButton]: an all-in-one button constructor.
-  - [ConstructOkCancelButtons]: a procedure to make the standard OK and Cancel buttons on a form.
+  - [ConstructOkCancelButtons]: a procedure to make the standard OK and Cancel buttons on 
+    a form.
 }
 
 unit mteFunctions;
@@ -69,6 +78,7 @@ const
   'Fallout3.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
   'Oblivion.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
   'FalloutNV.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat';
+  GamePath = DataPath + '..\';
 
 type
   TColor = Record
@@ -386,7 +396,13 @@ var
   rec: TSearchRec;
   skip: boolean;
 begin
-  if FindFirst(src + '\*', faAnyFile, rec) = 0 then begin
+  // ignore . and ..
+  ignore.Add('.');
+  ignore.Add('..');
+  src := AppendIfMissing(src, '\');
+  dst := AppendIfMissing(dst, '\');
+  
+  if FindFirst(src + '*', faAnyFile, rec) = 0 then begin
     repeat
       skip := false;
       for i := 0 to Pred(ignore.Count) do begin
@@ -396,15 +412,62 @@ begin
       end;
       if not skip then begin
         ForceDirectories(dst);
-        if Pos('.', rec.Name) > 0 then begin
-          if verbose then AddMessage('    Copying file from '+src+'\'+rec.Name+' to '+dst+'\'+rec.Name);
-          CopyFile(PChar(src+'\'+rec.Name), PChar(dst+'\'+rec.Name), false);
+        if (rec.attr and faDirectory) <> faDirectory then begin
+          if verbose then AddMessage('    Copying file from '+src+rec.Name+' to '+dst+rec.Name);
+          CopyFile(PChar(src+rec.Name), PChar(dst+rec.Name), false);
         end
         else
-          CopyDirectory(src+'\'+rec.Name, dst+'\'+rec.Name, ignore, verbose);
-      end
-      else if verbose then
-        AddMessage('    Skipping file '+src+'\'+rec.Name);
+          CopyDirectory(src+rec.Name, dst+rec.Name, ignore, verbose);
+      end;
+    until FindNext(rec) <> 0;
+    
+    FindClose(rec);
+  end;
+end;
+
+{
+  RecursiveFileSearch:
+  Recursively searches a path for a file matching aFileName, ignoring
+  directories in the ignore TStringList, and not traversing deeper than
+  maxDepth.
+  
+  Example usage:
+  ignore := TStringList.Create;
+  ignore.Add('Data');
+  p := RecursiveFileSearch('Skyrim.exe', GamePath, ignore, 1, false);
+  AddMessage(p);
+}
+function RecursiveFileSearch(aPath, aFileName: string; ignore: TStringList; maxDepth: integer; verbose: boolean): string;
+var
+  skip: boolean;
+  i: integer;
+  rec: TSearchRec;
+  backslash: string;
+begin
+  Result := '';
+  aPath := AppendIfMissing(aPath, '\');
+  if Result <> '' then exit;
+  // always ignore . and ..
+  ignore.Add('.');
+  ignore.Add('..');
+  
+  if FindFirst(aPath + '*', faAnyFile, rec) = 0 then begin
+    repeat
+      skip := false;
+      for i := 0 to Pred(ignore.Count) do begin
+        skip := Matches(Lowercase(rec.Name), ignore[i]);
+        if skip then
+          break;
+      end;
+      if not skip then begin
+        if ((rec.attr and faDirectory) = faDirectory) and (maxDepth > 0) then begin
+          if verbose then AddMessage('    Searching directory '+aPath+rec.Name);
+          Result := RecursiveFileSearch(aPath+rec.Name, aFileName, ignore, maxDepth - 1, verbose);
+        end
+        else if (rec.Name = aFileName) then
+          Result := aPath + rec.Name;
+      end;
+      if (Result <> '') then break;
     until FindNext(rec) <> 0;
     
     FindClose(rec);
@@ -446,6 +509,59 @@ begin
    for i := Length(s) downto 1 do begin
      Result := Result + Copy(s, i, 1);
    end;
+end;
+
+{
+  StrEndsWith:
+  Checks to see if a string ends with an entered substring.
+  
+  Example usage:
+  s := 'This is a sample string.';
+  if StrEndsWith(s, 'string.') then
+    AddMessage('It works!');
+}
+function StrEndsWith(s1, s2: string): boolean;
+var
+  i, n1, n2: integer;
+begin
+  Result := false;
+  
+  n1 := Length(s1);
+  n2 := Length(s2);
+  if n1 < n2 then exit;
+  
+  Result := (Copy(s1, n1 - n2 + 1, n2) = s2);
+end;
+
+{
+  RemoveFromEnd:
+  Removes s1 from the end of s2, if found.
+  
+  Example usage:
+  s := 'This is a sample string.';
+  AddMessage(RemoveFromEnd(s, 'string.')); //'This is a sample '
+}
+function RemoveFromEnd(s1, s2: string): string;
+begin
+  Result := s1;
+  if StrEndsWith(s1, s2) then
+    Result := Copy(s1, 1, Length(s1) - Length(s2));
+end;
+
+{
+  AppendIfMissing:
+  Appends s2 to the end of s1 if it's not already there.
+  
+  Example usage:
+  s := 'This is a sample string.';
+  AddMessage(AppendIfMissing(s, 'string.')); //'This is a sample string.'
+  AddMessage(AppendIfMissing(s, '  Hello.')); //'This is a sample string.  Hello.'
+}
+function AppendIfMissing(s1, s2: string): string;
+begin
+  Result := s1;
+  if not StrEndsWith(s1, s2) then
+    Result := s1 + s2;
 end;
 
 { 
@@ -1133,6 +1249,56 @@ begin
           end;
         end;
       end;
+    end;
+  finally
+    frm.Free;
+  end;
+end;
+
+{
+  ChooseRecord:
+  Gives the user the option to select a record from a record group in a file.
+  Returns the record selected as a string.
+  
+  Example usage:
+  rec := ChooseRecord(GroupBySignature(FileByName('Update.esm'), 'GLOB'));
+}
+function ChooseRecord(g: IInterface): string;
+var
+  frm: TForm;
+  lbl: TLabel;
+  cb1: TComboBox;
+  slRecords: TStringList;
+  i: integer;
+begin
+  slRecords := TStringList.Create;
+  for i := 0 to ElementCount(g) - 1 do
+    slRecords.Add(Name(ElementByIndex(g, i)));
+  
+  frm := TForm.Create(nil);
+  try
+    frm.Caption := 'Choose a record';
+    frm.Width := 300;
+    frm.Height := 120;
+    frm.Position := poScreenCenter;
+    frm.BorderStyle := bsDialog;
+    
+    cb1 := TComboBox.Create(frm);
+    cb1.Parent := frm;
+    cb1.Left := 25;
+    cb1.Top := 12;
+    cb1.Width := 250;
+    cb1.Autocomplete := True;
+    cb1.Style := csDropDown;
+    cb1.Sorted := False;
+    cb1.AutoDropDown := True;
+    cb1.Items.Text := slRecords.Text;
+    cb1.Text := '<Record>';
+    
+    ConstructOkCancelButtons(frm, frm, 50);
+    
+    if frm.ShowModal = mrOk then begin
+      if cb1.Text <> '<Record>' then Result := cb1.Text;
     end;
   finally
     frm.Free;
