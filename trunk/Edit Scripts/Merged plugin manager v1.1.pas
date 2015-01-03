@@ -34,13 +34,21 @@ var
 // GetDefinitionHint: Generates a hint based on the definition
 function GetDefinitionHint(sl: TStringList): string;
 var
+  ct: integer;
   notes: String;
 begin
+  ct := 6;
   if sl.Count < 6 then
     Result := 'No user reports for this plugin have been submitted.'
   else begin
     notes := Trim(StringReplace(sl[5], '@13', #13, [rfReplaceAll]));
-    Result := 'Average rating: '+sl[3]+#13+'Number of ratings: '+sl[4]+#13+'User notes: '+#13+notes;
+    Result := 'Record Count: '+sl[1]+#13+'Using Merge Plugins v'+sl[2]+#13+'Average rating: '+sl[3]+#13+'Number of ratings: '+sl[4]+#13+'User notes: '+#13+notes;
+    {ct := ct + 6;
+    while sl.Count >= ct do begin
+      notes := Trim(StringReplace(sl[ct - 1], '@13', #13, [rfReplaceAll]));
+      Result := Result + #13#13 + 'Record Count: '+sl[ct-5]+#13+'Using Merge Plugins v'+sl[ct - 4]+#13+'Average rating: '+sl[ct - 3]+#13+'Number of ratings: '+sl[ct - 2]+#13+'User notes: '+#13+notes;
+      ct := ct + 6;
+    end;}
   end;
 end;
   
@@ -86,8 +94,7 @@ begin
   search := fn + ';';
   for i := 0 to Pred(slDictionary.Count) do begin
     if Pos(search, slDictionary[i]) = 1 then begin
-      Result := slDictionary[i];
-      break;
+      Result := Result + slDictionary[i] + ';';
     end;
   end;
 end;
@@ -379,6 +386,8 @@ begin
       desc := geev(ElementByIndex(plugin, 0), 'SNAM');
       desc := StringReplace(desc, slPlugins[m] + #13#10, '', [rfReplaceAll]);
       seev(ElementByIndex(plugin, 0), 'SNAM', desc);
+      // remove masters
+      CleanMasters(plugin);
     end;
   end;
   // remove empty groups
@@ -548,6 +557,9 @@ begin
   slDictionary.LoadFromFile(ScriptsPath + '\mp\dictionary.txt');
   
   ScriptProcessElements := [etFile];
+  
+  // change hint duration
+  Application.HintHidePause := 20000;
 end;
 
 //=========================================================================
@@ -573,12 +585,14 @@ end;
 //==========================================================================
 function Finalize: integer;
 begin
+  
   if not done then 
     MainForm(false);
   AddMessage('');
   AddMessage('-----------------------------------------------------------------------------');
   AddMessage('Finished managing merged plugins.');
   AddMessage(#13#10);
+  Application.HintHidePause := 1000;
 end;
 
 end.
