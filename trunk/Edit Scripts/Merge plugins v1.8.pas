@@ -1311,6 +1311,7 @@ begin
   try
     cr := wbCopyElementToFile(e, mgf, False, True);
     if debug then LogMessage('        Copying '+SmallName(e));
+    Inc(rCount);
   except
     on x : Exception do begin
       LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
@@ -1412,7 +1413,6 @@ begin
     ExtractPathBSA(DataPath + bsaName, TempPath, 'interface\translations\');
   end;
   
-  // Copy assets when done renumbering
   // copy loose File/FormID specific assets
   CopyActorAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
   CopyActorAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
@@ -1486,8 +1486,8 @@ begin
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end
+      // else renumber it
       else begin
-        // else renumber it
         // print log message first, then change references, then change form
         if debugRenumbering then 
           LogMessage(Format('        Changing FormID to [%s] on %s', 
@@ -1544,7 +1544,8 @@ begin
     OldForms.Add(TStringList.Create);
     NewForms.Add(TStringList.Create);
     
-    // create records array for file because the indexed order of records changes as we alter their formIDs
+    // create records array for file because the indexed order of records changes 
+    // as we alter their formIDs
     for j := 0 to RC do
       Records[j] := RecordByIndex(f, j);
       
@@ -1622,7 +1623,8 @@ begin
     OldForms.Add(TStringList.Create);
     NewForms.Add(TStringList.Create);
     
-    // create records array for file because the indexed order of records changes as we alter their formIDs
+    // create records array for file because the indexed order of records changes 
+    // as we alter their formIDs
     for j := 0 to RC do
       Records[j] := RecordByIndex(f, j);
       
@@ -1759,7 +1761,8 @@ begin
     ;// nothing
   end;
   if k = 0 then begin
-    AddMessage('This version of xEdit is out of date, you must update it to use this script!'+#13#10);
+    AddMessage('This version of xEdit is out of date, you must update it to use this '+
+      'script!'+#13#10);
     slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
     exit;
   end;
@@ -1767,8 +1770,10 @@ begin
   // if 128 or more files loaded, alert user and terminate script
   // unless version is 3.0.33 or newer
   if (FileCount >= 128) and (k < 50340096) then begin
-    AddMessage('You cannot load 128 or more plugins into this version of TES5Edit when Merging Plugins.');
-    AddMessage('Please reopen TES5Edit and select 127 or fewer plugins to load, or download and use TES5Edit 3.0.33.'+#13#10);
+    AddMessage('You cannot load 128 or more plugins into this version of TES5Edit '+
+      'when Merging Plugins.');
+    AddMessage('Please reopen TES5Edit and select 127 or fewer plugins to load, or '+
+      'download and use TES5Edit 3.0.33.'+#13#10);
     slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
     exit;
   end;
@@ -1803,7 +1808,8 @@ begin
   done := False;
   mgf := nil;
   AddMessage(#13#10+'Preparing merged file...');
-  mgf := FileSelectM('Choose the file you want to merge into below, or '+#13#10+'choose -- CREATE NEW FILE -- to create a new one.');
+  mgf := FileSelectM('Choose the file you want to merge into below, or '+
+    #13#10+'choose -- CREATE NEW FILE -- to create a new one.');
 
   // merge file confirmation or termination
   if not Assigned(mgf) then begin
@@ -1967,6 +1973,7 @@ begin
     LogMessage(#13#10+'Copying records...');
     lbl.Caption := 'Copying records...';
     pb.Position := 29;
+    rCount := 0;
     for i := slMerge.Count - 1 downto 0 do begin
       f := FileByLoadOrder(Integer(slMerge.Objects[i]));
       LogMessage('    Copying records from '+GetFileName(f));
@@ -1976,6 +1983,7 @@ begin
       pb.Position := pb.Position + 30/slMerge.Count;
       Application.processmessages;
     end;
+    LogMessage('    '+IntToStr(rCount)+' records copied.');
     
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
@@ -2026,6 +2034,7 @@ begin
       pb.Position := 61;
       LogMessage(#13#10+'Removing records for second pass.');
       lbl.Caption := 'Removing records...';
+      rCount := 0;
       for i := RecordCount(mgf) - 1 downto 1 do begin
         e := RecordByIndex(mgf, i);
         id := HexFormID(e);
@@ -2060,6 +2069,7 @@ begin
         pb.Position := pb.Position + 30/slMerge.Count;
         Application.processmessages;
       end;
+      LogMessage('    '+IntToStr(rCount)+' records copied.');
     end;
     
     // save log
