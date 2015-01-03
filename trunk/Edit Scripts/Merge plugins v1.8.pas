@@ -891,7 +891,7 @@ var
   i, j, k, height, m: integer;
   holder: TObject;
   masters, e, f: IInterface;
-  s: string;
+  s, definition: string;
   slDefinition: TStringList;
 begin
   LoadSettings;
@@ -940,7 +940,10 @@ begin
       slDefinition := TStringList.Create;
       slDefinition.StrictDelimiter := true;
       slDefinition.Delimiter := ';';
-      slDefinition.DelimitedText := GetDefinition(FileByIndex(i), false, false);
+      definition := GetDefinition(FileByIndex(i), true, true);
+      if (definition = '') then definition := GetDefinition(FileByIndex(i), true, false);
+      if (definition = '') then definition := GetDefinition(FileByIndex(i), false, false);
+      slDefinition.DelimitedText := definition;
       
       // set up checkbox
       cbArray[i] := TCheckBox.Create(holder);
