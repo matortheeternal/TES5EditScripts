@@ -60,7 +60,7 @@ const
   vs = 'v1.8';
   dashes = '-----------------------------------------------------------------------------------';
   debug = false; // debug messages
-  debugMCM = true;
+  debugMCM = false;
   debugRenumbering = false;
   debugAssetCopying = false;
   debugSearch = false;
