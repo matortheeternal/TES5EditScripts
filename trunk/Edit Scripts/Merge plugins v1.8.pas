@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.8
+  Merge Plugins Script v1.8.9
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.8
+  v1.8.9
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -57,10 +57,10 @@ unit mergePlugins;
 uses mteFunctions;
 
 const
-  vs = 'v1.8.8';
+  vs = 'v1.8';
   dashes = '-----------------------------------------------------------------------------------';
   debug = false; // debug messages
-  debugMCM = false;
+  debugMCM = true;
   debugRenumbering = false;
   debugAssetCopying = false;
   debugSearch = false;
@@ -1274,7 +1274,7 @@ begin
     exit;
   
   // use MO's overwrite folder as destination if user is using MO
-  path := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
+  path := StringReplace(path, DataPath, astPath, [rfReplaceAll]);
   ForceDirectories(path);
   
   // save all new translation files
@@ -2057,6 +2057,7 @@ begin
       LogMessage(#13#10+'Performing second pass copying...');
       pb.Position := 65;
       lbl.Caption := 'Copying records (second pass)...';
+      rCount := 0;
       for i := slMerge.Count - 1 downto 0 do begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
         LogMessage('    Copying records from '+GetFileName(f));
@@ -2124,22 +2125,17 @@ begin
       frm.Visible := false;
       frm.ShowModal;
     end;
-  
   except on x : Exception do
-    begin
-      // merge failed
-      LogMessage(#13#10'Merge failed.  Exception: '+x.Message);
-      memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
-      pb.Position := 0;
-      lbl.Caption := 'Merge Failed.  Exception: '+x.Message;
-      ShowDetails;
-      frm.Visible := false;
-      frm.ShowModal;
-      frm.Free;
-    end;
-  finally
-    frm.Free;
+    // merge failed
+    LogMessage(#13#10'Merge failed.  Exception: '+x.Message);
+    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+    pb.Position := 0;
+    lbl.Caption := 'Merge Failed.  Exception: '+x.Message;
+    ShowDetails;
+    frm.Visible := false;
+    frm.ShowModal;
   end;
+  frm.Free;
   // free gui elements
   gear.Free;
   // free stringlists
