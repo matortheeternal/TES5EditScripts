@@ -44,6 +44,11 @@
     debug mode.
   - File Specific asset copying fixed to also copy from BSAs.
   - Fixed asset copying not handling renumbered FormIDs correctly.
+  - Fixed issues with merged plugin description not being created properly.
+  - Fixed issue with Next Object ID not being updated properly, causing
+    formlists to conflict with other records.
+  - Fixed issue with Remove() being used in second pass copying instead of
+    RemoveNode().
   
     
   *DESCRIPTION*
@@ -86,6 +91,7 @@ var
   btnFind: TButton;
   ed1, ed2: TEdit;
   imgBrowse1, imgBrowse2, imgBrowse3: TImage;
+  NextObjectID: cardinal;
  
  
 {*************************************************************************}
@@ -1514,6 +1520,7 @@ begin
     
     pb.Position := pb.Position + 29/slMerge.Count;
   end;
+  NextObjectID := BaseFormID + 1;
   SaveTranslations(DataPath + 'Interface\Translations\');
   slAllForms.Free;
 end;
@@ -1594,6 +1601,7 @@ begin
     
     pb.Position := pb.Position + 29/slMerge.Count;
   end;
+  NextObjectID := BaseFormID + 1;
   SaveTranslations(DataPath + 'Interface\Translations\');
 end;
 
@@ -1673,6 +1681,7 @@ begin
     
     pb.Position := pb.Position + 29/slMerge.Count;
   end;
+  NextObjectID := BaseFormID + 1;
   SaveTranslations(DataPath + 'Interface\Translations\');
 end;
 
@@ -1924,6 +1933,8 @@ begin
       lbl.Caption := 'Copying file specific Assets...';
       for i := 0 to slMerge.Count - 1 do CopyFileSpecificAssets(i);
     end;
+    // set next object id
+    senv(ElementByIndex(mgf, 0), 'HEDR\Next Object ID', NextObjectID);
     
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
@@ -2009,16 +2020,12 @@ begin
     desc := 'Merged Plugin: ';
     lbl.Caption := 'Creating description';
     pb.Position := 60;
-    desc := nil;
-    desc := geev(ElementByIndex(mgf, 0), 'SNAM');
-    if not Assigned(desc) then
-      Add(ElementByIndex(mgf, 0), 'SNAM', True)
-    else if Pos('Merged Plugin', desc) = 0 then 
-      desc := '';
+    Add(ElementByIndex(mgf, 0), 'SNAM', True);
+    desc := 'Merged Plugin:';
     for i := 0 to slMerge.Count - 1 do begin
       mergeDesc := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
       if Pos('Merged Plugin', mergeDesc) > 0 then
-        desc := desc+StringReplace(mergeDesc, 'Merged Plugin: ', '', [rfReplaceAll])
+        desc := desc+StringReplace(mergeDesc, 'Merged Plugin:'#13, '', [rfReplaceAll])
       else
         desc := desc+#13#10+'  '+slMerge[i];
     end;
@@ -2048,7 +2055,7 @@ begin
         if b then begin
           b := false;
           Inc(rCount);
-          Remove(e);
+          RemoveNode(e);
         end;
       end;
       LogMessage('    '+IntToStr(rCount)+' records removed.');
