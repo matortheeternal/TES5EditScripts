@@ -770,7 +770,6 @@ begin
       'is done merging the plugins.  You want to use this if you''re merging plugins'#13
       'which have A LOT of file specific assets.  E.g. fully voiced followers.  You'#13
       'could just have it enabled for all of your merges, to be safe.';
-      'could just have it enabled for all of your merges, to be safe.';
     cb5.Checked := batCopy;
     
     cb6 := TCheckBox.Create(gb2);
@@ -1112,9 +1111,9 @@ procedure CopyGeneralAssets(filename: string);
 var
   ignore: TStringList;
   rec: TSearchRec;
-  src, dst, modPath: string;
+  src, dst, modPath, exclusions: string;
 begin
-  // construct ignore stringlist to ignore filename spe
+  // construct ignore stringlist
   ignore := TStringList.Create;
   ignore.Add('facegendata');
   ignore.Add('voice');
@@ -1145,7 +1144,9 @@ begin
   if slCopiedFrom.IndexOf(modPath) = -1 then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
-    CopyDirectory(modPath, astPath, ignore, debug);
+    ignore.SavetoFile(TempPath+'exclude.txt');
+    if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:'+TempPath+'exclude.txt')
+    else CopyDirectory(modPath, astPath, ignore, debug);
   end;
 end;
 
