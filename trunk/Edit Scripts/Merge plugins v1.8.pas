@@ -57,6 +57,9 @@
   - Made internal log more responsive with Application.processmessages; 
     after each new LogMessage.
   - Adjusted remove masters routine to be more efficient.
+  - Better memory management (everything is freed properly, now).
+  - Copy General Assets now works correctly when modPath isn't found.
+  - Description no longer has issues with Merged Plugin: text.
   
     
   *DESCRIPTION*
