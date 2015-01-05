@@ -1498,7 +1498,7 @@ begin
   
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
-  BaseFormID := HighestFormID + 4096;
+  BaseFormID := HighestFormID + 1024;
   
   // form id renumbering for each file
   for i := 0 to slMerge.Count - 1 do begin
@@ -1589,7 +1589,7 @@ begin
   
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
-  BaseFormID := HighestFormID + 4096;
+  BaseFormID := HighestFormID + 1024;
   
   // form id renumbering for each file
   for i := 0 to slMerge.Count - 1 do begin
@@ -1669,7 +1669,7 @@ begin
   
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
-  BaseFormID := HighestFormID + 4096;
+  BaseFormID := HighestFormID + 1024;
   
   // form id renumbering for each file
   for i := 0 to slMerge.Count - 1 do begin
@@ -1965,6 +1965,9 @@ begin
       LogMessage('    '+IntToStr(rCount)+' records renumbered.');
     end
     else if (rn = 0) then begin
+      // get NextObjectID
+      NextObjectID := FindHighestFormID() + 1024;
+      
       // make formID text files
       for i := 0 to slMerge.Count - 1 do begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
