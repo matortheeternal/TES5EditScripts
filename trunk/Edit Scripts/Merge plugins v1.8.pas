@@ -1139,17 +1139,19 @@ begin
     until FindNext(rec) <> 0;
     
     FindClose(rec);
-    if (modPath = '') then exit;
   end;
   
   // copy assets from folder
-  if slCopiedFrom.IndexOf(modPath) = -1 then begin
+  if (modPath <> '') and (slCopiedFrom.IndexOf(modPath) = -1) then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
     ignore.SavetoFile(TempPath+'exclude.txt');
     if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:'+TempPath+'exclude.txt')
     else CopyDirectory(modPath, astPath, ignore, debug);
   end;
+  
+  // free ignore stringlist
+  ignore.Free;
 end;
 
 //=========================================================================
@@ -1338,7 +1340,6 @@ begin
     slArray[i].SaveToFile(output);
     slArray[i].Free;
   end;
-  slTranslations.Free;
 end;
 
 //=========================================================================
@@ -1734,6 +1735,16 @@ begin
 end;
 
 
+//=========================================================================
+// FreeMemory: frees memory used by script
+procedure FreeMemory;
+begin
+  slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; 
+  slTranslations.Free; slDictionary.Free; slMgfMasters.Free; 
+  slCopiedFrom.Free; batch.Free; NewForms.Free; OldForms.Free;
+  gear.Free; browse.Free;
+end;
+
 {**************************************************************************}
 {**************************** Script Execution ****************************}
 {**************************************************************************}
@@ -1821,7 +1832,7 @@ begin
   if k = 0 then begin
     AddMessage('This version of xEdit is out of date, you must update it to use this '+
       'script!'+#13#10);
-    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    FreeMemory;
     exit;
   end;
   
@@ -1832,7 +1843,7 @@ begin
       'when Merging Plugins.');
     AddMessage('Please reopen TES5Edit and select 127 or fewer plugins to load, or '+
       'download and use TES5Edit 3.0.33.'+#13#10);
-    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    FreeMemory;
     exit;
   end;
   
@@ -1841,7 +1852,7 @@ begin
   // terminate script if mergelist contains less than one file
   if slMerge.Count < 1 then begin
     AddMessage(#13#10+'Select at least 1 file to merge!  Terminating script.'+#13#10);
-    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    FreeMemory;
     exit;
   end;
   
@@ -1851,14 +1862,14 @@ begin
     'Mod Organizer path invalid.  If you''re not using Mod Organizer, please uncheck '#13#10
     'the checkbox saying that you are from the Advanced Options window. If you are '#13#10
     'using Mod Organzier please enter it''s path on the Advanced Options window.'#13#10);
-    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    FreeMemory;
     exit;
   end;
   
   // provide user with asset destination helper
   if not AssetHelper then begin
     AddMessage(#13#10'User canceled merge.  Terminating script.'#13#10);
-    slMerge.Free; slMasters.Free; slSelectedFiles.Free; slFails.Free; slMgfMasters.Free;
+    FreeMemory;
     exit;
   end;
   
@@ -1872,6 +1883,7 @@ begin
   // merge file confirmation or termination
   if not Assigned(mgf) then begin
     AddMessage('    No merge file assigned.  Terminating script.'+#13#10);
+    FreeMemory;
     exit;
   end;
   AddMessage('    Script is using ' + GetFileName(mgf) + ' as the merge file.');
@@ -2075,7 +2087,7 @@ begin
     for i := 0 to slMerge.Count - 1 do begin
       mergeDesc := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
       if Pos('Merged Plugin', mergeDesc) > 0 then
-        desc := desc+StringReplace(mergeDesc, 'Merged Plugin:'#13, '', [rfReplaceAll])
+        desc := desc+StringReplace(mergeDesc, 'Merged Plugin:', '', [rfReplaceAll])
       else
         desc := desc+#13#10+'  '+slMerge[i];
     end;
@@ -2185,6 +2197,7 @@ begin
       LogMessage('Please do not close the cmd window, it will close itself when asset copying is completed.');
       LogMessage('It''s also important that you don''t close TES5Edit until the asset copying is completed.');
       LogMessage(#13#10#13#10);
+      memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
       bfn := TempPath+'\merge_'+
         StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+'_'+
         StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.bat';
@@ -2208,10 +2221,8 @@ begin
     frm.ShowModal;
   end;
   frm.Free;
-  // free gui elements
-  gear.Free;
-  // free stringlists
-  NewForms.Free; OldForms.Free; slMerge.Free;  slSelectedFiles.Free;  slMasters.Free;  slFails.Free;
+  // free memory
+  FreeMemory;
   // return hinthidepasue to default value
   Application.HintHidePause := 1000;
 end;
