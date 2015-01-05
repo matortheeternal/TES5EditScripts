@@ -1,5 +1,5 @@
 {
-  Armor Mod Builder v1.4
+  Armor Mod Builder v1.5
   Created by matortheeternal
   
   This script will attempt to build an armor mod using an array of user inputs,
@@ -17,7 +17,7 @@ unit userscript;
 uses mteFunctions;
 
 const
-  vs = 'v1.4';
+  vs = 'v1.5';
   sFunctions = 'GetActorValue'#13'GetGlobalValue'#13'GetBaseActorValue'#13'GetItemCount'#13'GetLevel'#13
   'GetPCIsRace'#13'GetPCIsSex'#13'GetQuestCompleted'#13'GetQuestRunning'#13'HasMagicEffect'#13'HasPerk'#13
   'HasSpell'#13'HasShout';
@@ -510,7 +510,7 @@ begin
     ed02.Top := lbl05.Top;
     ed02.Left := 116;
     ed02.Width := 50;
-    ed02.Text := '12';
+    ed02.Text := '25';
     
     lbl06 := TLabel.Create(frm);
     lbl06.Parent := pnlBottom;
@@ -525,7 +525,7 @@ begin
     ed03.Top := lbl06.Top;
     ed03.Left := 116;
     ed03.Width := 50;
-    ed03.Text := '6';
+    ed03.Text := '30';
     
     lbl07 := TLabel.Create(frm);
     lbl07.Parent := pnlBottom;
@@ -540,7 +540,7 @@ begin
     ed04.Top := lbl07.Top;
     ed04.Left := 116;
     ed04.Width := 50;
-    ed04.Text := '150';
+    ed04.Text := '125';
     
     lbl08 := TLabel.Create(frm);
     lbl08.Parent := pnlBottom;
@@ -748,6 +748,30 @@ begin
   finally
     frm2.Free;
   end;
+end;
+
+//=========================================================================
+// SetPerkFistsKeyword: sets a perk fists keyword for heavy gauntlets
+procedure SetPerkFistsKeyword(e: IInterface; m: string);
+begin
+  if m = 'ArmorMaterialIron' then
+    SetEditValue(element, 'PerkFistsIron [KYWD:000424EF]')
+  else if m = 'ArmorMaterialSteel' then
+    SetEditValue(element, 'PerkFistsSteel [KYWD:0009379E]')
+  else if m = 'ArmorMaterialSteelPlate' then
+    SetEditValue(element, 'PerkFistsSteelPlate [KYWD:0002C179]')
+  else if m = 'ArmorMaterialDwarven' then
+    SetEditValue(element, 'PerkFistsDwarven [KYWD:0002C17D]')
+  else if m = 'ArmorMaterialOrcish' then
+    SetEditValue(element, 'PerkFistsOrcish [KYWD:0002C177]')
+  else if m = 'ArmorMaterialEbony' then
+    SetEditValue(element, 'PerkFistsEbony [KYWD:0002C178]')
+  else if m = 'ArmorMaterialDaedric' then
+    SetEditValue(element, 'PerkFistsDaedric [KYWD:0002C17B]')
+  else if m = 'ArmorMaterialDragonplate' then
+    SetEditValue(element, 'PerkFistsDragonplate [KYWD:0002C17A]')
+  else
+    SetEditValue(element, 'PerkFistsIron [KYWD:000424EF]');
 end;
 
 //=========================================================================
@@ -1180,12 +1204,16 @@ begin
     Add(aaboots, 'BODT', True);
     Add(aaboots, 'Additional Races', True);
     Add(aaboots, 'SNDD', True);
-    seev(aaboots, 'SNDD', 'FSTArmorLightFootstepSet [FSTS:00021486]');
+    if ArmorType = 'Heavy' then 
+      seev(aaboots, 'SNDD', 'FSTArmorHeavyFootstepSet [FSTS:00021487]')
+      else seev(aaboots, 'SNDD', 'FSTArmorLightFootstepSet [FSTS:00021486]');
     SetListEditValues(aaboots, 'Additional Races', slAdditionalRaces);
     seev(aaboots, 'BODT\First Person Flags', '000000011'); // feet and calves flags
     seev(aaboots, 'BODT\Armor Type', 'Clothing');
     seev(aaboots, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aaboots, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aaboots, 'DNAM\Male Priority', '10');
+    seev(aaboots, 'DNAM\Female Priority', '10');
     seev(aaboots, 'EDID', edidprefix+'BootsAA');
     seev(aaboots, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
     if (slNifTags.IndexOf('male boots') > -1) then
@@ -1215,6 +1243,8 @@ begin
     seev(aahelmet, 'BODT\Armor Type', 'Clothing');
     seev(aahelmet, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aahelmet, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aahelmet, 'DNAM\Male Priority', '10');
+    seev(aahelmet, 'DNAM\Female Priority', '10');
     seev(aahelmet, 'EDID', edidprefix+'HelmetAA');
     seev(aahelmet, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
     if (slNifTags.IndexOf('male helmet') > -1) then
@@ -1244,6 +1274,8 @@ begin
     seev(aacuirass, 'BODT\Armor Type', 'Clothing');
     seev(aacuirass, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aacuirass, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aacuriass, 'DNAM\Male Priority', '5');
+    seev(aacuirass, 'DNAM\Female Priority', '5');
     seev(aacuirass, 'EDID', edidprefix+'CuirassAA');
     seev(aacuirass, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
     if (slNifTags.IndexOf('male cuirass') > -1) then
@@ -1289,6 +1321,8 @@ begin
     seev(aagloves, 'BODT\Armor Type', 'Clothing');
     seev(aagloves, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aagloves, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aagloves, 'DNAM\Male Priority', '10');
+    seev(aagloves, 'DNAM\Female Priority', '10');
     seev(aagloves, 'EDID', edidprefix+'GlovesAA');
     seev(aagloves, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
     if (slNifTags.IndexOf('male gauntlets') > -1) then
@@ -1344,6 +1378,8 @@ begin
     seev(aahelmetarg, 'BODT\Armor Type', 'Clothing');
     seev(aahelmetarg, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aahelmetarg, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aahelmetarg, 'DNAM\Male Priority', '10');
+    seev(aahelmetarg, 'DNAM\Female Priority', '10');
     seev(aahelmetarg, 'EDID', edidprefix+'HelmetArgAA');
     seev(aahelmetarg, 'RNAM', 'ArgonianRace "Argonian" [RACE:00013740]');
     if (slNifTags.IndexOf('argonian male helmet') > -1) then
@@ -1373,6 +1409,8 @@ begin
     seev(aahelmetorc, 'BODT\Armor Type', 'Clothing');
     seev(aahelmetorc, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aahelmetorc, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aahelmetorc, 'DNAM\Male Priority', '10');
+    seev(aahelmetorc, 'DNAM\Female Priority', '10');
     seev(aahelmetorc, 'EDID', edidprefix+'HelmetOrcAA');
     seev(aahelmetorc, 'RNAM', 'OrcRace "Orc" [RACE:00013747]');
     if (slNifTags.IndexOf('orc male helmet') > -1) then
@@ -1412,6 +1450,8 @@ begin
     seev(aahelmetkha, 'BODT\Armor Type', 'Clothing');
     seev(aahelmetkha, 'DNAM\Weight slider - Male', '01'); // enabled
     seev(aahelmetkha, 'DNAM\Weight slider - Female', '01'); // enabled
+    seev(aahelmetkha, 'DNAM\Male Priority', '10');
+    seev(aahelmetkha, 'DNAM\Female Priority', '10');
     seev(aahelmetkha, 'EDID', edidprefix+'HelmetKhaAA');
     seev(aahelmetkha, 'RNAM', 'KhajiitRace "Khajiit" [RACE:00013745]');
     if (slNifTags.IndexOf('khajiit male helmet') > -1) then
@@ -1438,6 +1478,8 @@ begin
     SetListEditValues(aashield, 'Additional Races', slAdditionalRaces);
     seev(aashield, 'BODT\First Person Flags', '0000000001'); // shield flag
     seev(aashield, 'BODT\Armor Type', 'Clothing');
+    seev(aashield, 'DNAM\Male Priority', '0');
+    seev(aashield, 'DNAM\Female Priority', '0');
     seev(aashield, 'EDID', edidprefix+'ShieldAA');
     seev(aashield, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
     seev(aashield, 'Male world model\MOD2', idir + slNifList[slNifTags.IndexOf('shield')]);
@@ -1452,6 +1494,8 @@ begin
     Add(aashield, 'Additional Races', True);
     SetListEditValues(aashield, 'Additional Races', slAdditionalRaces);
     seev(aacloak, 'BODT\Armor Type', 'Clothing');
+    seev(aacloak, 'DNAM\Male Priority', '10');
+    seev(aacloak, 'DNAM\Female Priority', '10');
     seev(aacloak, 'EDID', edidprefix+'CloakAA');
     seev(aacloak, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
     seev(aacloak, 'Male world model\MOD2', idir + slNifList[slNifTags.IndexOf('cloak')]);
@@ -1492,7 +1536,9 @@ begin
       seev(arboots, 'Female world model\MOD3', idir + slNifList[slNifTags.IndexOf('male world boots')]);
     seev(arboots, 'BODT\First Person Flags', '00000001'); // feet flag
     seev(arboots, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
-    seev(arboots, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
+    if (ArmorType = 'Clothing') then 
+      seev(arboots, 'KWDA\[0]', 'VendorItemClothing [KYWD:0008F95B]')
+      else seev(arboots, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
     element := ElementAssign(ElementByPath(arboots, 'KWDA'), HighInteger, nil, False);
     SetEditValue(element, 'ArmorBoots [KYWD:0006C0ED]');
     if Assigned(materialkw) then begin
@@ -1561,7 +1607,9 @@ begin
       seev(argloves, 'Female world model\MOD3', idir + slNifList[slNifTags.IndexOf('male world gauntlets')]);
     seev(argloves, 'BODT\First Person Flags', '0001'); // hands flag
     seev(argloves, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
-    seev(argloves, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
+    if (ArmorType = 'Clothing') then 
+      seev(argloves, 'KWDA\[0]', 'VendorItemClothing [KYWD:0008F95B]')
+      else seev(argloves, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
     element := ElementAssign(ElementByPath(argloves, 'KWDA'), HighInteger, nil, False);
     SetEditValue(element, 'ArmorGauntlets [KYWD:0006C0EF]');
     if Assigned(materialkw) then begin
@@ -1580,7 +1628,7 @@ begin
       seev(argloves, 'BODT\Armor Type', 'Heavy Armor');
       SetEditValue(element, 'ArmorHeavy [KYWD:0006BBD2]');
       element := ElementAssign(ElementByPath(argloves, 'KWDA'), HighInteger, nil, False);
-      SetEditValue(element, 'PerkFistsIron [KYWD:000424EF]');
+      SetPerkFistsKeyword(element, ArmorMaterial);
       seev(argloves, 'KSIZ', IntToStr(ElementCount(ElementByPath(argloves, 'KWDA'))));
     end;
     if SameText(ArmorType, 'Clothing') then begin
@@ -1633,7 +1681,9 @@ begin
       seev(arhelmet, 'Female world model\MOD3', idir + slNifList[slNifTags.IndexOf('male world helmet')]);
     seev(arhelmet, 'BODT\First Person Flags', '0100000000001'); // hair and circlet flags
     seev(arhelmet, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
-    seev(arhelmet, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
+    if (ArmorType = 'Clothing') then 
+      seev(arhelmet, 'KWDA\[0]', 'VendorItemClothing [KYWD:0008F95B]')
+      else seev(arhelmet, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
     element := ElementAssign(ElementByPath(arhelmet, 'KWDA'), HighInteger, nil, False);
     SetEditValue(element, 'ArmorHelmet [KYWD:0006C0EE]');
     if Assigned(materialkw) then begin
@@ -1714,7 +1764,9 @@ begin
       seev(arcuirass, 'Female world model\MOD3', idir + slNifList[slNifTags.IndexOf('male world cuirass')]);
     seev(arcuirass, 'BODT\First Person Flags', '001'); // body flag
     seev(arcuirass, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
-    seev(arcuirass, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
+    if (ArmorType = 'Clothing') then 
+      seev(arcuirass, 'KWDA\[0]', 'VendorItemClothing [KYWD:0008F95B]')
+      else seev(arcuirass, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
     element := ElementAssign(ElementByPath(arcuirass, 'KWDA'), HighInteger, nil, False);
     SetEditValue(element, 'ArmorCuirass [KYWD:0006C0EC]');
     if Assigned(materialkw) then begin
@@ -1832,7 +1884,9 @@ begin
       seev(arcloak, 'Male world model\MOD2', idir + slNifList[slNifTags.IndexOf('cloak')]);
     seev(arcloak, 'BODT\First Person Flags', '00001'); // ? flag
     seev(arcloak, 'RNAM', 'DefaultRace "Default Race" [RACE:00000019]');
-    seev(arcloak, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
+    if (ArmorType = 'Clothing') then 
+      seev(arcloak, 'KWDA\[0]', 'VendorItemClothing [KYWD:0008F95B]')
+      else seev(arcloak, 'KWDA\[0]', 'VendorItemArmor [KYWD:0008F959]');
     if Assigned(materialkw) then begin
       element := ElementAssign(ElementByPath(arcloak, 'KWDA'), HighInteger, nil, False);
       SetNativeValue(element, materialkw);

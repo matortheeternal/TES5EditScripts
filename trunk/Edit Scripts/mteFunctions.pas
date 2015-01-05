@@ -1177,7 +1177,7 @@ begin
   masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
   if not Assigned(masters) then begin
     Add(f, ElementByIndex(f, 0), 'Master Files');
-    masters := ElementByPath(ElementByIndex(mgf, 0), 'Master Files');
+    masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
   end;
   for i := 0 to ElementCount(masters) - 1 do begin
     s := geev(ElementByIndex(masters, i), 'MAST');
