@@ -1111,19 +1111,21 @@ procedure CopyGeneralAssets(filename: string);
 var
   ignore: TStringList;
   rec: TSearchRec;
-  src, dst, modPath, exclusions: string;
+  src, dst, modPath, exclusions, a: string;
 begin
   // construct ignore stringlist
+  a := '';
+  if not batCopy then a := '*';
   ignore := TStringList.Create;
   ignore.Add('facegendata');
   ignore.Add('voice');
   ignore.Add('translations');
   ignore.Add('meta.ini');
-  ignore.Add('*.esp');
-  ignore.Add('*.esm');
+  ignore.Add(a+'.esp');
+  ignore.Add(a+'.esm');
   if extractBSAs then begin
-    ignore.Add('*.bsa');
-    ignore.Add('*.bsl');
+    ignore.Add(a+'.bsa');
+    ignore.Add(a+'.bsl');
   end;
   
   // find mod directory in Mod Organizer's mods folder
