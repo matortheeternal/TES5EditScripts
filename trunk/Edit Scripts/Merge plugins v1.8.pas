@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.9
+  Merge Plugins Script v1.8.10
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.9
+  v1.8.10
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -49,6 +49,14 @@
     formlists to conflict with other records.
   - Fixed issue with Remove() being used in second pass copying instead of
     RemoveNode().
+  - Added batch copying, which allows you to do asset copying via a batch
+    file constructed by the script after the script's execution.  This is
+    necessary for large merges where the memory footprint of CopyFile can
+    become an issue.
+  - Fixed TMemIni to use WriteBool and ReadBool for boolean values.
+  - Made internal log more responsive with Application.processmessages; 
+    after each new LogMessage.
+  - Adjusted remove masters routine to be more efficient.
   
     
   *DESCRIPTION*
@@ -72,12 +80,12 @@ const
 
 var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
-  slTranslations, slCopiedFrom: TStringList;
+  slTranslations, slCopiedFrom, batch: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp, rCount: integer;
   moPath, astPath, bsaName: string;
   SkipProcess, disableColoring, extractBSAs, disableESPs, 
-  usingMo, copyAll, firstRun: boolean;
+  usingMo, copyAll, firstRun, batCopy: boolean;
   mgf: IInterface;
   cbArray: Array[0..254] of TCheckBox;
   lbArray: Array[0..254] of TLabel;
@@ -103,6 +111,7 @@ var
 procedure LogMessage(msg: String);
 begin
   memo.Lines.add(msg);
+  Application.processmessages; // doesn't appear to cause issues
 end;
   
 //=========================================================================
@@ -392,21 +401,17 @@ var
   ini: TMemIniFile;
 begin
   ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
-  if usingMO then ini.WriteString('Config', 'usingMO', '1')
-  else ini.WriteString('Config', 'usingMO', '0');
+  ini.WriteBool('Config', 'usingMO', usingMo);
   ini.WriteString('Config', 'moPath', moPath);
   ini.WriteString('Config', 'astPath', astPath);
-  if copyAll then ini.WriteString('Config', 'copyAllAssets', '1')
-  else ini.WriteString('Config', 'copyAllAssets', '0');
+  ini.WriteBool('Config', 'copyAllAssets', copyAll);
   ini.WriteString('Config', 'renumberingMode', IntToStr(rn));
   ini.WriteString('Config', 'copyMode', IntToStr(mm));
   ini.WriteString('Config', 'secondPassMode', IntToStr(sp));
-  if disableColoring then ini.WriteString('Config', 'disableColoring', '1')
-  else ini.WriteString('Config', 'disableColoring', '0');
-  if extractBSAs then ini.WriteString('Config', 'extractBSAs', '1')
-  else ini.WriteString('Config', 'extractBSAs', '0');
-  if disableESPs then ini.WriteString('Config', 'disableESPs', '1')
-  else ini.WriteString('Config', 'disableESPs', '0');
+  ini.WriteBool('Config', 'disableColoring', disableColoring);
+  ini.WriteBool('Config', 'extractBSAs', extractBSAs);
+  ini.WriteBool('Config', 'disableESPs', disableESPs);
+  ini.WriteBool('Config', 'batCopy', batCopy);
   ini.UpdateFile;
 end;
 
@@ -426,16 +431,17 @@ begin
     firstRun := true;
   end;
   ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
-  usingMO := (ini.ReadString('Config', 'usingMO', '0') = '1');
+  usingMO := ini.ReadBool('Config', 'usingMO', false);
   moPath := ini.ReadString('Config', 'moPath', '');
-  astPath := ini.ReadSTring('Config', 'astPath', DataPath);
-  copyAll := (ini.ReadString('Config', 'copyAllAssets', '0') = '1');
+  astPath := ini.ReadString('Config', 'astPath', DataPath);
+  copyAll := ini.ReadBool('Config', 'copyAllAssets', false);
   rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '1'));
   mm := IntToStr(ini.ReadString('Config', 'copyMode', '1'));
   sp := IntToStr(ini.ReadString('Config', 'secondPassMode', '1'));
-  disableColoring := (ini.ReadString('Config', 'disableColoring', '0') = '1');
-  extractBSAs := (ini.ReadString('Config', 'extractBSAs', '0') = '1');
-  disableESPs := (ini.ReadString('Config', 'disableESPs', '0') = '1');
+  disableColoring := ini.ReadBool('Config', 'disableColoring', false);
+  extractBSAs := ini.ReadBool('Config', 'extractBSAs', false);
+  disableESPs := ini.ReadBool('Config', 'disableESPs', false);
+  batCopy := ini.ReadBool('Config', 'batCopy', false);
 end;
 
 //=========================================================================
@@ -444,7 +450,7 @@ procedure AdvancedOptions;
 var
   ofrm: TForm;
   lbl1, lbl2: TLabel;
-  cb3, cb4, cb5: TCheckBox;
+  cb3, cb4, cb5, cb6: TCheckBox;
   gb1, gb2: TGroupBox;
   btnDiscard: TButton;
   rg1, rg2, rg3: TRadioGroup;
@@ -455,7 +461,7 @@ begin
     ofrm.Caption := 'Advanced Options';
     ofrm.Width := 610;
     ofrm.Position := poScreenCenter;
-    ofrm.Height := 550;
+    ofrm.Height := 570;
     
     gb1 := TGroupBox.Create(ofrm);
     gb1.Parent := ofrm;
@@ -688,11 +694,11 @@ begin
     gb2 := TGroupBox.Create(ofrm);
     gb2.Parent := ofrm;
     gb2.Left := 16;
-    gb2.Height := 150;
+    gb2.Height := 170;
     gb2.Top := rg3.Top + rg3.Height + 16;
     gb2.Width := 560;
     gb2.Caption := 'Other options';
-    gb2.ClientHeight := 135;
+    gb2.ClientHeight := 155;
     gb2.ClientWidth := 556;
     
     lbl2 := TLabel.Create(gb2);
@@ -756,10 +762,25 @@ begin
     cb5.Parent := gb2;
     cb5.Left := cb3.Left;
     cb5.Top := cb4.Top + cb4.Height + 8;
-    cb5.Width := 220;
-    cb5.Caption := ' Disable merged ESPs after merging';
-    cb5.Checked := disableESPs;
-    cb5.Enabled := false;
+    cb5.Width := 130;
+    cb5.Caption := ' Batch copy assets';
+    cb4.ShowHint := true;
+    cb4.Hint :=
+      'If this is checked, assets will be copied via a batch script after xEdit'#13
+      'is done merging the plugins.  You want to use this if you''re merging plugins'#13
+      'which have A LOT of file specific assets.  E.g. fully voiced followers.  You'#13
+      'could just have it enabled for all of your merges, to be safe.';
+      'could just have it enabled for all of your merges, to be safe.';
+    cb5.Checked := batCopy;
+    
+    cb6 := TCheckBox.Create(gb2);
+    cb6.Parent := gb2;
+    cb6.Left := cb3.Left;
+    cb6.Top := cb5.Top + cb5.Height + 8;
+    cb6.Width := 220;
+    cb6.Caption := ' Disable merged ESPs after merging';
+    cb6.Checked := disableESPs;
+    cb6.Enabled := false;
     
     btnSave := TButton.Create(ofrm);
     btnSave.Parent := ofrm;
@@ -795,7 +816,8 @@ begin
       if rb9.Checked then sp := 2;
       disableColoring := cb3.Checked;
       extractBSAs := cb4.Checked;
-      disableESPs := cb5.Checked;
+      batCopy := cb5.Checked;
+      disableESPs := cb6.Checked;
       usingMO := cb1.Checked;
       moPath := ed1.Caption;
       copyAll := cb2.Checked;
@@ -1061,6 +1083,13 @@ end;
 {*************************************************************************}
 
 //=========================================================================
+// AddCopyOperation: Adds a copy operation to batch
+procedure AddCopyOperation(src, dst: string);
+begin
+  batch.Add('copy /Y "'+src+'" "'+dst+'"');
+end;
+
+//=========================================================================
 // FindFolder: looks for a folder matching the given name at the given path
 function FindFolder(path: string; filename: string): string;
 var
@@ -1136,6 +1165,7 @@ begin
   
   // prepare destination
   dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
+  dstPath := StringReplace(dstPath, TempPath, astPath, [rfReplaceAll]);
   ForceDirectories(dstPath);
   
   // copy all assets
@@ -1156,14 +1186,20 @@ begin
           if debugAssetCopying then LogMessage('          Asset not renumbered.');
           dst := info.Name;
           LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-          CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+          if batCopy then AddCopyOperation(srcPath+src, dstPath+dst)
+          else CopyFile(PChar(srcPath+src), PChar(dstPath+dst), true);
+          //ResourceCopy('Data', srcPath + src, dstPath + dst);
+          //wCopyFile(srcPath + src, dstPath + dst, true);
         end
         // asset renumbered
         else begin
           if debugAssetCopying then LogMessage('          Asset renumbered to '+TStringList(NewForms[mergeIndex]).Strings[index]);
           newForm := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
           dst := StringReplace(info.Name, oldForm, newForm, [rfReplaceAll]);
-          CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+          if batCopy then AddCopyOperation(srcPath+src, dstPath+dst)
+          else CopyFile(PChar(srcPath+src), PChar(dstPath+dst), true);
+          //ResourceCopy('Data', srcPath + src, dstPath + dst);
+          //wCopyFile(srcPath + src, dstPath + dst, true);
           LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
         end;
       end;
@@ -1188,6 +1224,7 @@ begin
   
   // prepare destination
   dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
+  dstPath := StringReplace(dstPath, TempPath, astPath, [rfReplaceAll]);
   ForceDirectories(dstPath);
   
   // copy subfolders and their contents
@@ -1211,13 +1248,19 @@ begin
               if (index = -1) then begin
                 dst := info.Name + '\' + info2.Name;
                 LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
-                CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+                if batCopy then AddCopyOperation(srcPath+src, dstPath+dst)
+                else CopyFile(PChar(srcPath+src), PChar(dstPath+dst), true);
+                //ResourceCopy('Data', srcPath + src, dstPath + dst);
+                //wCopyFile(srcPath + src, dstPath + dst, true);
               end
               // asset renumbered
               else begin
                 newForm := '00' + Copy(TStringList(NewForms[mergeIndex]).Strings[index], 3, 6);
                 dst := info.Name + '\' + StringReplace(info.Name + '\' + info2.Name, oldForm, newForm, [rfReplaceAll]);
-                CopyFile(PChar(srcPath + src), PChar(dstPath + dst), false);
+                if batCopy then AddCopyOperation(srcPath+src, dstPath+dst)
+                else CopyFile(PChar(srcPath+src), PChar(dstPath+dst), true);
+                //ResourceCopy('Data', srcPath + src, dstPath + dst);
+                //wCopyFile(srcPath + src, dstPath + dst, true);
                 LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
               end;
             end;
@@ -1274,6 +1317,7 @@ end;
 procedure SaveTranslations(path: string);
 var
   i: integer;
+  output: string;
 begin
   // terminate if we have no translation files to save
   if slTranslations.Count = 0 then
@@ -1285,9 +1329,10 @@ begin
   
   // save all new translation files
   for i := 0 to slTranslations.Count - 1 do begin
+    output := path+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i];
     if debugMCM then 
-      LogMessage('            Output MCM translation "'+path+Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
-    slArray[i].SaveToFile(path + Copy(GetFileName(mgf), 1, Length(GetFileName(mgf)) - 4) + slTranslations[i]);
+      LogMessage('            Output MCM translation "'+output);
+    slArray[i].SaveToFile(output);
     slArray[i].Free;
   end;
   slTranslations.Free;
@@ -1712,6 +1757,7 @@ begin
   slDictionary.LoadFromFile(ScriptsPath + '\mp\dictionary.txt');
   slTranslations := TStringList.Create;
   slCopiedFrom := TStringList.Create;
+  batch := TStringList.Create;
   OldForms := TList.Create;
   NewForms := TList.Create;
   
@@ -1752,7 +1798,7 @@ function Finalize: integer;
 var
   i, j, k, rc, wait, waitTick: integer;
   f, e, group, masters, master: IInterface;
-  merge, id, desc, version, fn, masterName, mergeDesc: string;
+  merge, id, desc, version, fn, masterName, mergeDesc, bfn: string;
   done, b, recordFromMerge, didNothing: boolean;
   lbl: TLabel;
   pb: TProgressBar;
@@ -2008,11 +2054,9 @@ begin
       e := ElementByIndex(masters, i);
       masterName := GetElementNativeValues(e, 'MAST');
       if (masterName = '') then Continue;
-      for j := 0 to slMerge.Count - 1 do begin
-        if (slMerge[j] = masterName) then begin
-          LogMessage('    Removing master '+masterName);
-          RemoveElement(masters, e);
-        end;
+      if slMerge.IndexOf(masterName) > -1 then begin
+        LogMessage('    Removing master '+masterName);
+        RemoveElement(masters, e);
       end;
     end;
     
@@ -2126,6 +2170,21 @@ begin
   
     // save log
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+    
+    // perform batch copy
+    if batCopy then begin
+      ShowDetails;
+      Application.processmessages;
+      LogMessage('Batch copying is enabled, so asset copying will now be performed in a cmd window.');
+      LogMessage('Please do not close the cmd window, it will close itself when asset copying is completed.');
+      LogMessage('It''s also important that you don''t close TES5Edit until the asset copying is completed.');
+      LogMessage(#13#10#13#10);
+      bfn := TempPath+'\merge_'+
+        StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+'_'+
+        StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.bat';
+      batch.SaveToFile(bfn);
+      ShellExecute(TForm(frmMain).Handle, 'open', bfn, '', ExtractFilePath(bfn), SW_SHOWNORMAL);
+    end;
     
     // wait for user to close form if details visible
     if (memo.Visible) then begin

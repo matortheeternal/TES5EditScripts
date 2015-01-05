@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 11/30/2014
+  edited 1/4/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -16,6 +16,8 @@
   - [IsDirectoryEmpty]: returns true if a directory is empty.  False otherwise.
   - [Matches]: returns true or false on whether or not an input string matches a
     basic regular expression (e.g. *.esp)
+  - [wCopyFile]: copies a file using ShellExecute with cmd.  Would be superior to
+    CopyFile if it was synchronous, but it isn't yet.
   - [CopyDirectory]: recursively copies the contents of a directory to a new destination
     path.
   - [RecursiveFileSearch]: recursively searches for a file in all the folders at a path.
@@ -84,7 +86,6 @@ type
   TColor = Record
     red, green, blue: integer;
   end;
-  
 
 {
   GetVersionString:
@@ -107,7 +108,7 @@ begin
     v shr 8 and $FF
   ]);
 end;
-  
+
 {
   ColorToInt:
   Gets an integer value representing a color from a TColor record.
@@ -161,7 +162,7 @@ begin
   else if ElementType(e) = etUnion then
     Result := 'etUnion';
 end;
- 
+
 {
   DefTypeString:
   Uses DefType and outputs a string.
@@ -206,7 +207,7 @@ begin
   else if DefType(e) = dtEmpty then
     Result := 'dtEmpty';
 end;
- 
+
 {
   ConflictThisString:
   Uses ConflictThisForNode or ConflictThisForMainRecord and outputs a string.
@@ -382,6 +383,21 @@ begin
 end;
 
 {
+  wCopyFile:
+  Copies a file using windows (cmd) via ShellExecute to avoid memory leaks
+  associated with using the pascal CopyFile routine.
+  
+  Example usage:
+  wCopyFile(GamePath + 'Skyrim.exe', '%UserProfile%\Desktop\Skyrim.exe.bak');
+}
+procedure wCopyFile(src, dst: string; silent: boolean);
+begin
+  if not silent then AddMessage('Copying '+src+' to '+dst);
+  ShellExecute(TForm(frmMain).Handle, 'open', 'cmd', '/C copy /Y "'+src+'" "'+dst+'"', 
+    ExtractFilePath(src), SW_HIDE);
+end;
+
+{
   CopyDirectory:
   Recursively copies all of the contents of a directory.
   
@@ -414,6 +430,8 @@ begin
         ForceDirectories(dst);
         if (rec.attr and faDirectory) <> faDirectory then begin
           if verbose then AddMessage('    Copying file from '+src+rec.Name+' to '+dst+rec.Name);
+          //ResourceCopy('Data', src+rec.Name, dst+rec.Name);
+          //wCopyFile(src+rec.Name, dst+rec.Name, true);
           CopyFile(PChar(src+rec.Name), PChar(dst+rec.Name), false);
         end
         else
@@ -1059,6 +1077,9 @@ begin
     on E: Exception do
       AddMessage('Error copying file ' + slAssets[i] + ': ' + E.Message);
   end;
+  
+  // free stringlists
+  slAssets.Free;
 end;
 
 {
@@ -1091,6 +1112,9 @@ begin
     on E: Exception do
       AddMessage('Error copying file ' + slAssets[i] + ': ' + E.Message);
   end;
+  
+  // free stringlists
+  slAssets.Free;
 end;
 
 {
@@ -1112,6 +1136,9 @@ begin
   // print assets
   for i := 0 to Pred(slAssets.Count) do
     AddMessage(slAssets[i]);
+    
+  // free stringlist
+  slAssets.Free;
 end;
 
 {
