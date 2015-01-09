@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/4/2015
+  edited 1/8/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -32,6 +32,7 @@
   - [CopyFromTo]: copies all characters in a string from a starting position to an 
     ending position.
   - [FileByName]: gets a file from a filename.
+  - [GetRecords]: adds the records in a file or group to a stringlist.
   - [GroupSignature]: gets the signature of a group record.
   - [HexFormID]: gets the FormID of a record as a hexadecimal string.
   - [FileFormID]: gets the FileFormID of a record as a cardinal.
@@ -62,8 +63,7 @@
     NOTE: This function can be dangerous if used improperly.
   - [FileSelect]: creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
-  - [ChooseRecord]: creates a window from which the user can choose a record from
-    a specified record group from a specified file.
+  - [RecordSelect]: creates a window from which the user can choose a record.
   - [ConstructCheckBox]: an all-in-one checkbox constructor.
   - [ConstructLabel]: an all-in-one label constructor.
   - [ConstructButton]: an all-in-one button constructor.
@@ -86,6 +86,9 @@ type
   TColor = Record
     red, green, blue: integer;
   end;
+
+var
+  sFiles, sGroups, sRecords: string;
 
 {
   GetVersionString:
@@ -655,6 +658,39 @@ begin
     if GetFileName(FileByIndex(i)) = s then begin
       Result := FileByIndex(i);
       break;
+    end;
+  end;
+end;
+
+{
+  GetRecords:
+  Add the records in a file or group to a stringlist.
+  
+  Example usage:
+  slRecords := TStringList.Create;
+  f := FileSelect('Select a file below:');
+  g := GroupBySignature(f, 'ARMO');
+  GetRecords(g, slRecords);
+}
+procedure GetRecords(g: IInterface; lst: TStringList);
+var
+  r: IInterface;
+  s: string;
+  i: integer;
+begin
+  for i := 0 to ElementCount(g) - 1 do begin
+    r := ElementByIndex(g, i);
+    if (Pos('GRUP Cell', Name(r)) = 1) then Continue;
+    if (Pos('GRUP Exterior Cell', Name(r)) = 1) then begin
+      ProcessElementsIn(r, lst);
+      Continue;
+    end;
+    if (Signature(r) = 'GRUP') then
+      ProcessElementsIn(r, lst)
+    else if (Signature(r) = 'CELL') then
+      lst.AddObject(Name(r), TObject(r))
+    else begin
+      lst.AddObject(geev(r, 'EDID'), r);
     end;
   end;
 end;
@@ -1283,50 +1319,199 @@ begin
 end;
 
 {
-  ChooseRecord:
-  Gives the user the option to select a record from a record group in a file.
-  Returns the record selected as a string.
+  RecordSelect:
+  Gives the user a dialog from which they can select a record.
+  You can use this window four different ways:
+    - Inputting nil for both arguments.  This will allow the user
+      to select a file, a record group, and a record.
+    - Inputting a file.  This will allow the user to select a record
+      group and a record.
+    - Inputting a record group.  This will allow the user to select a
+      file and a record.
+    - Inputting a file and a record group.  This will allow the user
+      to only select a record.
   
   Example usage:
-  rec := ChooseRecord(GroupBySignature(FileByName('Update.esm'), 'GLOB'));
+  aRecord := SelectRecord('', '');
+  aRecord := SelectRecord('Skyrim.esm', '');
+  aRecord := SelectRecord('', 'ARMO');
+  aRecord := SelectRecord('Skyrim.esm', 'ARMO');
 }
-function ChooseRecord(g: IInterface): string;
+procedure rsLoadRecords(Sender: TObject);
+var
+  f, g: IInterface;
+  fn: string;
+  i, j: integer;
+  pnl: TPanel;
+begin
+  pnl := TComboBox(Sender).GetParentComponent;
+  // clear records and exit if invalid group specified
+  if TComboBox(Sender).ItemIndex = -1 then
+    TComboBox(pnl.Controls[2]).Items.Clear
+  else begin
+    // find file
+    fn := pnl.Controls[0].Text;
+    f := FileByName(fn);
+    // if file found, set records combobox content
+    if Assigned(f) then begin
+      g := GroupBySignature(f, TComboBox(Sender).Text);
+      GetRecords(g, TComboBox(pnl.Controls[2]).Items);
+      TComboBox(pnl.Controls[2]).Text := '<Record>';
+    end;
+  end;
+end;
+
+procedure rsLoadGroups(Sender: TObject);
+var
+  fn, sGroups: string;
+  f, g: IInterface;
+  i: integer;
+  pnl: TPanel;
+begin
+  pnl := TComboBox(Sender).GetParentComponent;
+  // clear groups, records, and exit if invalid file specified
+  if TComboBox(Sender).ItemIndex = -1 then begin
+    TComboBox(pnl.Controls[1]).Items.Clear;
+    TComboBox(pnl.Controls[2]).Items.Clear;
+  end
+  // load records if selecting groups is disabled
+  else if not TComboBox(pnl.Controls[1]).Enabled then
+    rsLoadRecords(pnl.Controls[1])
+  else begin
+    // find file
+    fn := TComboBox(Sender).Text;
+    f := FileByName(fn);
+    // if file found, load groups
+    if Assigned(f) then begin
+      sGroups := '';
+      for i := 0 to ElementCount(f) - 1 do begin
+        g := ElementByIndex(f, i);
+        if Signature(g) = 'TES4' then Continue;
+        if not (sGroups = '') then sGroups := sGroups + #13 + GroupSignature(g)
+        else sGroups := GroupSignature(g);
+      end;
+      TComboBox(pnl.Controls[1]).Items.Text := sGroups;
+      TComboBox(pnl.Controls[1]).Text := '<Group>';
+    end;
+  end;
+end;
+
+function RecordSelect(sFile, sGroup: string): IInterface;
 var
   frm: TForm;
   lbl: TLabel;
-  cb1: TComboBox;
-  slRecords: TStringList;
+  cb1, cb2, cb3: TComboBox;
   i: integer;
+  pnl: TPanel;
+  e: IInterface;
+  sFileList, prompt: string;
 begin
-  slRecords := TStringList.Create;
-  for i := 0 to ElementCount(g) - 1 do
-    slRecords.Add(Name(ElementByIndex(g, i)));
+  // set up prompt caption
+  if (sFile <> '') then begin
+    if (sGroup <> '') then
+      prompt := 'Choose a record:'
+    else
+      prompt := 'Choose a group, then choose a record:';
+  end
+  else begin
+    if (sGroup <> '') then
+      prompt := 'Choose a file, then choose a record:'
+    else 
+      prompt := 'Choose a file, a group, and a record:';
+  end;
   
+  // prepare sFileList
+  for i := 0 to FileCount - 1 do begin
+    if not (sFileList = '') then 
+      sFileList := sFileList + #13 + GetFileName(FileByLoadOrder(i))
+    else 
+      sFileList := GetFileName(FileByLoadOrder(i));
+  end;
+  
+  // display form
   frm := TForm.Create(nil);
   try
     frm.Caption := 'Choose a record';
-    frm.Width := 300;
-    frm.Height := 120;
+    frm.Width := 380;
+    frm.Height := 140;
     frm.Position := poScreenCenter;
     frm.BorderStyle := bsDialog;
     
+    // create label instructing user what to do
+    lbl := TLabel.Create(frm);
+    lbl.Parent := frm;
+    lbl.Left := 8;
+    lbl.Top := 8;
+    lbl.Width := frm.Width - 16;
+    lbl.Caption := prompt;
+    
+    // create panel to hold comboboxes
+    pnl := TPanel.Create(frm);
+    pnl.Parent := frm;
+    pnl.Left := 8;
+    pnl.Top := 32;
+    pnl.Width := frm.Width - 16;
+    pnl.Height := 30;
+    pnl.BevelOuter := bvNone;
+    
+    // create Files combobox
     cb1 := TComboBox.Create(frm);
-    cb1.Parent := frm;
-    cb1.Left := 25;
-    cb1.Top := 12;
-    cb1.Width := 250;
+    cb1.Parent := pnl;
+    cb1.Left := 0;
+    cb1.Top := 0;
+    cb1.Width := 100;
     cb1.Autocomplete := True;
     cb1.Style := csDropDown;
     cb1.Sorted := False;
     cb1.AutoDropDown := True;
-    cb1.Items.Text := slRecords.Text;
-    cb1.Text := '<Record>';
+    cb1.Items.Text := sFileList;
+    cb1.Text := '<File>';
+    cb1.OnSelect := rsLoadGroups;
     
-    ConstructOkCancelButtons(frm, frm, 50);
+    // create groups combobox
+    cb2 := TComboBox.Create(frm);
+    cb2.Parent := pnl;
+    cb2.Left := cb1.Left + cb1.Width + 8;
+    cb2.Top := cb1.Top;
+    cb2.Width := 70;
+    cb2.Autocomplete := True;
+    cb2.Style := csDropDown;
+    cb2.Sorted := True;
+    cb2.AutoDropDown := True;
+    cb2.Text := '';
+    cb2.OnSelect := rsLoadRecords;
     
-    if frm.ShowModal = mrOk then begin
-      if cb1.Text <> '<Record>' then Result := cb1.Text;
+    // create records combobox
+    cb3 := TComboBox.Create(frm);
+    cb3.Parent := pnl;
+    cb3.Left := cb2.Left + cb2.Width + 8;
+    cb3.Top := cb1.Top;
+    cb3.Width := 149;
+    cb3.Autocomplete := True;
+    cb3.Style := csDropDown;
+    cb3.Sorted := True;
+    cb3.AutoDropDown := True;
+    cb3.Text := '';
+    
+    // construct ok and cancel buttons
+    ConstructOkCancelButtons(frm, frm, 70);
+    
+    // set up form based on input variables
+    if cb1.Items.IndexOf(sFile) > -1 then begin
+      cb1.Enabled := false;
+      cb1.ItemIndex := cb1.Items.IndexOf(sFile);
+      rsLoadGroups(cb1);
     end;
+    if sGroup <> '' then begin
+      cb2.Enabled := false;
+      cb2.Items.Add(sGroup);
+      cb2.ItemIndex := cb2.Items.IndexOf(sGroup);
+      if sFile <> '' then rsLoadRecords(cb2);
+    end;
+    
+    if frm.ShowModal = mrOk then
+      if cb3.ItemIndex > -1 then 
+        Result := ObjectToElement(cb3.Items.Objects[cb3.Items.IndexOf(cb3.Text)]);
   finally
     frm.Free;
   end;
