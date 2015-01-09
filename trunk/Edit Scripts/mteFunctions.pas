@@ -1332,10 +1332,10 @@ end;
       to only select a record.
   
   Example usage:
-  aRecord := SelectRecord('', '');
-  aRecord := SelectRecord('Skyrim.esm', '');
-  aRecord := SelectRecord('', 'ARMO');
-  aRecord := SelectRecord('Skyrim.esm', 'ARMO');
+  aRecord := RecordSelect('', '');
+  aRecord := RecordSelect('Skyrim.esm', '');
+  aRecord := RecordSelect('', 'ARMO');
+  aRecord := RecordSelect('Skyrim.esm', 'ARMO');
 }
 procedure rsLoadRecords(Sender: TObject);
 var
