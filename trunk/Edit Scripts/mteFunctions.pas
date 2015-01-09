@@ -31,6 +31,9 @@
   - [ItPos]: finds the position of an iteration of a substring in a string.
   - [CopyFromTo]: copies all characters in a string from a starting position to an 
     ending position.
+  - [SetChar]: Sets a character in a string to a different character and returns the
+    resulting string.
+  - [GetChar]: Gets a character in a string and returns it.
   - [FileByName]: gets a file from a filename.
   - [GetRecords]: adds the records in a file or group to a stringlist.
   - [GroupSignature]: gets the signature of a group record.
@@ -640,6 +643,38 @@ begin
     if i >= p1 then Result := Result + Copy(s, i, 1);
     if i = p2 then exit;
   end;
+end;
+  
+{
+  SetChar:
+  Sets a character in a string to a different character and returns the
+  resulting string.
+  
+  Example usage:
+  s := '1234';
+  s := SetChar(s, 2, 'A');
+  AddMessage(s); //'1A34'
+}
+function SetChar(const s: string; n: integer; c: char): string;
+var
+  front, back: string;
+begin
+  front := Copy(s, 1, n - 1);
+  back := Copy(s, n + 1, Length(s));
+  Result := front + c + back;
+end;
+
+{
+  GetChar:
+  Gets a character in a string and returns it.
+  
+  Example usage:
+  s := '1234';
+  AddMessage(GetChar(s, 3)); //'3'
+}
+function GetChar(const s: string; n: integer): char;
+begin
+  Result := Copy(s, n, 1);
 end;
 
 {
