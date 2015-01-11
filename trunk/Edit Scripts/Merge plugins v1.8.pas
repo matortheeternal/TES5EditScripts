@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.10
+  Merge Plugins Script v1.8.11
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.10
+  v1.8.11
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -198,7 +198,7 @@ begin
   try
     frm.Caption := 'Select File';
     frm.Width := 290;
-    frm.Height := 190;
+    frm.Height := 230;
     frm.Position := poScreenCenter;
     
     lbl01 := TLabel.Create(frm);
@@ -746,7 +746,9 @@ begin
     cb3.ShowHint := true;
     cb3.Hint := 
       'Changing this option will require a restart of the script to take effect.'#13
-      'Check this if you can''t see any of the filenames in the main merge window.';
+      'Check this if you can''t see any of the filenames in the main merge window.'#13
+      'NOTE: Another fix for this issue is to enable Windows Aero in windows'#13
+      'personalization settings.';
     cb3.Checked := disableColoring;
     
     cb4 := TCheckBox.Create(gb2);
@@ -1132,8 +1134,10 @@ begin
   end;
   
   // find mod directory in Mod Organizer's mods folder
+  if debugAssetCopying then LogMessage('    Searching for '+filename+' in '+moPath);
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
     repeat
+      if debugAssetCopying then LogMessage('    ...searching '+moPath+'mods\'+rec.Name);
       modPath := FileSearch(filename, moPath + 'mods\' + rec.Name);
       if (modPath <> '') then begin
         modPath := moPath + 'mods\'+ rec.Name;
@@ -1500,6 +1504,13 @@ begin
   slAllForms := TStringList.Create;
   LogMessage(#13#10+'Renumbering conflicting FormIDs before merging...');
   
+  // add formIDs from merge file to slAllForms
+  for i := 0 to RecordCount(mgf) - 1 do begin
+    e := RecordByIndex(mgf, i);
+    if not (IsLocalRecord(e)) then Continue;
+    slAllForms.Add('00' + Copy(HexFormID(e), 3, 6));
+  end;
+  
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
   BaseFormID := HighestFormID + 1024;
@@ -1526,15 +1537,14 @@ begin
       // skip header record
       if (Signature(e) = 'TES4') then Continue;
       
-      loadFormID := HexFormID(e);
       // skip non-file records (overwrite and injected)
-      pre := StrToInt('$' + Copy(loadFormID, 1, 2));
-      if (pre <> Integer(slMerge.Objects[i])) then begin
+      if not (IsLocalRecord(e)) then begin
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end;
       
+      loadFormID := HexFormID(e);
       OldFormID := StrToInt64('$' + loadFormID);
       fileFormID := '00' + Copy(loadFormID, 3, 6);
       // if not conflicting FormID, add to list and continue.
@@ -1617,16 +1627,15 @@ begin
       e := Records[j];
       if (Signature(e) = 'TES4') then Continue;
       
-      loadFormID := HexFormID(e);
       // skip non-file records (overwrite and injected)
-      pre := StrToInt('$' + Copy(loadFormID, 1, 2));
-      if (pre <> Integer(slMerge.Objects[i])) then begin
+      if not (IsLocalRecord(e)) then begin
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end;
       
       // print log message first, then change references, then change form
+      loadFormID := HexFormID(e);
       OldFormID := StrToInt64('$' + loadFormID);
       fileFormID := '00' + Copy(loadFormID, 3, 6);
       if debugRenumbering then 
@@ -1697,16 +1706,15 @@ begin
       e := Records[j];
       if (Signature(e) = 'TES4') then Continue;
       
-      loadFormID := HexFormID(e);
       // skip non-file records (overwrite and injected)
-      pre := StrToInt('$' + Copy(loadFormID, 1, 2));
-      if (pre <> Integer(slMerge.Objects[i])) then begin
+      if not (IsLocalRecord(e)) then begin
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end;
       
       // print log message first, then change references, then change form
+      loadFormID := HexFormID(e);
       OldFormID := GetLoadOrderFormID(e);
       fileFormID := '00' + Copy(loadFormID, 3, 6);
       if debugRenumbering then 
@@ -1881,7 +1889,9 @@ begin
   mgf := nil;
   AddMessage(#13#10+'Preparing merged file...');
   mgf := FileSelectM('Choose the file you want to merge into below, or '+
-    #13#10+'choose -- CREATE NEW FILE -- to create a new one.');
+    #13#10+'choose creat new file to create a new one.'+
+    #13#10#13#10+'NOTE: merging into an existing file isn''t a good'+
+    #13#10+'idea, and can cause instability.');
 
   // merge file confirmation or termination
   if not Assigned(mgf) then begin
@@ -1983,7 +1993,7 @@ begin
       // get NextObjectID
       NextObjectID := FindHighestFormID() + 1024;
       
-      // make formID text files
+      // make formID lists
       for i := 0 to slMerge.Count - 1 do begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
         RC := RecordCount(f) - 1;
@@ -2085,8 +2095,14 @@ begin
     desc := 'Merged Plugin: ';
     lbl.Caption := 'Creating description';
     pb.Position := 60;
-    Add(ElementByIndex(mgf, 0), 'SNAM', True);
-    desc := 'Merged Plugin:';
+    mergeDesc := nil;
+    mergeDesc := geev(ElementByIndex(mgf, 0), 'SNAM');
+    if not Assigned(mergeDesc) then begin
+      Add(ElementByIndex(mgf, 0), 'SNAM', True);
+      desc := 'Merged Plugin:';
+    end
+    else if Pos('Merged Plugin', mergeDesc) > 0 then 
+      desc := mergeDesc;
     for i := 0 to slMerge.Count - 1 do begin
       mergeDesc := geev(ElementByIndex(FileByLoadOrder(Integer(slMerge.Objects[i])), 0), 'SNAM');
       if Pos('Merged Plugin', mergeDesc) > 0 then
@@ -2109,6 +2125,7 @@ begin
       rCount := 0;
       for i := RecordCount(mgf) - 1 downto 1 do begin
         e := RecordByIndex(mgf, i);
+        //AddMessage('Processing '+Name(e));
         id := HexFormID(e);
         for j := 0 to slMerge.Count - 1 do begin
           recordFromMerge := TStringList(NewForms[j]).IndexOf(id) > -1;
@@ -2118,6 +2135,7 @@ begin
           end;
         end;
         if b then begin
+          //AddMessage('  Removing '+Name(e));
           b := false;
           Inc(rCount);
           RemoveNode(e);

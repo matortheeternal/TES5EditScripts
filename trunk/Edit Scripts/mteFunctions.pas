@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/8/2015
+  edited 1/10/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -39,6 +39,7 @@
   - [GroupSignature]: gets the signature of a group record.
   - [HexFormID]: gets the FormID of a record as a hexadecimal string.
   - [FileFormID]: gets the FileFormID of a record as a cardinal.
+  - [IsLocalRecord]: returns false for override and injected records.
   - [SmallName]: gets the FormID and editor ID as a string.
   - [ElementByIP]: loads an element by an indexed path.
   - [SetListEditValues]: sets the edit values in a list of elements to the values 
@@ -782,6 +783,25 @@ end;
 function FileFormID(e: IInterface): cardinal;
 begin
   Result := GetLoadOrderFormID(e) mod 16777216;
+end;
+
+{
+  IsLocalRecord
+  Returns false for override and injected records.
+  
+  Example usage:
+  e := RecordByIndex(f, 1);
+  if IsLocalRecord(e) then AddMessage(Name(e) + ' is local.');
+}
+function IsLocalRecord(e: IInterface): boolean;
+var
+  loadOrder, pre: integer;
+  loadFormID: string;
+begin
+  loadOrder := GetLoadOrder(GetFile(e));
+  loadFormID := HexFormID(e);
+  pre := StrToInt('$' + Copy(loadFormID, 1, 2));
+  Result := (pre = loadOrder);
 end;
 
 {
