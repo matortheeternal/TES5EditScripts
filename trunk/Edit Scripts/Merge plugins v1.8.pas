@@ -1792,6 +1792,9 @@ begin
   browse := TPicture.Create;
   browse.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\browse.png');
   
+  // force TempPath folder to exist
+  ForceDirectories(TempPath);
+  
   // process only file elements
   try 
     ScriptProcessElements := [etFile];
