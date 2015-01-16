@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/10/2015
+  edited 1/16/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -22,6 +22,7 @@
     path.
   - [RecursiveFileSearch]: recursively searches for a file in all the folders at a path.
     Returns the path of the first file matching the given filename, if it is found.
+  - [SanitizeFileName]: removes characters not allowed in filenames from a string.
   - [BoolToStr]: converts a boolean value to a string.
   - [ReverseString]: reverses a string.
   - [StrEndsWith]: checks if a string ends with a substring.
@@ -496,6 +497,30 @@ begin
     until FindNext(rec) <> 0;
     
     FindClose(rec);
+  end;
+end;
+
+{
+  SanitizeFileName:
+  Removes characters not allowed in filenames from a string.
+  
+  Example usage:
+  today := Now;
+  fn := 'merge_'+DateToStr(today)+'_'+TimeToStr(today)+'.txt';
+  fn := SanitizeFileName(fn);
+}
+function SanitizeFileName(fn: string): string;
+const
+  badChars = '<>:"/\|?*';
+var
+  ch: char;
+  i: integer;
+begin
+  Result := fn;
+  for i := Length(Result) - 1 downto 0 do begin
+    ch := GetChar(Result, i);
+    if (Pos(ch, badChars) > 0) or (Ord(ch) < 32) then
+      Result := SetChar(Result, i, '');
   end;
 end;
 

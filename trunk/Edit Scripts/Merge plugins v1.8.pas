@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.11
+  Merge Plugins Script v1.8.12
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.11
+  v1.8.12
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -60,8 +60,11 @@
   - Better memory management (everything is freed properly, now).
   - Copy General Assets now works correctly when modPath isn't found.
   - Description no longer has issues with Merged Plugin: text.
+  - Script now forces TempPath to exist, in case it's been deleted.
+  - Filename sanitization now put in mteFunctions.
+  - Automatically updates GUI after merging via RemoveFilter(), which was
+    added in xEdit svn1876.
   
-    
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
   corrupted data.  You can set user variables at in the constants section (const) 
@@ -1830,7 +1833,7 @@ var
   done, b, recordFromMerge, didNothing: boolean;
   lbl: TLabel;
   pb: TProgressBar;
-  today : TDateTime;
+  today: TDateTime;
 begin
   // change hint duration
   Application.HintHidePause := 10000;
@@ -1905,11 +1908,9 @@ begin
   AddMessage('    Script is using ' + GetFileName(mgf) + ' as the merge file.');
     
   // set up for saving log
-  SetCurrentDir(ScriptsPath + '\mp\');
-  CreateDir('logs'); // create directory if it doesn't already exist
+  ForceDirectories(ScriptsPath + '\mp\logs');
   today := Now;
-  fn := 'merge_'+StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+
-      '_'+StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.txt';
+  fn := SanitizeFileName('merge_'+DateToStr(today)+'_'+TimeToStr(today)+'.txt');
   
   // display progress bar
   frm := TForm.Create(nil);
@@ -2249,6 +2250,13 @@ begin
   FreeMemory;
   // return hinthidepasue to default value
   Application.HintHidePause := 1000;
+  // call RemoveFilter() to update TES5Edit GUI
+  try
+    RemoveFilter();
+  except on Exception do
+    AddMessage(#13#10'You''re not using the latest version of xEdit, so the script couldn''t update the GUI.');
+    AddMessage('Right click in the plugin view and click "Remove Filter" to update the GUI manually.');
+  end;
 end;
 
 
