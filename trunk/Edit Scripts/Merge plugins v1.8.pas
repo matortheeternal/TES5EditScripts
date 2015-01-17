@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.12
+  Merge Plugins Script v1.8.13
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.12
+  v1.8.13
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -64,6 +64,10 @@
   - Filename sanitization now put in mteFunctions.
   - Automatically updates GUI after merging via RemoveFilter(), which was
     added in xEdit svn1876.
+  - Changed two-pass copying to remove immediately after copying, which should
+    correct any issues with merging into existing files with two-pass copying.
+  - Fixed issue with script closing the progress bar/log window when an exception
+    occurs instead of leaving it open.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -773,7 +777,7 @@ begin
     cb5.Width := 130;
     cb5.Caption := ' Batch copy assets';
     cb4.ShowHint := true;
-    cb4.Hint :=
+    cb5.Hint :=
       'If this is checked, assets will be copied via a batch script after xEdit'#13
       'is done merging the plugins.  You want to use this if you''re merging plugins'#13
       'which have A LOT of file specific assets.  E.g. fully voiced followers.  You'#13
@@ -1354,7 +1358,7 @@ end;
 
 //=========================================================================
 // CopyElement: copies an element to the merged file
-procedure CopyElement(e: IInterface);
+procedure CopyElement(e: IInterface; remove: boolean);
 var
   cr: IInterface;
 begin
@@ -1377,6 +1381,7 @@ begin
     cr := wbCopyElementToFile(e, mgf, False, True);
     if debug then LogMessage('        Copying '+SmallName(e));
     Inc(rCount);
+    if remove then RemoveNode(cr);
   except
     on x : Exception do begin
       LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
@@ -1387,7 +1392,7 @@ end;
 
 //=========================================================================
 // MergeByRecords: merges by copying records
-procedure MergeByRecords(g: IInterface);
+procedure MergeByRecords(g: IInterface; remove: boolean);
 var
   i: integer;
   e: IInterface;
@@ -1395,13 +1400,13 @@ begin
   for i := 0 to RecordCount(g) - 1 do begin
     e := RecordByIndex(g, i);
     if Signature(e) = 'TES4' then Continue;
-    CopyElement(e);
+    CopyElement(e, remove);
   end;
 end;
 
 //=========================================================================
 // MergeIntelligently: merges by copying records, skipping records in group records
-procedure MergeIntelligently(g: IInterface);
+procedure MergeIntelligently(g: IInterface; remove: boolean);
 var
   i: integer;
   e: IInterface;
@@ -1410,17 +1415,17 @@ begin
     e := ElementByIndex(g, i);
     if Signature(e) = 'TES4' then Continue;
     if Signature(e) = 'GRUP' then begin
-      if Pos('GRUP Cell', Name(e)) = 1 then CopyElement(e) else 
-      if Pos('GRUP Exterior Cell', Name(e)) = 1 then CopyElement(e) 
-      else MergeIntelligently(e);
+      if Pos('GRUP Cell', Name(e)) = 1 then CopyElement(e, remove) else 
+      if Pos('GRUP Exterior Cell', Name(e)) = 1 then CopyElement(e, remove) 
+      else MergeIntelligently(e, remove);
     end
-    else CopyElement(e);
+    else CopyElement(e, remove);
   end;
 end;
 
 //=========================================================================
 // MergeByGroups: merges by copying entire group records
-procedure MergeByGroups(g: IInterface);
+procedure MergeByGroups(g: IInterface; remove: boolean);
 var
   i: integer;
   e: IInterface;
@@ -1428,7 +1433,7 @@ begin
   for i := 0 to ElementCount(g) - 1 do begin
     e := ElementByIndex(g, i);
     if Signature(e) = 'TES4' then Continue;
-    CopyElement(e);
+    CopyElement(e, remove);
   end;
 end;
 
@@ -2069,9 +2074,9 @@ begin
     for i := slMerge.Count - 1 downto 0 do begin
       f := FileByLoadOrder(Integer(slMerge.Objects[i]));
       LogMessage('    Copying records from '+GetFileName(f));
-      if mm = 0 then MergeByRecords(f) else 
-      if mm = 1 then MergeIntelligently(f) else 
-      if mm = 2 then MergeByGroups(f);
+      if mm = 0 then MergeByRecords(f, (sp > 0)) else 
+      if mm = 1 then MergeIntelligently(f, (sp > 0)) else 
+      if mm = 2 then MergeByGroups(f, (sp > 0));
       pb.Position := pb.Position + 30/slMerge.Count;
       Application.processmessages;
     end;
@@ -2122,31 +2127,6 @@ begin
     
     // second pass copying
     if (sp > 0) then begin
-      // removing records for second pass copying
-      pb.Position := 61;
-      LogMessage(#13#10+'Removing records for second pass.');
-      lbl.Caption := 'Removing records...';
-      rCount := 0;
-      for i := RecordCount(mgf) - 1 downto 1 do begin
-        e := RecordByIndex(mgf, i);
-        //AddMessage('Processing '+Name(e));
-        id := HexFormID(e);
-        for j := 0 to slMerge.Count - 1 do begin
-          recordFromMerge := TStringList(NewForms[j]).IndexOf(id) > -1;
-          if (recordFromMerge) then begin
-            b := true;
-            break;
-          end;
-        end;
-        if b then begin
-          //AddMessage('  Removing '+Name(e));
-          b := false;
-          Inc(rCount);
-          RemoveNode(e);
-        end;
-      end;
-      LogMessage('    '+IntToStr(rCount)+' records removed.');
-      
       // copy records again
       LogMessage(#13#10+'Performing second pass copying...');
       pb.Position := 65;
@@ -2156,9 +2136,9 @@ begin
         f := FileByLoadOrder(Integer(slMerge.Objects[i]));
         LogMessage('    Copying records from '+GetFileName(f));
         if (sp = 1) then begin
-          if mm = 0 then MergeByRecords(f) else 
-          if mm = 1 then MergeIntelligently(f) else 
-          if mm = 2 then MergeByGroups(f);
+          if mm = 0 then MergeByRecords(f, false) else 
+          if mm = 1 then MergeIntelligently(f, false) else 
+          if mm = 2 then MergeByGroups(f, false);
         end
         else MergeByGroups(f);
         pb.Position := pb.Position + 30/slMerge.Count;
@@ -2235,16 +2215,20 @@ begin
       frm.Visible := false;
       frm.ShowModal;
     end;
-  except on x : Exception do
-    // merge failed
-    LogMessage(#13#10'Merge failed.  Exception: '+x.Message);
-    memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
-    pb.Position := 0;
-    lbl.Caption := 'Merge Failed.  Exception: '+x.Message;
-    ShowDetails;
-    frm.Visible := false;
-    frm.ShowModal;
+  except on x : Exception do begin
+      // merge failed
+      AddMessage(#13#10'Merge failed.  Exception: '+x.Message);
+      LogMessage(#13#10'Merge failed.  Exception: '+x.Message);
+      memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
+      pb.Position := 0;
+      lbl.Caption := 'Merge Failed.  Exception: '+x.Message;
+      if not memo.Visible then ShowDetails;
+      frm.Visible := false;
+      frm.ShowModal;
+      Application.processmessages;
+    end;
   end;
+  // free form
   frm.Free;
   // free memory
   FreeMemory;
