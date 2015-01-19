@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8
+  Mator Smash v0.8.1
   created by matortheeternal
   
   * DESCRIPTION *
@@ -141,7 +141,7 @@ begin
     d_ndx := slDst.IndexOf(slMst[i]);
     
     if (s_ndx = -1) and (d_ndx > -1) then begin
-      RemoveNode(ElementByIndex(dst, d_ndx));
+      RemoveElement(dst, ElementByIndex(dst, d_ndx));
       slDst.Delete(d_ndx);
     end;
   end;
@@ -167,7 +167,7 @@ begin
     end
     else if (ets = 'etSubRecordStruct') then begin
       try
-        rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, IndexOf(src, se)), dstrec, depth + '    ', ini);
+        rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, i), dstrec, depth + '    ', ini);
       except on x : Exception do begin
           LogMessage(depth+' exception: '+x.Message);
         end;
