@@ -19,7 +19,8 @@ when creating mods for Bethesda games.
 Current Scripts
 ==================================
 
-* **Merge Plugins:** v1.7 released on Nexus Mods September 28, 2014.
+* **Merge Plugins:** v1.8 beta available.
+* **Mator Smash:** v0.8 beta available.
 * **PerkTreeUI:** v1.2 released on Nexus Mods February 3, 2014. 
 * **QuickChange:** v2.4 released on Nexus Mods July 18, 2014.
 * **Find and Replace FormID:** v1.2 released on Nexus Mods February 3, 2014.
