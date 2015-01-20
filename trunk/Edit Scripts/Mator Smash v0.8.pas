@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.2
+  Mator Smash v0.8.3
   created by matortheeternal
   
   * DESCRIPTION *
@@ -1050,10 +1050,18 @@ begin
             if (not Assigned(mr)) and (not (ConflictThisString(ovr) = 'ctIdenticalToMaster')) then
               mr := wbCopyElementToFile(ovr, smashFile, false, true)
             else begin
-              ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[slFiles.IndexOf(fn)])]);
+              try
+                ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[slFiles.IndexOf(fn)])]);
+              except on x : Exception do
+                LogMessage('Setting lookup exception : '+x.Message);
+              end;
               if debug1 then LogMessage('');
               LogMessage('Smashing record '+slRecords[i]+' from file: '+fn);
-              rcore(ovr, r, mr, mr, '    ', ini); // recursively copy overriden elements
+              try
+                rcore(ovr, r, mr, mr, '    ', ini); // recursively copy overriden elements
+              except on x : Exception do
+                LogMessage('Exception smashing record '+slRecords[i]+' : '+x.Message);
+              end;
             end;
           end;
         end;
