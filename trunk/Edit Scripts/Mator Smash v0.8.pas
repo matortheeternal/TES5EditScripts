@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.3
+  Mator Smash v0.8.4
   created by matortheeternal
   
   * DESCRIPTION *
@@ -339,7 +339,7 @@ begin
       end;
     end
     // else recurse deeper
-    else if (ElementCount(se) > 0) then begin
+    else if (ElementCount(se) > 0) and (dts <> 'dtInteger') then begin
       if debug3 then LogMessage(depth+'Recursing deeper.');
       try 
         rcore(se, me, de, dstrec, depth + '    ', ini);
