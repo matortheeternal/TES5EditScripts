@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.1
+  Mator Smash v0.8.2
   created by matortheeternal
   
   * DESCRIPTION *
@@ -677,7 +677,7 @@ end;
 // OptionsForm: For setting smashed patch options
 function OptionsForm: boolean;
 var
-  i: integer;
+  i, height, m: integer;
   btnSmash, btnCancel: TButton;
   optionslbl, fnlbl, gslbl: TLabel;
   cb: TComboBox;
@@ -685,6 +685,8 @@ var
   fn, author, s: string;
   imgOptions: TImage;
   pnl: TPanel;
+  holder: TObject;
+  sb: TScrollBar;
 begin
   Result := false;
   frm := TForm.Create(nil);
@@ -693,9 +695,30 @@ begin
     frm.Width := 500;
     frm.Position := poScreenCenter;
     frm.Height := 400;
+    for i := 0 to FileCount - 1 do begin
+      f := FileByIndex(i);
+      fn := GetFileName(f);
+      author := geev(ElementByIndex(f, 0), 'CNAM');
+      if (Pos(fn, bethesdaFiles) > 0) or (Pos('Mator Smash', author) > 0) then Continue;
+      Inc(m);
+    end;
+    height := m*40 + 170;
+    if height > (Screen.Height - 100) then begin
+      frm.Height := Screen.Height - 100;
+      sb := TScrollBox.Create(frm);
+      sb.Parent := frm;
+      sb.Height := Screen.Height - 210;
+      sb.Width := 484;
+      sb.Align := alTop;
+      holder := sb;
+    end
+    else begin
+      frm.Height := height;
+      holder := frm;
+    end;
     
     optionslbl := TLabel.Create(frm);
-    optionslbl.Parent := frm;
+    optionslbl.Parent := holder;
     optionslbl.Top := 8;
     optionslbl.Left := 8;
     optionslbl.Caption := 'Set the options you want to use for smashing the following plugins:';
@@ -711,10 +734,10 @@ begin
         continue;
       
       pnlArray[pnlCount] := TPanel.Create(frm);
-      pnlArray[pnlCount].Parent := frm;
+      pnlArray[pnlCount].Parent := holder;
       pnlArray[pnlCount].Left := 0;
       pnlArray[pnlCount].Top := 30 + pnlCount*40;
-      pnlArray[pnlCount].Width := frm.Width;
+      pnlArray[pnlCount].Width := holder.Width - 25;
       pnlArray[pnlCount].BevelOuter := bvNone;
       pnlArray[pnlCount].BevelInner := bvNone; // or bvLowered
       pnlArray[pnlCount].BorderStyle := bsNone; // or bsSingle
@@ -735,14 +758,11 @@ begin
         cb.ItemIndex := slSettings.IndexOf('default');
       cb.Top := 12;
       cb.Width := 100;
-      cb.Left := frm.Width - cb.Width - 40;
+      cb.Left := holder.Width - cb.Width - 40;
       
       slFiles.Add(fn);
       Inc(pnlCount);
     end;
-    
-    // set form height relative to number of panels
-    frm.Height := 170 + pnlCount*40;
     
     // create global setting controls
     gslbl := TLabel.Create(frm);
