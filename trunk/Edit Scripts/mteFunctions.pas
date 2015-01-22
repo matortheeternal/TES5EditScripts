@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/16/2015
+  edited 1/21/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -43,6 +43,8 @@
   - [IsLocalRecord]: returns false for override and injected records.
   - [SmallName]: gets the FormID and editor ID as a string.
   - [ElementByIP]: loads an element by an indexed path.
+  - [IndexedPath]: gets the indexed path of an element.
+  - [ElementPath]: gets the path of an element that can then be used in ElementByPath.
   - [SetListEditValues]: sets the edit values in a list of elements to the values 
     stored in a stringlist.
   - [SetListNativeValues]: sets the native values in a list of elements to the values
@@ -53,6 +55,7 @@
   - [senv]: SetElementNativeValues enhanced with ElementByIP.
   - [slev]: SetListEditValues shortened function name.
   - [slnv]: SetListNativeValues shortened function name.
+  - [gav]: GetAllValues returns a string of all of the values in an element.
   - [HasKeyword]: checks if a record has a keyword matching the input EditorID.
   - [HasItem]: checks if a record has an item matching the input EditorID.
   - [HasPerkCondition]: checks if a record has a perk condition for a perk matching the
@@ -807,7 +810,7 @@ end;
 }
 function FileFormID(e: IInterface): cardinal;
 begin
-  Result := GetLoadOrderFormID(e) mod 16777216;
+  Result := GetLoadOrderFormID(e) and $00FFFFFF;
 end;
 
 {
@@ -888,6 +891,53 @@ begin
     Result := ElementByPath(subelement, ip)
   else
     Result := subelement;
+end;
+
+{
+  IndexedPath:
+  Gets the indexed path of an element.
+  
+  Example usage:
+  element := ElementByIP(e, 'Conditions\[3]\CTDA - \Comparison Value');
+  AddMessage(IndexedPath(element)); //Conditions\[3]\CTDA - \Comparison Value
+}
+function IndexedPath(e: IInterface): string;
+var
+  c: IInterface;
+  a: string;
+begin
+  c := GetContainer(e);
+  while (ElementTypeString(e) <> 'etMainRecord') do begin
+    if ElementTypeString(c) = 'etSubRecordArray' then
+      a := '['+IntToStr(IndexOf(c, e))+']'
+    else
+      a := Name(e);
+    if Result <> '' then Result := a + '\' + Result
+    else Result := a;
+    e := c;
+    c := GetContainer(e);
+  end;
+end;
+
+{
+  ElementPath:
+  Gets the path of an element.
+  
+  Example usage:
+  element := ElementByPath(e, 'Model\MODL');
+  AddMessage(ElementPath(element)); //Model\MODL - Model Filename
+}
+function ElementPath(e: IInterface): string;
+var
+  c: IInterface;
+begin
+  c := GetContainer(e);
+  while (ElementTypeString(e) <> 'etMainRecord') do begin
+    if Result <> '' then Result := Name(e) + '\' + Result
+    else Result := Name(e);
+    e := c;
+    c := GetContainer(e);
+  end;
 end;
 
 {
@@ -1056,6 +1106,23 @@ end;
 procedure slnv(e: IInterface; ip: string; values: TList);
 begin
   SetListNativeValues(e, ip, values);
+end;
+
+{
+  gav:
+  GetAllValues shortened function name.
+  
+  Example usage:
+  gav(e);
+}
+function gav(e: IInterface): string;
+var
+  i: integer;
+begin
+  Result := GetEditValue(e);
+  for i := 0 to ElementCount(e) - 1 do
+    if (Result <> '') then Result := Result + ';' + gav(ElementByIndex(e, i))
+    else Result := gav(ElementByIndex(e, i));
 end;
 
 {

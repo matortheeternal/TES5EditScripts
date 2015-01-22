@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.4
+  Mator Smash v0.8.5
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,12 +11,22 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.8';
+  vs = 'v0.8.5';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
-  debug1 = true;
-  debug2 = true;
-  debug3 = false;
+  alwaysSkip = 'Record Header\Data Size'#13'Record Header\Version Control Info 1'#13
+    'Record Header\Version Control Info 2'#13;
+  // these booleans control logging
+  debugGetMaster = false;
+  debugArrays = false;
+  listOverrides = false;
+  showChanges = false;
+  showTraversal = false;
+  showSkips = false;
+  showTypeStrings = false;
+  verbose = false;
+  // maximum records to be smashed
+  maxRecords = 9001;
  
 var
   slRecords, slSettings, slOptions, slFiles: TStringList;
@@ -54,11 +64,10 @@ var
 begin
   Result := nil;
   dstrec := MasterOrSelf(dstrec);
-  p := Path(src);
-  p := Copy(p, Pos('\', p) + 2, Length(p));
+  p := IndexedPath(src);
   sorted := not (SortKey(se, false) = '');
   if sorted then begin
-    if debug3 then LogMessage('  Called GetMasterElement at path '+p+' looking for SortKey '+SortKey(se, false));
+    if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' looking for SortKey '+SortKey(se, false));
     for i := 0 to OverrideCount(dstrec) - 2 do begin
       ovr := OverrideByIndex(dstrec, i);
       ae := ElementByPath(dstrec, p);
@@ -76,7 +85,7 @@ begin
   end 
   else begin
     ndx := IndexOf(src, se);
-    if debug3 then LogMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
+    if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
     ae := ElementByPath(dstrec, p);
     if (ElementCount(ae) - 1 >= ndx) then 
       Result := ElementByIndex(ae, ndx)
@@ -112,11 +121,11 @@ end;
 // MergeSortedArray: Merges sorted array elements
 procedure MergeSortedArray(mst, src, dst, dstrec: IInterface; depth: string; ini: TMemIniFile);
 var
-  i, m_ndx, s_ndx, d_ndx: integer;
-  me, se, de: IInterface;
+  i, m_ndx, s_ndx, d_ndx, n: integer;
+  me, se, de, ne: IInterface;
   slMst, slDst, slSrc: TStringList;
   useValues: boolean;
-  dts, ets: string;
+  dts, ets, sk: string;
 begin
   // Step 1: build lists of elements in each array for easy comparison
   slMst := TStringList.Create;
@@ -124,15 +133,36 @@ begin
   slDst := TStringList.Create;
   for i := 0 to ElementCount(mst) - 1 do begin
     me := ElementByIndex(mst, i);
-    slMst.Add(SortKey(me, false));
+    sk := SortKey(me, false);
+    n := 0;
+    while slMst.IndexOf(sk) > -1 do begin
+      Inc(n);
+      sk := SortKey(me, false) + '-' + IntToStr(n);
+    end;
+    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
+    slMst.Add(sk);
   end;
   for i := 0 to ElementCount(src) - 1 do begin
     se := ElementByIndex(src, i);
-    slSrc.Add(SortKey(se, false));
+    sk := SortKey(se, false);
+    n := 0;
+    while slSrc.IndexOf(sk) > -1 do begin
+      Inc(n);
+      sk := SortKey(se, false) + '-' + IntToStr(n);
+    end;
+    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
+    slSrc.Add(sk);
   end;
   for i := 0 to ElementCount(dst) - 1 do begin
     de := ElementByIndex(dst, i);
-    slDst.Add(SortKey(de, false));
+    sk := SortKey(de, false);
+    n := 0;
+    while slDst.IndexOf(sk) > -1 do begin
+      Inc(n);
+      sk := SortKey(de, false) + '-' + IntToStr(n);
+    end;
+    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
+    slDst.Add(sk);
   end;
   
   // Step 2: Remove elements that are in mst and dst, but missing from src
@@ -141,6 +171,7 @@ begin
     d_ndx := slDst.IndexOf(slMst[i]);
     
     if (s_ndx = -1) and (d_ndx > -1) then begin
+      if debugArrays then LogMessage('      > Removing element '+Path(ElementByIndex(dst, d_ndx))+' with key: '+slDst[d_ndx]);
       RemoveElement(dst, ElementByIndex(dst, d_ndx));
       slDst.Delete(d_ndx);
     end;
@@ -154,22 +185,28 @@ begin
     se := ElementByIndex(src, i);
     dts := DefTypeString(se);
     ets := ElementTypeString(se);
+    if (d_ndx = -1) and (m_ndx = -1) then begin
+      if debugArrays then LogMessage('      > Adding element '+IntToStr(i)+' at '+Path(dst)+' with key: '+slSrc[i]);
+      ne := ElementAssign(dst, HighInteger, se, false);
+      if debugArrays then LogMessage('      > '+gav(ne));
+      slDst.Add(slSrc[i]);
+    end
     // Step 3.5: If array element is in dst and has subelements, traverse it.
-    if (d_ndx = -1) and (m_ndx = -1) then
-      ElementAssign(dst, HighInteger, se, false)
     else if (d_ndx > -1) and ((dts = 'dtStruct') or (ets = 'etSubRecordArray')) then begin
+	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
       try
         rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
-          LogMessage(depth+' exception: '+x.Message);
+          LogMessage('      !! Exception: '+x.Message);
         end;
       end;
     end
-    else if (ets = 'etSubRecordStruct') then begin
+    else if (d_ndx > -1) and (ets = 'etSubRecordStruct') then begin
+	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
       try
-        rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, i), dstrec, depth + '    ', ini);
+        rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
-          LogMessage(depth+' exception: '+x.Message);
+          LogMessage('      !! Exception: '+x.Message);
         end;
       end;
     end;
@@ -249,7 +286,7 @@ var
 begin
   // skip identical to master sources
   if ConflictThisString(src) = 'ctIdenticalToMaster' then begin
-    LogMessage('  Skipping, ctIdenticalToMaster');
+    if showSkips then LogMessage('  Skipping, ctIdenticalToMaster');
     exit;
   end;
   
@@ -287,33 +324,32 @@ begin
     ets := ElementTypeString(se);
     dts := DefTypeString(se);
     
-    // skip the record header.  we don't want to touch that
-    if Name(se) = 'Record Header' then begin
-      if debug2 then LogMessage(depth+'Skipping record header.');
+    // skip alwaysSkip
+    if (Pos(ElementPath(se)+#13, alwaysSkip) > 0) then begin
+      if showSkips then LogMessage('    Skipping '+ElementPath(se));
       Inc(i);
       Inc(j);
       continue;
     end;
     
     // skip subrecordsToSkip
-    if ((subrecordMode = '0') and (Pos(Path(se), subrecords) > 0))
-    or ((subrecordMode = '1') and (Pos(Path(se), subrecords) = 0))
-    or ((global_subrecordMode = '0') and (Pos(Path(se), global_subrecords) > 0)) 
-    or ((global_subrecordMode = '1') and (Pos(Path(se), global_subrecords) = 0)) then begin
-      if debug2 then LogMessage(depth+'Skipping '+Path(se));
+    if ((subrecordMode = '0') and (Pos(Path(se)+#13, subrecords) > 0))
+    or ((subrecordMode = '1') and (Pos(Path(se)+#13, subrecords) = 0))
+    or ((global_subrecordMode = '0') and (Pos(Path(se)+#13, global_subrecords) > 0)) 
+    or ((global_subrecordMode = '1') and (Pos(Path(se)+#13, global_subrecords) = 0)) then begin
+      if showSkips then LogMessage('    Skipping '+Path(se));
       Inc(i);
       Inc(j);
       continue;
     end;
     
     // debug messages
-    if debug2 then LogMessage(depth+Path(se));
-    if debug3 then LogMessage(depth+'  ets: '+ets+'    dts: '+dts);
+    if showTraversal then LogMessage('    '+Path(se));
+    if showTypeStrings then LogMessage('    ets: '+ets+'  dts: '+dts);
     
     // if destination element doesn't match source element
     if Name(se) <> Name(de) then begin
       // proceed to next destination element
-      // because we copied all of the source elements to the destination already
       if (j < ElementCount(dst)) then
         Inc(j)
       else
@@ -324,15 +360,19 @@ begin
     // deal with general array cases
     if (ets = 'etSubRecordArray') or (dts = 'dtArray') then begin
       if IsSorted(se) then begin
-        if debug1 then LogMessage(depth+'Sorted array found: '+Path(se));
-        MergeSortedArray(me, se, de, dstrec, depth, ini);
+        if debugArrays then LogMessage('    Sorted array found: '+Path(se));
+        try
+          MergeSortedArray(me, se, de, dstrec, depth, ini);
+        except on x : Exception do
+          LogMessage('      !! Exception in MergeSortedArray : '+x.Message);
+        end;
       end
       else begin
-        if debug1 then LogMessage(depth+'Unsorted array found: '+Path(se));
+        if debugArrays then LogMessage('    Unsorted array found: '+Path(se));
         try 
           rcore(se, me, de, dstrec, depth + '    ', ini);
         except on x: Exception do begin
-            LogMessage(depth+' exception: '+x.Message);
+            LogMessage('      !! Exception: '+x.Message);
           end;
         end;
         //MergeUnsortedArray(me, se, de, dstrec, depth, ini);
@@ -340,11 +380,11 @@ begin
     end
     // else recurse deeper
     else if (ElementCount(se) > 0) and (dts <> 'dtInteger') then begin
-      if debug3 then LogMessage(depth+'Recursing deeper.');
+      if showTraversal then LogMessage('    Recursing deeper.');
       try 
         rcore(se, me, de, dstrec, depth + '    ', ini);
       except on x: exception do begin
-          LogMessage(depth+' exception: '+x.Message);
+          LogMessage('      !! Exception: '+x.Message);
         end;
       end;
     end
@@ -352,9 +392,9 @@ begin
     else if (dts = 'dtInteger') or (dts = 'dtFloat') or (dts = 'dtUnion') or (dts = 'dtByteArray')
     or (dts = 'dtString') or (dts = 'dtLString') or (dts = 'dtLenString') then begin
       if GetEditValue(se) <> GetEditValue(me) then begin
-        if debug1 then begin
-          if not debug2 then LogMessage(depth+Path(se));
-          LogMessage(depth+'  Found differing values: '+GetEditValue(se)+' and '+GetEditValue(me));
+        if (Assigned(me)) and showChanges then begin
+          if (not showTraversal) then LogMessage('    '+Path(se));
+          LogMessage('      > Found differing values: '+GetEditValue(se)+' and '+GetEditValue(me));
         end;
         SetEditValue(de, GetEditValue(se));
       end;
@@ -994,15 +1034,16 @@ begin
             continue;
           rn := Name(r);
           if (nbsOverrideCount(r) > 1) then
-            if slRecords.IndexOf(rn) = -1 then begin
-              slRecords.AddObject(rn, TObject(r));
-            end;
+            if (ConflictThisString(WinningOverride(r)) <> 'ctOverride') then
+              if slRecords.IndexOf(rn) = -1 then begin
+                slRecords.AddObject(rn, TObject(r));
+              end;
         end;
         Inc(k);
       end;
      
       // test list of records
-      if debug3 then begin
+      if listOverrides then begin
         LogMessage('');
         for i := 0 to slRecords.Count - 1 do begin
           r := ObjectToElement(slRecords.Objects[i]);
@@ -1039,29 +1080,32 @@ begin
       lbl.Caption := 'Smashing records (1/'+IntToStr(slRecords.Count)+')';
       application.processmessages;
       pb.Max := slRecords.Count;
-      if not debug1 then LogMessage('');
+      LogMessage('');
       for i := 0 to slRecords.Count - 1 do begin
+        if i = maxRecords then break;
         mr := nil;
         r := ObjectToElement(slRecords.Objects[i]);
         for j := 0 to OverrideCount(r) - 1 do begin
           ovr := OverrideByIndex(r, j);
           fn := GetFileName(GetFile(ovr));
           if (Pos(fn, bethesdaFiles) = 0) and (Pos('SmashedPatch', fn) = 0) then begin
-            if (not Assigned(mr)) and (not (ConflictThisString(ovr) = 'ctIdenticalToMaster')) then
-              mr := wbCopyElementToFile(ovr, smashFile, false, true)
-            else begin
+            if (not Assigned(mr)) and (not (ConflictThisString(ovr) = 'ctIdenticalToMaster')) then begin
               try
-                ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[slFiles.IndexOf(fn)])]);
-              except on x : Exception do
-                LogMessage('Setting lookup exception : '+x.Message);
+                mr := wbCopyElementToFile(WinningOverride(ovr), smashFile, false, true);
+              except on x: Exception do
+                LogMessage('      !! Exception copying record '+slRecords[i]+' : '+x.Message);
               end;
-              if debug1 then LogMessage('');
-              LogMessage('Smashing record '+slRecords[i]+' from file: '+fn);
-              try
-                rcore(ovr, r, mr, mr, '    ', ini); // recursively copy overriden elements
-              except on x : Exception do
-                LogMessage('Exception smashing record '+slRecords[i]+' : '+x.Message);
-              end;
+            end;
+            try
+              ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[slFiles.IndexOf(fn)])]);
+            except on x : Exception do
+              LogMessage('Setting lookup exception : '+x.Message);
+            end;
+            LogMessage(#13#10'Smashing record '+slRecords[i]+' from file: '+fn);
+            try
+              rcore(ovr, r, mr, mr, '    ', ini); // recursively copy overriden elements
+            except on x : Exception do
+              LogMessage('    !! Exception smashing record '+slRecords[i]+' : '+x.Message);
             end;
           end;
         end;
