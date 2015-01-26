@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.13
+  Merge Plugins Script v1.8.14
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.13
+  v1.8.14
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -68,6 +68,13 @@
     correct any issues with merging into existing files with two-pass copying.
   - Fixed issue with script closing the progress bar/log window when an exception
     occurs instead of leaving it open.
+  - Fixed issue with Renumbering FormIDs where incorrect FormIDs were being 
+    added to the OldForms and NewForms stringlists (which affected FormLists).
+  - More robust approach to TempPath, will now try to use a secondary path if
+    DirectoryExists(TempPath) returns false after using ForceDirectories(TempPath),
+    and will terminate the script if the secondary path fails as well.
+  - Added PluginForm, which can be viewed by clicking a plugin label in the main 
+    MergeForm.  This form shows more details on reports on a particular plugin.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -93,7 +100,7 @@ var
   slTranslations, slCopiedFrom, batch: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp, rCount: integer;
-  moPath, astPath, bsaName: string;
+  moPath, astPath, bsaName, temp: string;
   SkipProcess, disableColoring, extractBSAs, disableESPs, 
   usingMo, copyAll, firstRun, batCopy: boolean;
   mgf: IInterface;
@@ -110,6 +117,8 @@ var
   ed1, ed2: TEdit;
   imgBrowse1, imgBrowse2, imgBrowse3: TImage;
   NextObjectID: cardinal;
+  Records: array [0..$FFFFFF] of IInterface;
+  UsedFormIDs: array [0..$FFFFFF] of byte;
  
  
 {*************************************************************************}
@@ -187,6 +196,21 @@ begin
       Result := slDictionary[i];
       break;
     end;
+  end;
+end;
+
+//=========================================================================
+// GetAllDefinitions: gets all definition for the file from the dictionary
+function GetAllDefinitions(f: IInterface): string;
+var
+  i: integer;
+  search: string;
+begin
+  Result := '';
+  search := GetFileName(f) + ';';
+  for i := 0 to Pred(slDictionary.Count) do begin
+    if Pos(search, slDictionary[i]) = 1 then
+      Result := Result + slDictionary[i] + ';';
   end;
 end;
 
@@ -918,6 +942,83 @@ begin
 end;
 
 //=========================================================================
+// PluginForm: Provides user with information on a specific plugin
+procedure PluginForm(Sender: TObject);
+var
+  pfrm: TForm;
+  fn: string;
+  lbl: TLabel;
+  sb: TScrollBox;
+  pnl: TPanel;
+  btnOk: TButton;
+  f: IInterface;
+  slDefinitions: TStringList;
+  definitions: string;
+  i, j: integer;
+begin
+  fn := TLabel(Sender).Caption;
+  fn := Copy(fn, Pos(']', fn) + 3, Length(fn));
+  
+  f := FileByName(fn);
+  if not Assigned(f) then exit;
+  pfrm := TForm.Create(nil);
+  try
+    pfrm.Caption := fn+' info';
+    pfrm.Width := 425;
+    pfrm.Height := 450;
+    pfrm.Position := poScreenCenter;
+    
+    // construct labels
+    lbl := ConstructLabel(pfrm, pfrm, 8, 8, 0, 300, 'Filename: '+fn);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
+      'Records in plugin: '+IntToStr(RecordCount(f)));
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
+      'Script version: '+vs);
+    lbl.ShowHint := true;
+    lbl.Hint := 'The version of the Merge Plugins script you''re using.';
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
+      'Reports: ');
+    
+    sb := TScrollBox.Create(pfrm);
+    sb.Parent := pfrm;
+    sb.Top := lbl.Top + lbl.Height + 16;
+    sb.Align := alBottom;
+    sb.Height := 320;
+    
+    slDefinitions := TStringList.Create;
+    slDefinitions.StrictDelimiter := true;
+    slDefinitions.Delimiter := ';';
+    definitions := GetAllDefinitions(f);
+    slDefinitions.DelimitedText := definitions;
+    
+    // construct report labels
+    lbl := TLabel.Create(pfrm);
+    lbl.Top := 0;
+    lbl.Height := 0;
+    i := 0;
+    while i + 6 <= slDefinitions.Count - 1 do begin
+      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 12, 8, 0, 360, 
+        'Filename:   '+slDefinitions[i]);
+      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Number of records:   '+slDefinitions[i+1]);
+      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Script version:   '+slDefinitions[i+2]);
+      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Average rating:   '+slDefinitions[i+3]);
+      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Number of reports:   '+slDefinitions[i+4]);
+      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Notes:'#13'    '+ StringReplace(slDefinitions[i+5], '@13', #13'    ', [rfReplaceall]));
+      i := i + 6;
+    end;
+    
+    pfrm.ShowModal;
+  finally
+    pfrm.Free;
+  end;
+end;
+
+//=========================================================================
 // MergeForm: Provides user with options for merging
 procedure MergeForm;
 var
@@ -930,7 +1031,7 @@ var
   i, j, k, height, m: integer;
   holder: TObject;
   masters, e, f: IInterface;
-  s, definition: string;
+  s, definition, hint: string;
   slDefinition: TStringList;
 begin
   LoadSettings;
@@ -983,15 +1084,16 @@ begin
       if (definition = '') then definition := GetDefinition(FileByIndex(i), true, false);
       if (definition = '') then definition := GetDefinition(FileByIndex(i), false, false);
       slDefinition.DelimitedText := definition;
+      hint := GetDefinitionHint(slDefinition);
       
       // set up checkbox
       cbArray[i] := TCheckBox.Create(holder);
       cbArray[i].Parent := holder;
       cbArray[i].Left := 24;
       cbArray[i].Top := 40 + j;
-      cbArray[i].Width := 350;
+      cbArray[i].Width := 40;
       cbArray[i].ShowHint := true;
-      cbArray[i].Hint := GetDefinitionHint(slDefinition);
+      cbArray[i].Hint := hint;
         
       if (slSelectedFiles.IndexOf(s) > - 1) then 
         cbArray[i].Checked := True;
@@ -1002,6 +1104,9 @@ begin
       lbArray[i].Left := 44;
       lbArray[i].Top := cbArray[i].Top;
       lbArray[i].Caption := '  [' + IntToHex64(i + 1, 2) + ']  ' + s;
+      lbArray[i].OnClick := PluginForm; 
+      lbArray[i].ShowHint := true;
+      lbArray[i].Hint := hint;
       if not disableColoring then begin
         lbArray[i].Font.Color := GetMergeColor(slDefinition);
         if slDefinition.Count > 5 then
@@ -1159,8 +1264,8 @@ begin
   if (modPath <> '') and (slCopiedFrom.IndexOf(modPath) = -1) then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
-    ignore.SavetoFile(TempPath+'exclude.txt');
-    if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:'+TempPath+'exclude.txt')
+    ignore.SavetoFile(temp+'exclude.txt');
+    if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:'+temp+'exclude.txt')
     else CopyDirectory(modPath, astPath, ignore, debug);
   end;
   
@@ -1184,7 +1289,7 @@ begin
   
   // prepare destination
   dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
-  dstPath := StringReplace(dstPath, TempPath, astPath, [rfReplaceAll]);
+  dstPath := StringReplace(dstPath, temp, astPath, [rfReplaceAll]);
   ForceDirectories(dstPath);
   
   // copy all assets
@@ -1243,7 +1348,7 @@ begin
   
   // prepare destination
   dstPath := StringReplace(path + GetFileName(mgf) + '\', DataPath, astPath, [rfReplaceAll]);
-  dstPath := StringReplace(dstPath, TempPath, astPath, [rfReplaceAll]);
+  dstPath := StringReplace(dstPath, temp, astPath, [rfReplaceAll]);
   ForceDirectories(dstPath);
   
   // copy subfolders and their contents
@@ -1357,6 +1462,35 @@ begin
 end;
 
 //=========================================================================
+// CopyFileSpecificAssets: performs all file specific asset copying
+procedure CopyFileSpecificAssets(i: integer);
+begin
+  // extract assets from BSAs if necessary
+  if (Pos('.esp', slMerge[i]) > 0) then
+    bsaName := StringReplace(slMerge[i], '.esp', '.bsa', [rfReplaceAll]);
+  if (Pos('.esm', slMerge[i]) > 0) then
+    bsaName := StringReplace(slMerge[i], '.esm', '.bsa', [rfReplaceAll]);
+  if (Pos('.bsa', bsaName) > 0) and FileExists(DataPath + bsaName) then begin
+    ExtractPathBSA(DataPath + bsaName, temp, 'textures\actors\character\facegendata\facetint\');
+    ExtractPathBSA(DataPath + bsaName, temp, 'meshes\actors\character\facegendata\facegeom\');
+    ExtractPathBSA(DataPath + bsaName, temp, 'sound\voice');
+    ExtractPathBSA(DataPath + bsaName, temp, 'interface\translations\');
+  end;
+  
+  // copy loose File/FormID specific assets
+  CopyActorAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
+  CopyActorAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
+  CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
+  CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
+  
+  // copy archived File/FormID specific assets
+  CopyActorAssets(temp + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
+  CopyActorAssets(temp + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
+  CopyVoiceAssets(temp + 'Sound\Voice\', i); // copy voice assets
+  CopyTranslations(temp + 'Interface\Translations\', i); // copy MCM translation files
+end;
+
+//=========================================================================
 // CopyElement: copies an element to the merged file
 procedure CopyElement(e: IInterface; remove: boolean);
 var
@@ -1452,6 +1586,7 @@ begin
     f := FileByLoadOrder(Integer(slMerge.Objects[i]));
     for j := 0 to RecordCount(f) - 1 do begin
       e := RecordByIndex(f, j);
+      // exclude override records, include injected records
       if not Equals(e, MasterOrSelf(e)) then Continue;
       x := FileFormID(e);
       if x > Result then Result := x;
@@ -1460,154 +1595,51 @@ begin
   
   // check merge file for a higher form ID
   for i := 0 to RecordCount(mgf) - 1 do begin
-    if not Equals(e, MasterOrSelf(e)) then Continue;
     e := RecordByIndex(mgf, i);
+    // exclude override records, include injected records
+    if not Equals(e, MasterOrSelf(e)) then Continue;
     x := FileFormID(e);
     if x > Result then Result := x;
   end;
 end;
 
 //=========================================================================
-// CopyFileSpecificAssets: performs all file specific asset copying
-procedure CopyFileSpecificAssets(i: integer);
+// RenumberRecord: renumbers a record
+procedure RenumberRecord(e: IInterface; NewFormID: Cardinal);
+var
+  OldFormID, prc: Cardinal;
 begin
-  // extract assets from BSAs if necessary
-  if (Pos('.esp', slMerge[i]) > 0) then
-    bsaName := StringReplace(slMerge[i], '.esp', '.bsa', [rfReplaceAll]);
-  if (Pos('.esm', slMerge[i]) > 0) then
-    bsaName := StringReplace(slMerge[i], '.esm', '.bsa', [rfReplaceAll]);
-  if (Pos('.bsa', bsaName) > 0) and FileExists(DataPath + bsaName) then begin
-    ExtractPathBSA(DataPath + bsaName, TempPath, 'textures\actors\character\facegendata\facetint\');
-    ExtractPathBSA(DataPath + bsaName, TempPath, 'meshes\actors\character\facegendata\facegeom\');
-    ExtractPathBSA(DataPath + bsaName, TempPath, 'sound\voice');
-    ExtractPathBSA(DataPath + bsaName, TempPath, 'interface\translations\');
+  OldFormID := GetLoadOrderFormID(e);
+  // change references, then change form
+  prc := 0;
+  while ReferencedByCount(e) > 0 do begin
+    if prc = ReferencedByCount(e) then break;
+    prc := ReferencedByCount(e);
+    CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
   end;
-  
-  // copy loose File/FormID specific assets
-  CopyActorAssets(DataPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
-  CopyActorAssets(DataPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
-  CopyVoiceAssets(DataPath + 'Sound\Voice\', i); // copy voice assets
-  CopyTranslations(DataPath + 'Interface\Translations\', i); // copy MCM translation files
-  
-  // copy archived File/FormID specific assets
-  CopyActorAssets(TempPath + 'Textures\Actors\Character\FacegenData\facetint\', i); // copy actor textures
-  CopyActorAssets(TempPath + 'Meshes\actors\character\facegendata\facegeom\', i); // copy actor meshes
-  CopyVoiceAssets(TempPath + 'Sound\Voice\', i); // copy voice assets
-  CopyTranslations(TempPath + 'Interface\Translations\', i); // copy MCM translation files
+  SetLoadOrderFormID(e, NewFormID);
 end;
 
-// ========================================================================
+//=========================================================================
 // RenumberConflicting: renumber only conflicting FormIDs.
 procedure RenumberConflicting(pb: TProgressBar);
 var
-  i, j, k, rc, pre: integer;
-  HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Cardinal;
+  i, j, k, rc, pre, ndx: integer;
+  HighestFormID, NewFormID, BaseFormID, offset: Cardinal;
   e, f: IInterface;
-  Records: array [0..$FFFFFF] of IInterface;
   self: boolean;
   loadFormID, fileFormID: String;
   slAllForms: TStringList;
 begin
   pb.Position := 1;
-  slAllForms := TStringList.Create;
   LogMessage(#13#10+'Renumbering conflicting FormIDs before merging...');
   
-  // add formIDs from merge file to slAllForms
+  // add formIDs from merge file to UsedFormIDs
   for i := 0 to RecordCount(mgf) - 1 do begin
     e := RecordByIndex(mgf, i);
     if not (IsLocalRecord(e)) then Continue;
-    slAllForms.Add('00' + Copy(HexFormID(e), 3, 6));
+    UsedFormIDs[FileFormID(e)] := 1;
   end;
-  
-  // find a safe NewFormID to start at
-  HighestFormID := FindHighestFormID();
-  BaseFormID := HighestFormID + 1024;
-  
-  // form id renumbering for each file
-  for i := 0 to slMerge.Count - 1 do begin
-    f := FileByLoadOrder(Integer(slMerge.Objects[i]));
-    RC := RecordCount(f) - 1;
-    LogMessage('    Renumbering records in file '+GetFileName(f));
-    OldForms.Add(TStringList.Create);
-    NewForms.Add(TStringList.Create);
-    
-    // create records array for file because the indexed order of records changes as we alter their formIDs
-    for j := 0 to RC do
-      Records[j] := RecordByIndex(f, j);
-    
-    // set newformID to use the load order of the file currently being processed.
-    offset := Integer(slMerge.Objects[i]) * 16777216;
-    NewFormID := BaseFormID + offset;
-
-    // renumber the records in the file
-    for j := 0 to RC do begin
-      e := Records[j];
-      // skip header record
-      if (Signature(e) = 'TES4') then Continue;
-      
-      // skip non-file records (overwrite and injected)
-      if not (IsLocalRecord(e)) then begin
-        TStringList(OldForms[i]).Add(loadFormID);
-        TStringList(NewForms[i]).Add(loadFormID);
-        Continue;
-      end;
-      
-      loadFormID := HexFormID(e);
-      OldFormID := StrToInt64('$' + loadFormID);
-      fileFormID := '00' + Copy(loadFormID, 3, 6);
-      // if not conflicting FormID, add to list and continue.
-      if (slAllForms.IndexOf(fileFormID) = -1) then begin
-        slAllForms.Add(fileFormID);
-        TStringList(OldForms[i]).Add(loadFormID);
-        TStringList(NewForms[i]).Add(loadFormID);
-        Continue;
-      end
-      // else renumber it
-      else begin
-        // print log message first, then change references, then change form
-        if debugRenumbering then 
-          LogMessage(Format('        Changing FormID to [%s] on %s', 
-          [IntToHex64(NewFormID, 8), SmallName(e)]));
-        prc := 0;
-        while ReferencedByCount(e) > 0 do begin
-          if prc = ReferencedByCount(e) then break;
-          prc := ReferencedByCount(e);
-          CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
-        end;
-        SetLoadOrderFormID(e, NewFormID);
-        TStringList(OldForms[i]).Add(fileFormID);
-        TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
-        
-        Inc(rCount);
-        // increment formid
-        Inc(BaseFormID);
-        Inc(NewFormID);
-      end;
-    end;
-    
-    // copy file specific assets
-    CopyFileSpecificAssets(i);
-    
-    pb.Position := pb.Position + 29/slMerge.Count;
-  end;
-  NextObjectID := BaseFormID + 1;
-  SaveTranslations(DataPath + 'Interface\Translations\');
-  slAllForms.Free;
-end;
-
-//=========================================================================
-// RenumberOld: the old renumbering method, pre 3.0.33
-procedure RenumberOld(pb: TProgressBar);
-var
-  i, j, k, rc, pre: integer;
-  HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Int64;
-  e, f: IInterface;
-  Records: array [0..$FFFFFF] of IInterface;
-  self: boolean;
-  loadFormID, fileFormID: String;
-begin
-  pb.Position := 1;
-  LogMessage(#13#10+'Renumbering FormIDs before merging...');
   
   // find a safe NewFormID to start at
   HighestFormID := FindHighestFormID();
@@ -1625,44 +1657,51 @@ begin
     // as we alter their formIDs
     for j := 0 to RC do
       Records[j] := RecordByIndex(f, j);
-      
-    // set newformID to use the load order of the file currently being processed.
-    offset := Integer(slMerge.Objects[i]) * 16777216;
-    NewFormID := BaseFormID + offset;
     
+    // set newformID to use the load order of the file currently being processed.
+    offset := Integer(slMerge.Objects[i]) * $01000000;
+    NewFormID := BaseFormID + offset;
+
     // renumber the records in the file
     for j := 0 to RC do begin
       e := Records[j];
+      // skip header record
       if (Signature(e) = 'TES4') then Continue;
       
-      // skip non-file records (overwrite and injected)
+      // prepare variables
+      loadFormID := HexFormID(e);
+      fileFormID := '00' + Copy(loadFormID, 3, 6);
+      ndx := StrToInt('$' + fileFormID);
+      
+      // skip non-file records (override and injected)
       if not (IsLocalRecord(e)) then begin
+        UsedFormIDs[ndx] := 1;
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
       end;
       
-      // print log message first, then change references, then change form
-      loadFormID := HexFormID(e);
-      OldFormID := StrToInt64('$' + loadFormID);
-      fileFormID := '00' + Copy(loadFormID, 3, 6);
-      if debugRenumbering then 
-        LogMessage(Format('        Changing FormID to [%s] on %s', 
-        [IntToHex64(NewFormID, 8), SmallName(e)]));
-      prc := 0;
-      while ReferencedByCount(e) > 0 do begin
-        if prc = ReferencedByCount(e) then break;
-        prc := ReferencedByCount(e);
-        CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
+      // if not conflicting FormID, add to list and continue.
+      if (UsedFormIDs[ndx] = 0) then begin
+        UsedFormIDs[ndx] := 1;
+        TStringList(OldForms[i]).Add(loadFormID);
+        TStringList(NewForms[i]).Add(loadFormID);
+        Continue;
+      end
+      // else renumber it
+      else begin
+        if debugRenumbering then 
+          LogMessage(Format('        Changing FormID to [%s] on %s', 
+            [IntToHex64(NewFormID, 8), SmallName(e)]));
+        RenumberRecord(e, NewFormID);
+        TStringList(OldForms[i]).Add(fileFormID);
+        TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
+        
+        Inc(rCount);
+        // increment formid
+        Inc(BaseFormID);
+        Inc(NewFormID);
       end;
-      SetLoadOrderFormID(e, NewFormID);
-      TStringList(OldForms[i]).Add(fileFormID);
-      TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
-      
-      Inc(rCount);
-      // increment formid
-      Inc(BaseFormID);
-      Inc(NewFormID);
     end;
     
     // copy file specific assets
@@ -1676,12 +1715,11 @@ end;
 
 //=========================================================================
 // RenumberNew: the new renumbering method, for 3.033 and above
-procedure RenumberNew(pb: TProgressBar);
+procedure RenumberAll(pb: TProgressBar);
 var
   i, j, k, rc, pre: integer;
   HighestFormID, OldFormID, NewFormID, BaseFormID, offset, x, prc: Cardinal;
   e, f: IInterface;
-  Records: array [0..$FFFFFF] of IInterface;
   self: boolean;
   fileFormID, loadFormID: String;
 begin
@@ -1706,7 +1744,7 @@ begin
       Records[j] := RecordByIndex(f, j);
       
     // set newformID to use the load order of the file currently being processed.
-    offset := Integer(slMerge.Objects[i]) * 16777216;
+    offset := Integer(slMerge.Objects[i]) * $01000000;
     NewFormID := BaseFormID + offset;
     
     // renumber the records in the file
@@ -1714,7 +1752,11 @@ begin
       e := Records[j];
       if (Signature(e) = 'TES4') then Continue;
       
-      // skip non-file records (overwrite and injected)
+      // prepare variables
+      loadFormID := HexFormID(e);
+      fileFormID := '00' + Copy(loadFormID, 3, 6);
+      
+      // skip non-file records (override and injected)
       if not (IsLocalRecord(e)) then begin
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
@@ -1722,19 +1764,11 @@ begin
       end;
       
       // print log message first, then change references, then change form
-      loadFormID := HexFormID(e);
       OldFormID := GetLoadOrderFormID(e);
-      fileFormID := '00' + Copy(loadFormID, 3, 6);
       if debugRenumbering then 
         LogMessage(Format('        Changing FormID to [%s] on %s', 
         [IntToHex64(NewFormID, 8), SmallName(e)]));
-      prc := 0;
-      while ReferencedByCount(e) > 0 do begin
-        if prc = ReferencedByCount(e) then break;
-        prc := ReferencedByCount(e);
-        CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
-      end;
-      SetLoadOrderFormID(e, NewFormID);
+      RenumberRecord(e, NewFormID);
       TStringList(OldForms[i]).Add(fileFormID);
       TStringList(NewForms[i]).Add(IntToHex64(NewFormID, 8));
       
@@ -1800,8 +1834,19 @@ begin
   browse := TPicture.Create;
   browse.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\browse.png');
   
-  // force TempPath folder to exist
-  ForceDirectories(TempPath);
+  // set up temporary directory
+  temp := TempPath;
+  ForceDirectories(temp);
+  if not DirectoryExists(temp) then begin
+    AddMessage('Couldn''t force TempPath directory ( '+temp+' ) to exist.');
+    temp := ScriptsPath + '\mp\temp';
+    AddMessage('Using '+temp+' instead.');
+    ForceDirectories(temp);
+    if not DirectoryExists(temp) then begin
+      AddMessage('Failed to force backup temporary directory to exist.  The script will now terminate.');
+      SkipProcess := true;
+    end;
+  end;
   
   // process only file elements
   try 
@@ -1851,20 +1896,11 @@ begin
   except on Exception do
     ;// nothing
   end;
-  if k = 0 then begin
-    AddMessage('This version of xEdit is out of date, you must update it to use this '+
-      'script!'+#13#10);
-    FreeMemory;
-    exit;
-  end;
-  
-  // if 128 or more files loaded, alert user and terminate script
-  // unless version is 3.0.33 or newer
-  if (FileCount >= 128) and (k < 50340096) then begin
-    AddMessage('You cannot load 128 or more plugins into this version of TES5Edit '+
-      'when Merging Plugins.');
-    AddMessage('Please reopen TES5Edit and select 127 or fewer plugins to load, or '+
-      'download and use TES5Edit 3.0.33.'+#13#10);
+  // terminate script unless version is 3.0.33 or newer
+  if (k < 50340096) then begin
+    AddMessage('This version of xEdit is out of date, you must update it to use this script!');
+    AddMessage('You can get the latest version at: ');
+    AddMessage('http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/' );
     FreeMemory;
     exit;
   end;
@@ -1983,17 +2019,12 @@ begin
      
     // renumber forms in files to be merged
     rCount := 0;
-    if (rn = 2) and (k >= 50340096) then begin
+    if (rn = 2) then begin
       lbl.Caption := 'Renumbering All FormIDs...';
-      RenumberNew(pb);
+      RenumberAll(pb);
       LogMessage('    '+IntToStr(rCount)+' records renumbered.');
     end
-    else if (rn = 2) and (FileCount < 128) then begin
-      lbl.Caption := 'Renumbering All FormIDs...';
-      RenumberOld(pb);
-      LogMessage('    '+IntToStr(rCount)+' records renumbered.');
-    end
-    else if (rn = 1) and (k >= 50340096) then begin
+    else if (rn = 1) then begin
       lbl.Caption := 'Renumbering conflicting FormIDs...';
       RenumberConflicting(pb);
       LogMessage('    '+IntToStr(rCount)+' records renumbered.');
@@ -2203,7 +2234,7 @@ begin
       LogMessage('It''s also important that you don''t close TES5Edit until the asset copying is completed.');
       LogMessage(#13#10#13#10);
       memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
-      bfn := TempPath+'\merge_'+
+      bfn := temp+'\merge_'+
         StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+'_'+
         StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.bat';
       batch.SaveToFile(bfn);
@@ -2232,6 +2263,18 @@ begin
   frm.Free;
   // free memory
   FreeMemory;
+  // clear temp folder if it's not = to TempPath
+  if temp <> TempPath then begin
+    try 
+      if not DeleteDirectory(temp, true) then begin
+        AddMessage(#13#10'Failed to delete Temporary Directory.');
+        AddMessage('After the script is done, please delete '+temp);
+      end;
+    except on x : Exception do
+      AddMessage(#13#10'Failed to delete Temporary Directory.');
+      AddMessage('After the script is done, please delete '+temp);
+    end;
+  end;
   // return hinthidepasue to default value
   Application.HintHidePause := 1000;
   // call RemoveFilter() to update TES5Edit GUI
@@ -2240,8 +2283,9 @@ begin
   except on Exception do
     AddMessage(#13#10'You''re not using the latest version of xEdit, so the script couldn''t update the GUI.');
     AddMessage('Right click in the plugin view and click "Remove Filter" to update the GUI manually.');
+    AddMessage('You can get the latest version at: ');
+    AddMessage('http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/' );
   end;
 end;
-
 
 end.

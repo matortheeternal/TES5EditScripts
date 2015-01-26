@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/21/2015
+  edited 1/25/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -56,6 +56,14 @@
   - [slev]: SetListEditValues shortened function name.
   - [slnv]: SetListNativeValues shortened function name.
   - [gav]: GetAllValues returns a string of all of the values in an element.
+  - [IsD]: GetIsDeleted shortened function name.
+  - [IsID]: GetIsInitiallyDisabled shortened function name.
+  - [IsP]: GetIsPersistent shortened function name.
+  - [IsVWD]: GetIsVisibleWhenDistant shortened function name.
+  - [SetD]: SetIsDeleted shortened function name.
+  - [SetID]: SetIsInitiallyDisabled shortened function name.
+  - [SetP]: SetIsPersistent shortened function name.
+  - [SetVWD]: SetIsVisibleWhenDistant shortened function name.
   - [HasKeyword]: checks if a record has a keyword matching the input EditorID.
   - [HasItem]: checks if a record has an item matching the input EditorID.
   - [HasPerkCondition]: checks if a record has a perk condition for a perk matching the
@@ -1126,6 +1134,78 @@ begin
 end;
 
 {
+  IsD:
+  GetIsDeleted shortened function name.
+}
+function IsD(e: IInterface): boolean;
+begin
+  Result := GetIsDeleted(e);
+end;
+
+{
+  IsID:
+  GetIsInitiallyDisabled shortened function name.
+}
+function IsID(e: IInterface): boolean;
+begin
+  Result := GetIsInitiallyDisabled(e);
+end;
+
+{
+  IsP:
+  GetIsPersistent shortened function name.
+}
+function IsP(e: IInterface): boolean;
+begin
+  Result := GetIsPersistent(e);
+end;
+
+{
+  IsVWD:
+  GetIsVisibleWhenDistant shortened function name.
+}
+function IsVWD(e: IInterface): boolean;
+begin
+  Result := GetIsVisibleWhenDistant(e);
+end;
+
+{
+  SetD:
+  SetIsDeleted shortened function name.
+}
+procedure SetD(e: IInterface; b: boolean);
+begin
+  SetIsDeleted(e, b);
+end;
+
+{
+  SetID:
+  SetIsInitiallyDisabled shortened function name.
+}
+procedure SetID(e: IInterface; b: boolean);
+begin
+  SetIsInitiallyDisabled(e, b);
+end;
+
+{
+  SetP:
+  SetIsPersistent shortened function name.
+}
+procedure SetP(e: IInterface; b: boolean);
+begin
+  SetIsPersistent(e, b);
+end;
+
+{
+  SetVWD:
+  SetIsVisibleWhenDistant shortened function name.
+}
+procedure SetVWD(e: IInterface; b: boolean);
+begin
+  SetIsVisibleWhenDistant(e, b);
+end;
+
+{
   HasKeyword:
   Checks if an input record has a keyword matching the input EditorID.
   
@@ -1691,19 +1771,22 @@ end;
   A function which can be used to make a label.  Used to make code more compact.
   
   Example usage:
-  lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 360, 'Reference removal options:');
+  lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 360, 0, 'Reference removal options:');
 }
-function ConstructLabel(h: TObject; p: TObject; top: Integer; left: Integer; width: Integer; height: Integer; s: String): TLabel;
+function ConstructLabel(h: TObject; p: TObject; 
+  top, left, height, width: Integer; s: String): TLabel;
 var
   lb: TLabel;
 begin
+  //AddMessage('ConstructLabel('+IntToStr(top)+','+IntToStr(left)+','
+  //  +IntToStr(height)+','+IntToStr(width)+','+s+')');
   lb := TLabel.Create(h);
   lb.Parent := p;
   lb.Top := top;
   lb.Left := left;
-  lb.Width := width;
-  if (height > 0) then
-    lb.Height := height;
+  lb.WordWrap := true;
+  if height > 0 then lb.Height := height;
+  if width > 0 then lb.Width := width;
   lb.Caption := s;
   
   Result := lb;
@@ -1716,7 +1799,8 @@ end;
   Example usage:
   cb1 := ConstructButton(frm, pnlBottom, 8, 8, 160, 'OK');
 }
-function ConstructButton(h: TObject; p: TObject; top: Integer; left: Integer; width: Integer; s: String): TButton;
+function ConstructButton(h: TObject; p: TObject; 
+  top, left, height, width: Integer; s: String): TButton;
 var
   btn: TButton;
 begin
@@ -1724,8 +1808,8 @@ begin
   btn.Parent := p;
   btn.Top := top;
   btn.Left := left;
-  if (width > 0) then
-    btn.Width := width;
+  if height > 0 then btn.Height := height;
+  if width > 0 then btn.Width := width;
   btn.Caption := s;
   
   Result := btn;
