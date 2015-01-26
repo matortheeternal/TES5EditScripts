@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.14
+  Merge Plugins Script v1.8.15
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.14
+  v1.8.15
   - Internal logging now used instead of TES5Edit logging.  Some TES5Edit
     log messages will still be used.  Logs are automatically saved to a
     text document in Edit Scripts/mp/logs/merge_<date>_<time>.txt.  The
@@ -75,6 +75,10 @@
     and will terminate the script if the secondary path fails as well.
   - Added PluginForm, which can be viewed by clicking a plugin label in the main 
     MergeForm.  This form shows more details on reports on a particular plugin.
+  - Massive fix, the Duplicate FormID errors that came up when copying CELL/WRLD
+    records have been fixed.  The fix is kind of ugly right now, but it should
+    result in working merged plugins.  A cleaner fix would require a direct change
+    to how wbCopyElementToFile works in the xEdit binary.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -94,6 +98,7 @@ const
   debugRenumbering = false;
   debugAssetCopying = false;
   debugSearch = false;
+  pFlag = 'Record Header\Record Flags\PersistentReference QuestItem DisplaysInMainMenu';
 
 var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
@@ -1492,10 +1497,18 @@ end;
 
 //=========================================================================
 // CopyElement: copies an element to the merged file
-procedure CopyElement(e: IInterface; remove: boolean);
+function CopyElement(e: IInterface; remove: boolean): boolean;
 var
   cr: IInterface;
 begin
+  Result := false;
+  // records that fulfill the conditions below throw a duplicate formID
+  // error when copied
+  if (geev(e, pFlag) = '1') and (geev(WinningOverride(e), pFlag) = '') then begin
+    //AddMessage('Skipping '+Name(e));
+    exit;
+  end;
+  
   // correct Tamriel camera data
   if (geev(e, 'EDID') = 'Tamriel') then begin
     Remove(ElementByPath(e, 'MNAM'));
@@ -1516,10 +1529,14 @@ begin
     if debug then LogMessage('        Copying '+SmallName(e));
     Inc(rCount);
     if remove then RemoveNode(cr);
+    Result := true;
   except
     on x : Exception do begin
-      LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
-      slFails.Add(FullPath(e)+'; '+x.Message);
+      Result := false;
+      if not Pos('Duplicate FormID', x.Message) = 1 then begin
+        LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
+        slFails.Add(FullPath(e)+'; '+x.Message);
+      end;
     end;
   end;
 end;
@@ -1539,7 +1556,7 @@ begin
 end;
 
 //=========================================================================
-// MergeIntelligently: merges by copying records, skipping records in group records
+// MergeIntelligently: merges by not copying group records
 procedure MergeIntelligently(g: IInterface; remove: boolean);
 var
   i: integer;
@@ -1549,8 +1566,10 @@ begin
     e := ElementByIndex(g, i);
     if Signature(e) = 'TES4' then Continue;
     if Signature(e) = 'GRUP' then begin
-      if Pos('GRUP Cell', Name(e)) = 1 then CopyElement(e, remove) else 
-      if Pos('GRUP Exterior Cell', Name(e)) = 1 then CopyElement(e, remove) 
+      if (Pos('GRUP Cell', Name(e)) = 1) or (Pos('GRUP Exterior Cell', Name(e)) = 1) then begin
+        if not CopyElement(e, remove) then
+        MergeIntelligently(e, remove);
+      end
       else MergeIntelligently(e, remove);
     end
     else CopyElement(e, remove);

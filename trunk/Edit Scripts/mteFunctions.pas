@@ -36,6 +36,8 @@
     resulting string.
   - [GetChar]: Gets a character in a string and returns it.
   - [FileByName]: gets a file from a filename.
+  - [OverrideByFile]: gets the override for a particular record in a particular file,
+    if it exists.
   - [OverrideRecordCount]: gets the number of override records in a file or record group.
   - [GetRecords]: adds the records in a file or group to a stringlist.
   - [GroupSignature]: gets the signature of a group record.
@@ -737,6 +739,30 @@ begin
   for i := 0 to FileCount - 1 do begin
     if GetFileName(FileByIndex(i)) = s then begin
       Result := FileByIndex(i);
+      break;
+    end;
+  end;
+end;
+
+{
+  OverrideByFile:
+  
+  Example usage:
+  ovr := OverrideByFile(record, aFile);
+  if Assigned(ovr) then 
+    AddMessage('Found override for '+Name(record)+' in file '+GetFileName(aFile));
+}
+function OverrideByFile(e, f: IInterface): IInterface;
+var
+  i: Integer;
+  ovr: IInterface;
+begin
+  Result := nil;
+  e := MasterOrSelf(e);
+  for i := 0 to OverrideCount(e) - 1 do begin
+    ovr := OverrideByIndex(e, i);
+    if Equals(GetFile(ovr), f) then begin
+      Result := ovr;
       break;
     end;
   end;
