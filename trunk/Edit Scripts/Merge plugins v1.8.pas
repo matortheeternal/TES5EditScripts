@@ -79,6 +79,9 @@
     records have been fixed.  The fix is kind of ugly right now, but it should
     result in working merged plugins.  A cleaner fix would require a direct change
     to how wbCopyElementToFile works in the xEdit binary.
+  - If there are no files to be copied, the batch copy messages will not be printed
+    to the log and the script won't stop at the end to wait for batch copying to 
+    complete (because there is no batch copying happening).
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1533,7 +1536,8 @@ begin
   except
     on x : Exception do begin
       Result := false;
-      if not Pos('Duplicate FormID', x.Message) = 1 then begin
+      if (not Pos('Duplicate FormID', x.Message) = 1) 
+      and (Signature(e) <> 'GRUP') then begin
         LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
         slFails.Add(FullPath(e)+'; '+x.Message);
       end;
@@ -2245,7 +2249,7 @@ begin
     memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
     
     // perform batch copy
-    if batCopy then begin
+    if batCopy and (batch.Count > 0) then begin
       ShowDetails;
       Application.processmessages;
       LogMessage('Batch copying is enabled, so asset copying will now be performed in a cmd window.');
