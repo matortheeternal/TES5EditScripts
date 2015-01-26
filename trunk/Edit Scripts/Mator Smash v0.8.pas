@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.5
+  Mator Smash v0.8.6
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,11 +11,9 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.8.5';
+  vs = 'v0.8.6';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
-  alwaysSkip = 'Record Header\Data Size'#13'Record Header\Version Control Info 1'#13
-    'Record Header\Version Control Info 2'#13;
   // these booleans control logging
   debugGetMaster = false;
   debugArrays = false;
@@ -27,6 +25,7 @@ const
   verbose = false;
   // maximum records to be smashed
   maxRecords = 9001;
+  disableStyles = false;
  
 var
   slRecords, slSettings, slOptions, slFiles: TStringList;
@@ -70,9 +69,9 @@ begin
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' looking for SortKey '+SortKey(se, false));
     for i := 0 to OverrideCount(dstrec) - 2 do begin
       ovr := OverrideByIndex(dstrec, i);
-      ae := ElementByPath(dstrec, p);
+      ae := ebp(dstrec, p);
       for j := 0 to ElementCount(ae) - 1 do begin
-        ne := ElementByIndex(ae, j);
+        ne := ebi(ae, j);
         if (SortKey(ne, false) = SortKey(se, false)) then begin
           Result := ne;
           break;
@@ -86,15 +85,15 @@ begin
   else begin
     ndx := IndexOf(src, se);
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
-    ae := ElementByPath(dstrec, p);
+    ae := ebp(dstrec, p);
     if (ElementCount(ae) - 1 >= ndx) then 
-      Result := ElementByIndex(ae, ndx)
+      Result := ebi(ae, ndx)
     else begin
       for i := 0 to OverrideCount(dstrec) - 1 do begin
         ovr := OverrideByIndex(dstrec, i);
-        ae := ElementByPath(ovr, p);
+        ae := ebp(ovr, p);
         if (ElementCount(ae) - 1 >= ndx) then begin
-          Result := ElementByIndex(ae, ndx);
+          Result := ebi(ae, ndx);
           break;
         end;
       end;
@@ -132,7 +131,7 @@ begin
   slSrc := TStringList.Create;
   slDst := TStringList.Create;
   for i := 0 to ElementCount(mst) - 1 do begin
-    me := ElementByIndex(mst, i);
+    me := ebi(mst, i);
     sk := SortKey(me, false);
     n := 0;
     while slMst.IndexOf(sk) > -1 do begin
@@ -143,7 +142,7 @@ begin
     slMst.Add(sk);
   end;
   for i := 0 to ElementCount(src) - 1 do begin
-    se := ElementByIndex(src, i);
+    se := ebi(src, i);
     sk := SortKey(se, false);
     n := 0;
     while slSrc.IndexOf(sk) > -1 do begin
@@ -154,7 +153,7 @@ begin
     slSrc.Add(sk);
   end;
   for i := 0 to ElementCount(dst) - 1 do begin
-    de := ElementByIndex(dst, i);
+    de := ebi(dst, i);
     sk := SortKey(de, false);
     n := 0;
     while slDst.IndexOf(sk) > -1 do begin
@@ -171,8 +170,8 @@ begin
     d_ndx := slDst.IndexOf(slMst[i]);
     
     if (s_ndx = -1) and (d_ndx > -1) then begin
-      if debugArrays then LogMessage('      > Removing element '+Path(ElementByIndex(dst, d_ndx))+' with key: '+slDst[d_ndx]);
-      RemoveElement(dst, ElementByIndex(dst, d_ndx));
+      if debugArrays then LogMessage('      > Removing element '+Path(ebi(dst, d_ndx))+' with key: '+slDst[d_ndx]);
+      RemoveElement(dst, ebi(dst, d_ndx));
       slDst.Delete(d_ndx);
     end;
   end;
@@ -182,7 +181,7 @@ begin
     d_ndx := slDst.IndexOf(slSrc[i]);
     m_ndx := slMst.IndexOf(slSrc[i]);
     
-    se := ElementByIndex(src, i);
+    se := ebi(src, i);
     dts := DefTypeString(se);
     ets := ElementTypeString(se);
     if (d_ndx = -1) and (m_ndx = -1) then begin
@@ -195,18 +194,18 @@ begin
     else if (d_ndx > -1) and ((dts = 'dtStruct') or (ets = 'etSubRecordArray')) then begin
 	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
       try
-        rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, d_ndx), dstrec, depth + '    ', ini);
+        rcore(se, GetMasterElement(src, se, dstrec), ebi(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
-          LogMessage('      !! Exception: '+x.Message);
+          LogMessage('      !! rcore exception: '+x.Message);
         end;
       end;
     end
     else if (d_ndx > -1) and (ets = 'etSubRecordStruct') then begin
 	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
       try
-        rcore(se, GetMasterElement(src, se, dstrec), ElementByIndex(dst, d_ndx), dstrec, depth + '    ', ini);
+        rcore(se, GetMasterElement(src, se, dstrec), ebi(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
-          LogMessage('      !! Exception: '+x.Message);
+          LogMessage('      !! rcore exception: '+x.Message);
         end;
       end;
     end;
@@ -235,15 +234,15 @@ begin
   lstDst := TList.Create;
   
   for i := 0 to ElementCount(mst) - 1 do begin
-    me := ElementByIndex(mst, i);
+    me := ebi(mst, i);
     lstMst.Add(TObject(me));
   end;
   for i := 0 to ElementCount(src) - 1 do begin
-    se := ElementByIndex(src, i);
+    se := ebi(src, i);
     lstSrc.Add(TObject(se));
   end;
   for i := 0 to ElementCount(dst) - 1 do begin
-    de := ElementByIndex(dst, i);
+    de := ebi(dst, i);
     lstDst.Add(TObject(de));
   end;
   
@@ -253,7 +252,7 @@ begin
     d_ndx := lstDst.IndexOf(lstMst[i]);
     
     if (s_ndx = -1) and (d_ndx > -1) then begin
-      RemoveNode(ElementByIndex(dst, d_ndx));
+      RemoveNode(ebi(dst, d_ndx));
       lstDst.Delete(d_ndx);
     end;
   end;
@@ -262,7 +261,7 @@ begin
   for i := 0 to lstSrc.Count - 1 do begin
     d_ndx := lstDst.IndexOf(lstSrc[i]);
     m_ndx := lstMst.IndexOf(lstSrc[i]);
-    se := ElementByIndex(src, i);
+    se := ebi(src, i);
     
     if (m_ndx = -1) and (d_ndx = -1) then
       ElementAssign(dst, HighInteger, se, false);
@@ -298,15 +297,15 @@ begin
   slDst := TStringList.Create;
   slMst := TStringList.Create;
   for i := 0 to ElementCount(dst) - 1 do begin
-    de := ElementByIndex(dst, i);
+    de := ebi(dst, i);
     slDst.Add(Name(de));
   end;
   for i := 0 to ElementCount(mst) - 1 do begin
-    me := ElementByIndex(mst, i);
+    me := ebi(mst, i);
     slMst.Add(Name(me));    
   end;
   for i := 0 to ElementCount(src) - 1 do begin
-    se := ElementByIndex(src, i);
+    se := ebi(src, i);
     if (slDst.IndexOf(Name(se)) = -1) then
       wbCopyElementToRecord(se, dst, false, true);
   end;
@@ -316,17 +315,17 @@ begin
   j := 0;
   While i < ElementCount(src) do begin
     if i < ElementCount(src) then
-      se := ElementByIndex(src, i);
+      se := ebi(src, i);
     if j < ElementCount(dst) then
-      de := ElementByIndex(dst, j);
-    me := ElementByName(mst, Name(se));
+      de := ebi(dst, j);
+    me := ebn(mst, Name(se));
     // DefType and ElementType strings
     ets := ElementTypeString(se);
     dts := DefTypeString(se);
     
-    // skip alwaysSkip
-    if (Pos(ElementPath(se)+#13, alwaysSkip) > 0) then begin
-      if showSkips then LogMessage('    Skipping '+ElementPath(se));
+    // skip record header, copy record flags
+    if Name(se) = 'Record Header' then begin
+      wbCopyElementToRecord(ebp(se, 'Record Flags'), dst, false, true);
       Inc(i);
       Inc(j);
       continue;
@@ -364,16 +363,15 @@ begin
         try
           MergeSortedArray(me, se, de, dstrec, depth, ini);
         except on x : Exception do
-          LogMessage('      !! Exception in MergeSortedArray : '+x.Message);
+          LogMessage('      !! MergeSortedArray exception: '+x.Message);
         end;
       end
       else begin
         if debugArrays then LogMessage('    Unsorted array found: '+Path(se));
         try 
           rcore(se, me, de, dstrec, depth + '    ', ini);
-        except on x: Exception do begin
-            LogMessage('      !! Exception: '+x.Message);
-          end;
+        except on x : Exception do
+          LogMessage('      !! rcore exception: '+x.Message);
         end;
         //MergeUnsortedArray(me, se, de, dstrec, depth, ini);
       end;
@@ -383,9 +381,8 @@ begin
       if showTraversal then LogMessage('    Recursing deeper.');
       try 
         rcore(se, me, de, dstrec, depth + '    ', ini);
-      except on x: exception do begin
-          LogMessage('      !! Exception: '+x.Message);
-        end;
+      except on x : Exception do
+        LogMessage('      !! rcore exception: '+x.Message);
       end;
     end
     // else copy element if value differs from master
@@ -396,7 +393,11 @@ begin
           if (not showTraversal) then LogMessage('    '+Path(se));
           LogMessage('      > Found differing values: '+GetEditValue(se)+' and '+GetEditValue(me));
         end;
-        SetEditValue(de, GetEditValue(se));
+        try 
+          SetEditValue(de, GetEditValue(se));
+        except on x : Exception do
+          LogMessage('      !! Copy element value exception: '+x.Message);
+        end;
       end;
     end;
     
@@ -410,7 +411,17 @@ begin
 end;
 
 //======================================================================
-// UpdateSettings: Updates the setting comboboxes for OptionsForm
+// MakeBold: makes a label caption bold.
+procedure MakeBold(lbl: TLabel);
+begin
+  if not disableStyles then begin
+    lbl.WordWrap := false;
+    lbl.Font.Style := lbl.Font.Style + [fsBold];
+  end;
+end;
+
+//======================================================================
+// updateSettings: Updates the setting comboboxes for OptionsForm
 procedure updateSettings;
 var
   i, ndx: integer;
@@ -714,6 +725,83 @@ begin
 end;
 
 //======================================================================
+// GetGroupOverrides
+function GetGroupOverrides(f: IInterface): string;
+var
+  i: integer;
+  e: IInterface;
+begin
+  for i := 0 to ElementCount(f) - 1 do begin
+    e := ebi(f, i);
+    if Signature(e) = 'TES4' then continue;
+    Result := Result + GroupSignature(e) + ': '+IntToStr(OverrideRecordCount(e))+' overrides'#13#10;
+  end;
+end;
+
+//======================================================================
+// PluginForm: Form which shows advanced details on a plugin
+procedure PluginForm(Sender: TObject);
+var
+  f, e: IInterface;
+  i: integer;
+  fn, author, records, overrides, desc, masters, groups: string;
+  pfrm: TForm;
+  lbl: TLabel;
+  sb: TScrollBox;
+  memo: TMemo;
+begin
+  // find file
+  fn := TLabel(Sender).Caption;
+  fn := Copy(fn, Pos(']', fn) + 2, Length(fn));
+  f := FileByName(fn);
+  
+  // get data
+  author := geev(ebi(f, 0), 'CNAM');
+  records := IntToStr(RecordCount(f));
+  overrides := IntToStr(OverrideRecordCount(f));
+  desc := geev(ebi(f, 0), 'SNAM');
+  e := ebn(ebi(f, 0), 'Master Files');
+  for i := 0 to ElementCount(e) - 1 do
+    masters := masters + geev(ebi(e, i), 'MAST') + #13#10;
+  groups := GetGroupOverrides(f);
+    
+  // display form
+  pfrm := TForm.Create(nil);
+  try
+    pfrm.Caption := fn;
+    pfrm.Width := 400;
+    pfrm.Height := 600;
+    pfrm.Position := poScreenCenter;
+    
+    lbl := ConstructLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:');
+    MakeBold(lbl);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:');
+    MakeBold(lbl);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, author);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:');
+    MakeBold(lbl);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, records);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:');
+    MakeBold(lbl);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides);
+    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:');
+    MakeBold(lbl);
+    memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, desc);
+    lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:');
+    MakeBold(lbl);
+    memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, masters);
+    lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:');
+    MakeBold(lbl);
+    memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 150, 348, true, true, ssVertical, groups);
+    
+    pfrm.ShowModal;
+  finally
+    pfrm.Free;
+  end;
+end;
+
+//======================================================================
 // OptionsForm: For setting smashed patch options
 function OptionsForm: boolean;
 var
@@ -738,7 +826,7 @@ begin
     for i := 0 to FileCount - 1 do begin
       f := FileByIndex(i);
       fn := GetFileName(f);
-      author := geev(ElementByIndex(f, 0), 'CNAM');
+      author := geev(ebi(f, 0), 'CNAM');
       if (Pos(fn, bethesdaFiles) > 0) or (Pos('Mator Smash', author) > 0) then Continue;
       Inc(m);
     end;
@@ -767,7 +855,7 @@ begin
     for i := 0 to FileCount - 1 do begin
       f := FileByIndex(i);
       fn := GetFileName(f);
-      author := geev(ElementByIndex(f, 0), 'CNAM');
+      author := geev(ebi(f, 0), 'CNAM');
       if Pos(fn, bethesdaFiles) > 0 then
         continue;
       if Pos('Mator Smash', author) > 0 then
@@ -785,9 +873,10 @@ begin
       fnlbl := TLabel.Create(pnlArray[pnlCount]);
       fnlbl.Parent := pnlArray[pnlCount];
       fnlbl.Caption := '['+IntToHex(i - 1, 2)+'] '+fn;
-      //fnlbl.Font.Style := fnlbl.Font.Style + [fsBold];
+      MakeBold(fnlbl);
       fnlbl.Left := 24;
       fnlbl.Top := 14;
+      fnlbl.OnClick := PluginForm;
       
       cb := TComboBox.Create(pnlArray[pnlCount]);
       cb.Parent := pnlArray[pnlCount];
@@ -1009,7 +1098,7 @@ begin
       for i := 0 to FileCount - 1 do begin
         f := FileByIndex(i);
         fn := GetFileName(f);
-        author := geev(ElementByIndex(f, 0), 'CNAM');
+        author := geev(ebi(f, 0), 'CNAM');
         // skip bethesda files, we're not patching them
         if Pos(fn, bethesdaFiles) > 0 then
           continue;
@@ -1068,7 +1157,7 @@ begin
       // set smashFile author to Mator Smash
       lbl.Caption := 'Adding masters to smashed patch.';
       application.processmessages;
-      seev(ElementByIndex(smashFile, 0), 'CNAM', 'Mator Smash '+vs);
+      seev(ebi(smashFile, 0), 'CNAM', 'Mator Smash '+vs);
       // add masters to smashFile
       for i := 0 to FileCount - 3 do begin
         f := FileByLoadOrder(i);
@@ -1101,7 +1190,9 @@ begin
             except on x : Exception do
               LogMessage('Setting lookup exception : '+x.Message);
             end;
-            LogMessage(#13#10'Smashing record '+slRecords[i]+' from file: '+fn);
+            if debugArrays or showChanges or showTraversal or showSkips then
+              LogMessage('');
+            LogMessage('Smashing record '+slRecords[i]+' from file: '+fn);
             try
               rcore(ovr, r, mr, mr, '    ', ini); // recursively copy overriden elements
             except on x : Exception do

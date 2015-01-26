@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/25/2015
+  edited 1/26/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -36,11 +36,13 @@
     resulting string.
   - [GetChar]: Gets a character in a string and returns it.
   - [FileByName]: gets a file from a filename.
+  - [OverrideRecordCount]: gets the number of override records in a file or record group.
   - [GetRecords]: adds the records in a file or group to a stringlist.
   - [GroupSignature]: gets the signature of a group record.
   - [HexFormID]: gets the FormID of a record as a hexadecimal string.
   - [FileFormID]: gets the FileFormID of a record as a cardinal.
   - [IsLocalRecord]: returns false for override and injected records.
+  - [IsOverrideRecord]: returns true for override records.
   - [SmallName]: gets the FormID and editor ID as a string.
   - [ElementByIP]: loads an element by an indexed path.
   - [IndexedPath]: gets the indexed path of an element.
@@ -49,6 +51,10 @@
     stored in a stringlist.
   - [SetListNativeValues]: sets the native values in a list of elements to the values
     stored in a TList.
+  - [ebn]: ElementByName shortened function name.
+  - [ebp]: ElementByPath shortened function name.
+  - [ebi]: ElementByIndex shortened function name.
+  - [ebip]: ElementByIP shortened function name.
   - [geev]: GetElementEditValues enhanced with ElementByIP.
   - [genv]: GetElementNativeValues enhanced with ElementByIP.
   - [seev]: SetElementEditValues enhanced with ElementByIP.
@@ -80,6 +86,8 @@
   - [FileSelect]: creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
   - [RecordSelect]: creates a window from which the user can choose a record.
+  - [ConstructMemo]: an all-in-one memo constructor.
+  - [ConstructScrollBox]: an all-in-one scrollbox constructor.
   - [ConstructCheckBox]: an all-in-one checkbox constructor.
   - [ConstructLabel]: an all-in-one label constructor.
   - [ConstructButton]: an all-in-one button constructor.
@@ -735,6 +743,38 @@ begin
 end;
 
 {
+  OverrideRecordCount:
+  Gets the number of override records in a file or record group.
+  
+  Example usage:
+  f := FileByName('Update.esm');
+  AddMessage(IntToStr(OverrideRecordCount(f)));
+}
+function OverrideRecordCount(f: IInterface): integer;
+var
+  e: IInterface;
+  i: Integer;
+begin
+  Result := 0;
+  if ElementTypeString(f) = 'etFile' then begin
+    for i := 0 to Pred(RecordCount(f)) do begin
+      e := RecordByIndex(f, i);
+      if not Equals(MasterOrSelf(e), e) then
+        Inc(Result);
+    end;
+  end
+  else if ElementTypeString(f) = 'etGroupRecord' then begin
+    for i := 0 to Pred(ElementCount(f)) do begin
+      e := ebi(f, i);
+      if ElementTypeString(e) = 'etGroupRecord' then 
+        Result := Result + OverrideRecordCount(e)
+      else if not Equals(MasterOrSelf(e), e) then
+        Inc(Result);
+    end;
+  end;
+end;
+
+{
   GetRecords:
   Add the records in a file or group to a stringlist.
   
@@ -837,7 +877,20 @@ begin
   loadOrder := GetLoadOrder(GetFile(e));
   loadFormID := HexFormID(e);
   pre := StrToInt('$' + Copy(loadFormID, 1, 2));
-  Result := (pre = loadOrder);
+  Result := (pre >= loadOrder);
+end;
+
+{
+  IsOverrideRecord
+  Returns true for override records.
+  
+  Example usage:
+  e := RecordByIndex(f, 1);
+  if IsOverrideRecord(e) then AddMessage(Name(e) + ' is an override.');
+}
+function IsOverrideRecord(e: IInterface): boolean;
+begin
+  Result := not Equals(MasterOrSelf(e), e);
 end;
 
 {
@@ -1008,6 +1061,42 @@ begin
     newelement := ElementAssign(list, HighInteger, nil, False);
     SetNativeValue(newelement, values[i]);
   end;
+end;
+
+{
+  ebn:
+  ElementByName shortened function name.
+}
+function ebn(e: IInterface; n: string): IInterface;
+begin
+  Result := ElementByName(e, n);
+end;
+
+{
+  ebp:
+  ElementByPath shortened function name.
+}
+function ebp(e: IInterface; p: string): IInterface;
+begin
+  Result := ElementByPath(e, p);
+end;
+
+{
+  ebi:
+  ElementByIndex shortened function name.
+}
+function ebi(e: IInterface; i: integer): IInterface;
+begin
+  Result := ElementByIndex(e, i);
+end;
+
+{
+  ebip:
+  ElementByIP shortened function name.
+}
+function ebip(e: IInterface; ip: string): IInterface;
+begin
+  Result := ElementByIP(e, ip);
 end;
 
 {
@@ -1745,13 +1834,65 @@ begin
 end;
 
 {
-  ConstructCheckBox:
-  A function which can be used to make a checkbox.  Used to make code more compact.
+  ConstructMemo:
+  A function which can be used to make a memo.  Used to make code
+  more compact.
+  
+  Example usages:
+  memo := ConstructMemo(frm, frm, 
+}
+function ConstructMemo(h, p: TObject; top, left, height, 
+  width: Integer; ww, ro: boolean; ss: TScrollStyle; text: String): TMemo;
+var
+  memo: TMemo;
+begin
+  memo := TMemo.Create(h);
+  memo.Parent := p;
+  memo.Top := top;
+  memo.Left := left;
+  if width > 0 then memo.Width := width;
+  if height > 0 then memo.Height := height;
+  memo.WordWrap := ww;
+  memo.ReadOnly := ro;
+  memo.ScrollBars := ss;
+  memo.Text := text;
+  
+  Result := memo;
+end;
+
+{
+  ConstructScrollBox:
+  A function which can be used to make a scrollbox.  Used to make 
+  code more compact.
   
   Example usage:
-  cb1 := ConstructCheckBox(frm, pnlBottom, 8, 8, 160, 'Remove persistent references', cbChecked);
+  sb := ConstructScrollBox(frm, frm, 400, alTop);
 }
-function ConstructCheckbox(h: TObject; p: TObject; top: Integer; left: Integer; width: Integer; s: String; state: TCheckBoxState): TCheckBox;
+function ConstructScrollBox(h, p: TObject; height: Integer; 
+  a: TAlign): TScrollBox;
+var
+  sb: TScrollBox;
+begin
+  sb := TScrollBox.Create(h);
+  sb.Parent := p;
+  sb.Height := height;
+  sb.Align := a;
+  
+  Result := sb;
+end;
+  
+
+{
+  ConstructCheckBox:
+  A function which can be used to make a checkbox.  Used to make 
+  code more compact.
+  
+  Example usage:
+  cb1 := ConstructCheckBox(frm, pnlBottom, 8, 8, 160, 
+    'Remove persistent references', cbChecked);
+}
+function ConstructCheckbox(h, p: TObject; top, left, width: Integer; 
+  s: String; state: TCheckBoxState): TCheckBox;
 var
   cb: TCheckBox;
 begin
@@ -1768,18 +1909,18 @@ end;
 
 {
   ConstructLabel:
-  A function which can be used to make a label.  Used to make code more compact.
+  A function which can be used to make a label.  Used to make 
+  code more compact.
   
   Example usage:
-  lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 360, 0, 'Reference removal options:');
+  lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 360, 0, 
+    'Reference removal options:');
 }
-function ConstructLabel(h: TObject; p: TObject; 
-  top, left, height, width: Integer; s: String): TLabel;
+function ConstructLabel(h, p: TObject; top, left, height, 
+  width: Integer; s: String): TLabel;
 var
   lb: TLabel;
 begin
-  //AddMessage('ConstructLabel('+IntToStr(top)+','+IntToStr(left)+','
-  //  +IntToStr(height)+','+IntToStr(width)+','+s+')');
   lb := TLabel.Create(h);
   lb.Parent := p;
   lb.Top := top;
@@ -1787,6 +1928,7 @@ begin
   lb.WordWrap := true;
   if height > 0 then lb.Height := height;
   if width > 0 then lb.Width := width;
+  if (height = 0) and (width = 0) then lb.AutoSize := true;
   lb.Caption := s;
   
   Result := lb;
@@ -1794,12 +1936,13 @@ end;
 
 {
   ConstructButton:
-  A function which can be used to make a button.  Used to make code more compact.
+  A function which can be used to make a button.  Used to make 
+  code more compact.
   
   Example usage:
   cb1 := ConstructButton(frm, pnlBottom, 8, 8, 160, 'OK');
 }
-function ConstructButton(h: TObject; p: TObject; 
+function ConstructButton(h, p: TObject; 
   top, left, height, width: Integer; s: String): TButton;
 var
   btn: TButton;
@@ -1817,12 +1960,13 @@ end;
 
 {
   ConstructOkCancelButtons:
-  A procedure which makes the standard OK and Cancel buttons on a form.
+  A procedure which makes the standard OK and Cancel buttons 
+  on a form.
   
   Example usage:
   ConstructOkCancelButtons(frm, pnlBottom, frm.Height - 80);
 }
-procedure ConstructOkCancelButtons(h: TObject; p: TObject; top: Integer);
+procedure ConstructOkCancelButtons(h, p: TObject; top: Integer);
 var
   btnOk: TButton;
   btnCancel: TButton;
