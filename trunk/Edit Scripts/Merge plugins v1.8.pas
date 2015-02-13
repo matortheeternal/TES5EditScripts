@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.16
+  Merge Plugins Script v1.8.17
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.16
+  v1.8.17
   - Cleaned up for public release.
   - Fixed issue with Renumber Conflicting FormIDs failing to properly index FormIDs
     from a file being merged into.
@@ -13,6 +13,8 @@
   - Removed unimplemented "Disable Plugins" checkbox.
   - Made it so MCM translation file copying is logged at a basic level even when 
     debugMCM isn't true.
+  - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
+    for clarity.  It now says "Explore".
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -849,9 +851,9 @@ begin
       
       btnBrowse := TButton.Create(afrm);
       btnBrowse.Parent := afrm;
-      btnBrowse.Caption := 'Browse';
+      btnBrowse.Caption := 'Explore';
       btnBrowse.ShowHint := true;
-      btnBrowse.Hint := 'Browse asset destination directory';
+      btnBrowse.Hint := 'Opens the asset destination directory in Windows Explorer.';
       btnBrowse.OnClick := AssetHelperBrowse;
       btnBrowse.Left := btnOk.Left + btnOk.Width + 8;
       btnBrowse.Top := btnOk.Top;
