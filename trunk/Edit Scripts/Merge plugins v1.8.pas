@@ -15,6 +15,7 @@
     debugMCM isn't true.
   - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
     for clarity.  It now says "Explore".
+  - No longer writing exclude.txt to temporary directory if batCopy is false.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1198,7 +1199,7 @@ begin
   if (modPath <> '') and (slCopiedFrom.IndexOf(modPath) = -1) then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
-    ignore.SavetoFile(temp+'exclude.txt');
+    if batCopy then ignore.SavetoFile(temp+'exclude.txt');
     if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:'+temp+'exclude.txt')
     else CopyDirectory(modPath, astPath, ignore, debug);
   end;
