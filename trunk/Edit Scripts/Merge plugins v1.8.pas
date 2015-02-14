@@ -16,6 +16,12 @@
   - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
     for clarity.  It now says "Explore".
   - No longer writing exclude.txt to temporary directory if batCopy is false.
+  - Now always using Edit Scripts\mp\temp as temporary directory, to not have to
+    deal with the permission errors associated with trying to use TempPath.
+  - Now logging important Conflicting FormID errors that were muted before.
+  - Revised RenumberConflictingFormIDs to allow renumbering of injected formIDs
+    while maintaing their injected status, fixing an issue with in-merge injections
+    causing duplicate FormID errors.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1463,8 +1469,11 @@ begin
   except
     on x : Exception do begin
       Result := false;
-      if (not Pos('Duplicate FormID', x.Message) = 1) 
-      and (Signature(e) <> 'GRUP') then begin
+      if (Pos('Duplicate FormID', x.Message) = 1) then begin
+        if (Signature(e) <> 'GRUP') then 
+          LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
+      end
+      else begin
         LogMessage('        Failed to copy '+Name(e)+'; '+x.Message);
         slFails.Add(FullPath(e)+'; '+x.Message);
       end;
@@ -1575,7 +1584,7 @@ end;
 procedure RenumberConflicting(pb: TProgressBar);
 var
   i, j, k, rc, pre, ndx: integer;
-  HighestFormID, NewFormID, BaseFormID, offset: Cardinal;
+  HighestFormID, NewFormID, BaseFormID, InjectFormID, offset: Cardinal;
   e, f: IInterface;
   self: boolean;
   loadFormID, fileFormID: String;
@@ -1588,7 +1597,7 @@ begin
   for i := 0 to RecordCount(mgf) - 1 do begin
     e := RecordByIndex(mgf, i);
     if Signature(e) = 'TES4' then Continue;
-    if not (IsLocalRecord(e)) then Continue;
+    if IsOverrideRecord(e) then Continue;
     fileFormID := '00' + Copy(HexFormID(e), 3, 6);
     ndx := StrToInt('$' + fileFormID);
     UsedFormIDs[ndx] := 1;
@@ -1626,8 +1635,8 @@ begin
       fileFormID := '00' + Copy(loadFormID, 3, 6);
       ndx := StrToInt('$' + fileFormID);
       
-      // skip non-file records (override and injected)
-      if not (IsLocalRecord(e)) then begin
+      // skip override records 
+      if IsOverrideRecord(e) then begin
         UsedFormIDs[ndx] := 1;
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
@@ -1640,6 +1649,21 @@ begin
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
+      end
+      // special renumbering for injected formIDs
+      else if (IsInjected(e)) then begin
+        InjectFormID := StrToInt('$' + Copy(HexFormID(e), 1, 2)) * $01000000 + BaseFormID;
+        //if debugRenumbering then 
+          LogMessage(Format('        Changing Injected FormID to [%s] on %s', 
+            [IntToHex64(InjectFormID, 8), SmallName(e)]));
+        RenumberRecord(e, InjectFormID);
+        TStringList(OldForms[i]).Add(fileFormID);
+        TStringList(NewForms[i]).Add(IntToHex64(InjectFormID, 8));
+        
+        Inc(rCount);
+        // increment formid
+        Inc(BaseFormID);
+        Inc(NewFormID);
       end
       // else renumber it
       else begin
@@ -1788,16 +1812,15 @@ begin
   browse.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\browse.png');
   
   // set up temporary directory
-  temp := TempPath;
-  ForceDirectories(temp);
-  if not DirectoryExists(temp) then begin
-    AddMessage('Couldn''t force TempPath directory ( '+temp+' ) to exist.');
-    temp := ScriptsPath + '\mp\temp';
-    AddMessage('Using '+temp+' instead.');
+  temp := ScriptsPath + '\mp\temp\';
+  try
     ForceDirectories(temp);
-    if not DirectoryExists(temp) then begin
-      AddMessage('Failed to force backup temporary directory to exist.  The script will now terminate.');
+    gear.SaveToFile(temp + 'test.png');
+  except on Exception do begin
       SkipProcess := true;
+      AddMessage('Failed to initialize temporary directory: '+temp);
+      AddMessage('Try running xEdit as administrator.');
+      AddMessage('The script will now terminate.'#13#10);
     end;
   end;
   
@@ -2216,17 +2239,15 @@ begin
   frm.Free;
   // free memory
   FreeMemory;
-  // clear temp folder if it's not = to TempPath
-  if temp <> TempPath then begin
-    try 
-      if not DeleteDirectory(temp, true) then begin
-        AddMessage(#13#10'Failed to delete Temporary Directory.');
-        AddMessage('After the script is done, please delete '+temp);
-      end;
-    except on x : Exception do
+  // clear temp folder
+  try 
+    if not DeleteDirectory(temp, true) then begin
       AddMessage(#13#10'Failed to delete Temporary Directory.');
       AddMessage('After the script is done, please delete '+temp);
     end;
+  except on x : Exception do
+    AddMessage(#13#10'Failed to delete Temporary Directory.');
+    AddMessage('After the script is done, please delete '+temp);
   end;
   // return hinthidepasue to default value
   Application.HintHidePause := 1000;
