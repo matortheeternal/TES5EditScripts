@@ -412,10 +412,10 @@ begin
   copyAll := ini.ReadBool('Config', 'copyAllAssets', false);
   rn := IntToStr(ini.ReadString('Config', 'renumberingMode', '1'));
   mm := IntToStr(ini.ReadString('Config', 'copyMode', '1'));
-  sp := IntToStr(ini.ReadString('Config', 'secondPassMode', '1'));
+  sp := IntToStr(ini.ReadString('Config', 'secondPassMode', '0'));
   disableColoring := ini.ReadBool('Config', 'disableColoring', false);
   extractBSAs := ini.ReadBool('Config', 'extractBSAs', false);
-  batCopy := ini.ReadBool('Config', 'batCopy', false);
+  batCopy := ini.ReadBool('Config', 'batCopy', true);
 end;
 
 //=========================================================================
