@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.6
+  Mator Smash v0.8.7
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.8.6';
+  vs = 'v0.8.7';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -22,6 +22,7 @@ const
   showTraversal = false;
   showSkips = false;
   showTypeStrings = false;
+  showRecTimes = false;
   verbose = false;
   // maximum records to be smashed
   maxRecords = 9001;
@@ -895,13 +896,13 @@ begin
     
     // create global setting controls
     gslbl := TLabel.Create(frm);
-    gslbl.Parent := frm;
+    gslbl.Parent := holder;
     gslbl.Top := pnlArray[pnlCount - 1].Top + pnlArray[pnlCount -1].Height + 16;
     gslbl.Left := optionslbl.left;
     gslbl.Caption := 'Global setting: ';
     
     gscb := TComboBox.Create(frm);
-    gscb.Parent := frm;
+    gscb.Parent := holder;
     gscb.Top := gslbl.Top;
     gscb.Left := gslbl.Left + gslbl.Width + 16;
     gscb.Width := 100;
@@ -1011,8 +1012,12 @@ var
   i, j, k: integer;
   fn, rn, author, records, recordMode, logFileName: string;
   ini: TMemIniFile;
-  today: TDateTime;
+  today, tStart, tRec: TDateTime;
+  diff: double;
 begin
+  // track time
+  tStart := Now;
+  
   // stringlist creation
   slOptions := TStringList.Create;
   slFiles := TStringList.Create;
@@ -1095,6 +1100,7 @@ begin
      
       // loop through all loaded files
       k := 0;
+      tRec := Now;
       for i := 0 to FileCount - 1 do begin
         f := FileByIndex(i);
         fn := GetFileName(f);
@@ -1130,6 +1136,8 @@ begin
         end;
         Inc(k);
       end;
+      diff := (Now - tRec) * 86400;
+      LogMessage(FormatFloat('0.###', diff) + ' seconds spent processing records.');
      
       // test list of records
       if listOverrides then begin
@@ -1171,6 +1179,7 @@ begin
       pb.Max := slRecords.Count;
       LogMessage('');
       for i := 0 to slRecords.Count - 1 do begin
+        tRec := Now;
         if i = maxRecords then break;
         mr := nil;
         r := ObjectToElement(slRecords.Objects[i]);
@@ -1202,6 +1211,8 @@ begin
         end;
         lbl.Caption := 'Smashing records ('+IntToStr(i + 2)+'/'+IntToStr(slRecords.Count)+')';
         pb.Position := pb.Position + 1;
+        diff := (Now - tRec) * 86400;
+        if showRecTimes then LogMessage('  '+FormatFloat('0.###', diff) + 's');
         application.processmessages;
       end;
       
@@ -1209,7 +1220,8 @@ begin
       lbl.Caption := 'All done.';
       LogMessage(#13#10+dashes);
       LogMessage('Smashing complete.  '+IntToStr(RecordCount(smashfile))+' records smashed.');
-      LogMessage('');
+      diff := (Now - tStart) * 86400;
+      LogMessage('Completed in ' + FormatFloat('0.###', diff) + ' seconds.');
       memo.Lines.SaveToFile(logFileName);
 
       application.processmessages;
