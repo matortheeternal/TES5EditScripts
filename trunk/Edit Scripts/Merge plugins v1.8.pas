@@ -22,6 +22,10 @@
   - Revised RenumberConflictingFormIDs to allow renumbering of injected formIDs
     while maintaing their injected status, fixing an issue with in-merge injections
     causing duplicate FormID errors.
+  - Fixed CopyGeneralAssets scanning "." and ".." folders on certain systems.
+  - Using FileExists for CopyGeneralAssets instead of FileSearch.  ESP and ESM files
+    will always be in the base folder for the mod, else TES5Edit wouldn't have been 
+    able to load them in the first place.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1190,9 +1194,9 @@ begin
   if debugAssetCopying then LogMessage('    Searching for '+filename+' in '+moPath);
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
     repeat
+      if (Pos('.', rec.Name) = 1) then Continue;
       if debugAssetCopying then LogMessage('    ...searching '+moPath+'mods\'+rec.Name);
-      modPath := FileSearch(filename, moPath + 'mods\' + rec.Name);
-      if (modPath <> '') then begin
+      if (FileExists(moPath + 'mods\' + rec.Name + '\' + filename)) then begin
         modPath := moPath + 'mods\'+ rec.Name;
         break;
       end;
@@ -1812,15 +1816,16 @@ begin
   browse.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\browse.png');
   
   // set up temporary directory
-  temp := ScriptsPath + '\mp\temp\';
-  try
+  temp := TempPath;
+  ForceDirectories(temp);
+  if not DirectoryExists(temp) then begin
+    AddMessage('Couldn''t force TempPath directory ( '+temp+' ) to exist.');
+    temp := ScriptsPath + '\mp\temp';
+    AddMessage('Using '+temp+' instead.');
     ForceDirectories(temp);
-    gear.SaveToFile(temp + 'test.png');
-  except on Exception do begin
+    if not DirectoryExists(temp) then begin
+      AddMessage('Failed to force backup temporary directory to exist.  The script will now terminate.');
       SkipProcess := true;
-      AddMessage('Failed to initialize temporary directory: '+temp);
-      AddMessage('Try running xEdit as administrator.');
-      AddMessage('The script will now terminate.'#13#10);
     end;
   end;
   
@@ -2239,15 +2244,17 @@ begin
   frm.Free;
   // free memory
   FreeMemory;
-  // clear temp folder
-  try 
-    if not DeleteDirectory(temp, true) then begin
+  // clear temp folder if it's not = to TempPath
+  if temp <> TempPath then begin
+    try 
+      if not DeleteDirectory(temp, true) then begin
+        AddMessage(#13#10'Failed to delete Temporary Directory.');
+        AddMessage('After the script is done, please delete '+temp);
+      end;
+    except on x : Exception do
       AddMessage(#13#10'Failed to delete Temporary Directory.');
       AddMessage('After the script is done, please delete '+temp);
     end;
-  except on x : Exception do
-    AddMessage(#13#10'Failed to delete Temporary Directory.');
-    AddMessage('After the script is done, please delete '+temp);
   end;
   // return hinthidepasue to default value
   Application.HintHidePause := 1000;
