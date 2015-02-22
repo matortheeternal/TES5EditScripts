@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.17
+  Merge Plugins Script v1.8.18
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.17
+  v1.8.18
   - Cleaned up for public release.
   - Fixed issue with Renumber Conflicting FormIDs failing to properly index FormIDs
     from a file being merged into.
@@ -26,6 +26,13 @@
   - Using FileExists for CopyGeneralAssets instead of FileSearch.  ESP and ESM files
     will always be in the base folder for the mod, else TES5Edit wouldn't have been 
     able to load them in the first place.
+  - Now using Edit Scripts\mp\temp as temporary directory, and verifying files
+    can be saved in the temporary directory.
+  - Fixed general asset copying failing due to exclude parameter issues relating
+    to spaces in the path to the temporary directory.  Now using a local path to
+    the exclude text document.
+  - Implemented user-friendly EditOutOfDate method from mteFunctions when it has
+    been detected that the user is using an out of date version of xEdit.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -45,6 +52,7 @@ const
   debugRenumbering = false;
   debugAssetCopying = false;
   debugSearch = false;
+  deleteTemp = true;
   pFlag = 'Record Header\Record Flags\PersistentReference QuestItem DisplaysInMainMenu';
 
 var
@@ -1210,7 +1218,7 @@ begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
     if batCopy then ignore.SavetoFile(temp+'exclude.txt');
-    if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:'+temp+'exclude.txt')
+    if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:.\exclude.txt')
     else CopyDirectory(modPath, astPath, ignore, debug);
   end;
   
@@ -1802,7 +1810,7 @@ begin
   slMasters.Duplicates := dupIgnore;
   slMgfMasters := TStringList.Create;
   slDictionary := TStringList.Create;
-  slDictionary.LoadFromFile(ScriptsPath + '\mp\dictionary.txt');
+  slDictionary.LoadFromFile(ScriptsPath + 'mp\dictionary.txt');
   slTranslations := TStringList.Create;
   slCopiedFrom := TStringList.Create;
   batch := TStringList.Create;
@@ -1816,17 +1824,16 @@ begin
   browse.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\browse.png');
   
   // set up temporary directory
-  temp := TempPath;
-  ForceDirectories(temp);
-  if not DirectoryExists(temp) then begin
-    AddMessage('Couldn''t force TempPath directory ( '+temp+' ) to exist.');
-    temp := ScriptsPath + '\mp\temp';
-    AddMessage('Using '+temp+' instead.');
+  try
+    temp := ScriptsPath + 'mp\temp\';
     ForceDirectories(temp);
-    if not DirectoryExists(temp) then begin
-      AddMessage('Failed to force backup temporary directory to exist.  The script will now terminate.');
-      SkipProcess := true;
-    end;
+    gear.SaveToFile(temp+'test.png');
+  except on x: Exception do
+    AddMessage('Exception: '+x.Message);
+  end;
+  if (not DirectoryExists(temp)) or (not FileExists(temp + 'test.png')) then begin
+    AddMessage('Failed to force temporary directory to exist.  The script will now terminate.');
+    SkipProcess := true;
   end;
   
   // process only file elements
@@ -1874,14 +1881,14 @@ begin
     k := wbVersionNumber;
     version := GetVersionString(k);
     AddMessage(version);
+    RemoveFilter();
   except on Exception do
-    ;// nothing
+    k := 0;
   end;
   // terminate script unless version is 3.0.33 or newer
   if (k < 50340096) then begin
-    AddMessage('This version of xEdit is out of date, you must update it to use this script!');
-    AddMessage('You can get the latest version at: ');
-    AddMessage('http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/' );
+    AddMessage('');
+    EditOutOfDate('3.0.33 svn 1898');
     FreeMemory;
     exit;
   end;
@@ -2245,13 +2252,8 @@ begin
   // free memory
   FreeMemory;
   // clear temp folder if it's not = to TempPath
-  if temp <> TempPath then begin
-    try 
-      if not DeleteDirectory(temp, true) then begin
-        AddMessage(#13#10'Failed to delete Temporary Directory.');
-        AddMessage('After the script is done, please delete '+temp);
-      end;
-    except on x : Exception do
+  if deleteTemp then begin
+    if not DeleteDirectory(temp, true) then begin
       AddMessage(#13#10'Failed to delete Temporary Directory.');
       AddMessage('After the script is done, please delete '+temp);
     end;
@@ -2261,11 +2263,10 @@ begin
   // call RemoveFilter() to update TES5Edit GUI
   try
     RemoveFilter();
-  except on Exception do
-    AddMessage(#13#10'You''re not using the latest version of xEdit, so the script couldn''t update the GUI.');
-    AddMessage('Right click in the plugin view and click "Remove Filter" to update the GUI manually.');
-    AddMessage('You can get the latest version at: ');
-    AddMessage('http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/' );
+  except on Exception do begin
+      AddMessage('');
+      EditOutOfDate('3.0.33 svn 1898');
+    end;
   end;
 end;
 

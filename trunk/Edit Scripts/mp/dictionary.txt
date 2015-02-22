@@ -945,7 +945,7 @@ CoT-WeatherPatch_NL1.esp;8;1.75;4.0;1;[demon_knight_raziel] @13This merge withst
 CoT-WeatherPatch_Snow-40.esp;3;1.75;4.0;2;[demon_knight_raziel] @13This merge withstood the superman TCL/Speedmult 2k/time scale 4000 test.@13@13[SkyrimCliff] @13Merged perfectly, no errors encountered.@13@13
 Footprints - Ash.esp;328;1.75;3.5;2;[KingYama] @13Merges Pefectly@13@13[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 aMidianborn_Skyforge_Weapons.esp;78;1.75;3.5;2;[M1GU31] @13Merges fine, no ctd in game.@13@13[Azderiel] @13Large merge of around 60 armor and weapon plugins. No errors or CTD.@13@13
-Faction Crossbows.esp;155;1.75;4.0;2;[M1GU31] @13Merges fine, no ctd in game.@13@13[Dr Choucroute] @13Merges perfectly, no errors ingame@13@13
+Faction Crossbows.esp;155;1.75;4.0;3;[M1GU31] @13Merges fine, no ctd in game.@13@13[Dr Choucroute] @13Merges perfectly, no errors ingame@13@13[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
 Ghost Rider.esp;8;1.75;4.0;1;[M1GU31] @13Merges fine, no ctd in game.@13@13
 SnowElfCrown.esp;9;1.75;3.5;2;[M1GU31] @13Merges fine, no ctd in game.@13@13[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
 Soul Collector.esp;29;1.75;4.0;1;[M1GU31] @13Merges fine, no ctd in game.@13@13
@@ -1485,7 +1485,7 @@ You Hunger.esp;15868;1.8;3.0;1;[ChiefZigZag] @13Merged fine, more testing requir
 SPTConsistentOlderPeople.esp;22;1.8b;1.0;1;[ChiefZigZag] @13This mod appers to merge fine. However there are errors which cause crtical problems within gameplay. Errors experienced with merging with BYOD and/or diverpriests.esp@13@13
 WarmongerArmory_Vanilla.esp;204;1.87;1.0;1;[ChiefZigZag] @13I have experienced errors when combining this mods with others. Particularly ImmersiveWeapons.esp and Chesko_WearbleLantern.esp.@13@13
 JK's Ivarstead.esp;956;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JK's Riverwood.esp;1047;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
+JK's Riverwood.esp;1047;1.8;4.0;2;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
 JK's Rorikstead.esp;2021;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
 JKs Dragon Bridge.esp;1215;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
 JKs Markarth.esp;1103;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
@@ -2205,15 +2205,15 @@ TH3WICK3D1-BlueStripesEliteArmor.esp;28;1.75;4.0;1;[Ashesremain] @13Merges perfe
 TH3WICK3D1-GeraltSeltkirkArmor.esp;24;1.75;4.0;1;[Ashesremain] @13Merges perfectly, no issues encountered.@13@13
 The Unclaimed Delivery.esp;49;1.75;4.0;1;[Ashesremain] @13Merges perfectly, no issues encountered.@13@13
 1nivWICCloaks.esp;777;1.8;3.0;1;
-1nivWICSkyCloaksPatch.esp;27;1.8;3.0;1;
+1nivWICSkyCloaksPatch.esp;27;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Black Mage Armor.esp;277;1.8;3.0;1;
 Chesko_WearableLantern.esp;368;1.8;3.0;1;
 Cloaks.esp;552;1.8;3.0;1;
-CommonClothes.esp;195;1.8;3.0;1;
+CommonClothes.esp;195;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 DrSKnapsacks.esp;133;1.8;3.0;1;
 Faction Crossbows NPO CCOR LL Patch.esp;10;1.8;3.0;1;
 Faction Crossbows.esp;191;1.8;3.0;1;
-Hothtrooper44_ArmorCompilation.esp;5269;1.8;3.0;1;
+Hothtrooper44_ArmorCompilation.esp;5269;1.8;2.0;2;[badmoon22] @13Merge perfectly but the problem is In game it always making update of configuration of the mod.@13@13
 Immersive Weapons.esp;1481;1.8;3.0;1;[littleraskol] @13Warned about some injected records, but merged without issue.@13@13
 LC_immersiveLoot.esp;342;1.8;3.0;1;
 LegendaryRings_Eng.esp;113;1.8;3.0;1;[littleraskol] @13Required cleaning to remove UDR and ITM records, but merged fine.@13@13
@@ -2221,11 +2221,11 @@ Lore Weapon Expansion.esp;749;1.8;3.0;1;
 More Interesting Loot for Skyrim.esp;4863;1.8;3.0;1;
 NPO Module - Crossbows.esp;286;1.8;3.0;1;
 PrvtI_HeavyArmory.esp;866;1.8;3.0;1;
-Unique Uniques.esp;42;1.8;3.0;1;
+Unique Uniques.esp;42;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Wandererarmor.esp;29;1.8;3.0;1;
-WarmongerArmory_DLC.esp;115;1.8;3.0;1;
+WarmongerArmory_DLC.esp;115;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 WarmongerArmory_LeveledList.esp;280;1.8;3.0;1;
-WarmongerArmory_Vanilla.esp;204;1.8;3.0;1;
+WarmongerArmory_Vanilla.esp;204;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 WeaponsArmorFixes_ImmersiveWeapons_Patch.esp;535;1.8;3.0;1;
 Almalexia Regalia.esp;97;1.75;4.0;1;[wettson] @13no problem encountered@13@13
 angelicarmor.esp;28;1.75;4.0;1;[wettson] @13no problem encountered@13@13
@@ -2305,3 +2305,102 @@ RusselFollower.esp;14;1.75;4.0;1;[WanGinseng] @13Merged with the rest of KFollow
 SantanaFollower.esp;20;1.75;4.0;1;[WanGinseng] @13Merged with the rest of KFollowers@13@13
 ThromaireFollower.esp;17;1.75;4.0;1;[WanGinseng] @13Merged with the rest of KFollowers@13@13
 ZarjiFollower.esp;13;1.75;4.0;1;[WanGinseng] @13Merged with the rest of KFollowers@13@13
+Longbows&Crossbows.esp;531;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+Longbows.esp;705;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+LongbowsDB.esp;128;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+LongbowsDG.esp;161;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+LongbowsPerks.esp;22;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+1nivWICCloaks.esp;758;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Artifact Disenchanting - Dawnguard.esp;125;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Artifact Disenchanting - Dragonborn.esp;79;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Artifact Disenchanting.esp;441;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Beards.esp;15;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13
+BosmerArmorMATY743.esp;278;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Cloaks - Dawnguard.esp;20;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Cloaks.esp;536;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Crossbows_Basic_Collection_EN_LL.esp;181;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+dD - Realistic Ragdoll Force - Realistic.esp;11;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+dD-No Spinning Death Animation.esp;9;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+ELFX - Dawnguard.esp;4580;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+ELFX - Dragonborn.esp;6349;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+FA Guard Helmet.esp;14;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Fantasy Soundtrack Project.esp;271;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+FormsEdit.esp;44;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. Recommend to merge with FormEdit.esp last in load order.@13@13
+FSP - Dawnguard Edition.esp;7;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+FSP - Dragonborn Edition.esp;4;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+FS_UltimateAssortment.esp;183;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Immersive Darkwater crossing.esp;83;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Immersive Karthwasten.esp;172;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Immersive Kynesgrove.esp;419;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Immersive Orc Strongholds.esp;575;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Immersive Shors stone.esp;185;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Immersive Solstheim.esp;265;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Immersive Stonehills.esp;369;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+isilNarsil.esp;118;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console. Clean before merge.@13@13
+JewelCraft.esp;290;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+JK's Dawnstar.esp;2879;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Falkreath.esp;1205;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Ivarstead.esp;957;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Morthal.esp;1251;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Rorikstead.esp;2402;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Winterhold.esp;1390;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JKs Dragon Bridge.esp;1285;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+LadyKdCirclets.esp;223;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Light Elven Armor.esp;24;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+LovelyHairstylesLITE.esp;23;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13
+MacKom_LoreStylesHairSet.esp;20;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13
+MaidOutfitReplacer.esp;6;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console. Replacer version.@13@13
+Males of Skyrim.esp;117;1.8;3.0;1;[MissNet] @13Merged without errors, tested in game. Recommend to resolve conflicts with other NPC overhauls before merging. If experience NPC head/body color mismatch - check facegen data (could be overwritten by other mod).@13@13
+NEO Persistent Spell.esp;2;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+NEO Tint 1.esp;3;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Night Eye Overhaul.esp;33;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+No More Glowing Edges.esp;29;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+NPC_Overhaul_V_3_.esp;580;1.8;3.0;1;[MissNet] @13Merged without errors, tested in game. Recommend to resolve conflicts with other NPC overhauls before merging. If experience NPC head/body color mismatch - check facegen data (could be overwritten by other mod).@13@13
+OMageCommonRobesV2.esp;47;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+OMageReplacerPack.esp;353;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+Realistic Running Speed.esp;55;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+Really Radiant Raiment.esp;7;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+RRR_3DNPC-Patch.esp;87;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+RRR_ELFX-Patch.esp;811;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+SellswordArmor.esp;45;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+SGEyebrows.esp;52;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13
+The Companions by Mizzog - AIO - Basic Edition.esp;10;1.8;3.0;1;[MissNet] @13Merged without errors, tested in game. Recommend to resolve conflicts with other NPC overhauls before merging. If experience NPC head/body color mismatch - check facegen data (could be overwritten by other mod).@13@13
+The Unclaimed Delivery.esp;49;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+TrissArmorRetextured.esp;202;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+zzArmormashups.esp;173;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+ZZNoLeavesv1.2.esp;7;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+RealisticWaterTwo - Falskaar.esp;16;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+RealisticWaterTwo - Legendary.esp;233;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+RealisticWaterTwo - Waves - Falskaar.esp;48;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+RealisticWaterTwo - Waves - Wyrmstooth.esp;78;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+RealisticWaterTwo - Wyrmstooth.esp;731;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+RealisticWaterTwo.esp;1323;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+Watercolor_for_ENB_RWT.esp;19;1.8;4.0;1;[Frizbee2] @13Merges perfectly, no issues encountered.@13@13
+Cooking Expanded - RND Support.esp;24;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Merged without errors, found no problems. Resolve conflicts before merging. Be sure to load patches in correct order.@13@13
+CookingExpanded - Dragonborn.esp;19;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Merged without errors, found no problems. Resolve conflicts before merging. Be sure to load patches in correct order.@13@13
+CookingExpanded.esp;58;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Merged without errors, found no problems. Resolve conflicts before merging. Be sure to load patches in correct order.@13@13
+CraftingMaterialsRecipes.esp;9;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Open & save in Creation Kit to correct errors. Found no errors.@13@13
+CRX.esp;138;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Merged without errors, found no problems.@13@13
+GM-CookingRebalanceFinalHearthfire.esp;92;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Found no problems.@13@13
+jasBetterFood.esp;125;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Clean berfore merging.@13@13
+NewCookingRecipes.esp;227;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Found no errors. Clean before merging.@13@13
+NordicCooking_RND.esp;80;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Found no errors.@13@13
+RND_BabettesFeast-Patch.esp;22;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Merged without errors, found no problems. Be sure to use only this .esp for merge (No main esp for BabettesFeast required).@13@13
+RND_HerbalTea-Patch.esp;65;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Merged without errors, found no problems.@13@13
+Sate That Appetite .esp;32;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Found no errors.@13@13
+Wolfs_Advanced_Recipes.esp;63;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Open & save in Creation Kit to correct errors. Found no errors.@13@13
+Wolfs_Buff_Recipes.esp;55;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Open & save in Creation Kit to correct errors. Found no errors.@13@13
+Wolfs_Intermediate_Recipes.esp;28;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Open & save in Creation Kit to correct errors. Found no errors.@13@13
+Wolfs_Simple_Recipes.esp;10;1.8;4.0;1;[MissNet] @13Merged in one "cooking" esp. Open & save in Creation Kit to correct errors. Found no errors.@13@13
+ImprovedMageLight.esp;2;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+All-MakerStonesPower.esp;23;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+AppropriatelyAttiredHousecarls v2.esp;8;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+CS_SoulFragmentsToSoulGems_NoBlackSoul.esp;11;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+draugrEnglish.esp;10;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+ImprovedMagicSettings.esp;3;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+IndividualizedShoutCooldowns.esp;6;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+Lower Training Cost and 10 times per level.esp;6;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+Traps Make Noise.esp;2;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
+Hothtrooper44_Armor_Ecksstra.esp;1;1.8;1.0;1;[badmoon22] @13Merge perfectly but the problem is In game it always making update of configuration of the mod.@13@13
+ExplosiveBoltsVisualized.esp;36;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+StahlrimCrossbow.esp;7;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13

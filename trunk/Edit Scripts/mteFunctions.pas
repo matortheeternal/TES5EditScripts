@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 1/26/2015
+  edited 2/22/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -20,6 +20,8 @@
     CopyFile if it was synchronous, but it isn't yet.
   - [CopyDirectory]: recursively copies the contents of a directory to a new destination
     path.
+  - [DeleteDirectory]: deletes the contents of a directory, and optionally the directory
+    itself.
   - [RecursiveFileSearch]: recursively searches for a file in all the folders at a path.
     Returns the path of the first file matching the given filename, if it is found.
   - [SanitizeFileName]: removes characters not allowed in filenames from a string.
@@ -88,13 +90,26 @@
   - [FileSelect]: creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
   - [RecordSelect]: creates a window from which the user can choose a record.
+  - [EditOutOfDate]: alerts the user that their xEdit is out of date, and provides them
+    with a button they can click to go to the AFKMods page to download an updated version.
+  - [ConstructRadioGroup]: an all-in-one radiogroup constructor.
+  - [ConstructRadioButton]: an all-in-one radiobutton constructor.
   - [ConstructMemo]: an all-in-one memo constructor.
   - [ConstructScrollBox]: an all-in-one scrollbox constructor.
   - [ConstructCheckBox]: an all-in-one checkbox constructor.
   - [ConstructLabel]: an all-in-one label constructor.
+  - [ConstructEdit]: an all-in-one edit constructor.
   - [ConstructButton]: an all-in-one button constructor.
   - [ConstructOkCancelButtons]: a procedure to make the standard OK and Cancel buttons on 
     a form.
+  - [cRadioGroup]: ConstructRadioGroup shortened function name.
+  - [cRadioButton]: ConstructRadioButton shortened function name.
+  - [cMemo]: ConstructMemo shortened function name.
+  - [cScrollBox]: ConstructScrollBox shortened function name.
+  - [cCheckBox]: ConstructCheckBox shortened function name.
+  - [cLabel]: ConstructLabel shortened function name.
+  - [cEdit]: ConstructEdit shortened function name.
+  - [cButton]: ConstructButton shortened function name.
 }
 
 unit mteFunctions;
@@ -469,6 +484,51 @@ begin
     until FindNext(rec) <> 0;
     
     FindClose(rec);
+  end;
+end;
+
+{
+  DeleteDirectory:
+  Recursively deletes a directory and its contents.
+  
+  Example usage:
+  DeleteDirectory(ScriptsPath + 'mp\temp\', true);
+}
+function DeleteDirectory(src: string; onlyChildren: boolean): boolean;
+const
+  debug = false;
+var
+  rec: TSearchRec;
+begin
+  // exit early if directory doesn't exist
+  if not DirectoryExists(src) then exit;
+  try
+    // loop through files in directory
+    if FindFirst(src + '*', faAnyFile, rec) = 0 then begin
+      repeat
+        // do not try to recurse into . or .. else bad things happen.
+        if (rec.name <> '.') and (rec.name <> '..') then begin
+          if (rec.attr and faDirectory) <> faDirectory then begin
+            // delete files
+            if debug then AddMessage('Deleting file '+src+rec.name);
+            DeleteFile(src + rec.name);
+          end
+          else begin
+            // recurse to delete directories in the directory
+            if debug then AddMessage('Deleting directory '+src+rec.name+'\');
+            DeleteDirectory(src + rec.name + '\', false);
+          end;
+        end;
+      until FindNext(rec) <> 0;
+      
+      FindClose(rec);
+    end;
+    
+    // remove directory if onlyChildren is false
+    if not onlyChildren then RemoveDir(src);
+    Result := true;
+  except on Exception do
+    Result := false;
   end;
 end;
 
@@ -1403,30 +1463,6 @@ begin
 end;
 
 {
-  RemoveMaster:
-  Removes a master matching the specified string from the specified file.
-  
-  Example usage:
-  f := FileByIndex(i);
-  RemoveMaster(f, 'Update.esm');
-}
-procedure RemoveMaster(f: IInterface; mast: String);
-var
-  masters: IInterface;
-  i: integer;
-  s: string;
-begin
-  masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
-  for i := ElementCount(masters) - 1 downto 0 do begin
-    s := geev(ElementByIndex(masters, i), 'MAST');
-    if s = mast then begin
-      Remove(ElementByIndex(masters, i));
-      break;
-    end;
-  end;
-end;
-
-{
   ExtractBSA:
   Extracts BSA matching aContainerName to aPath.
   
@@ -1571,6 +1607,30 @@ begin
   
   // free stringlist
   slCurrentMasters.Free;
+end;
+
+{
+  RemoveMaster:
+  Removes a master matching the specified string from the specified file.
+  
+  Example usage:
+  f := FileByIndex(i);
+  RemoveMaster(f, 'Update.esm');
+}
+procedure RemoveMaster(f: IInterface; mast: String);
+var
+  masters: IInterface;
+  i: integer;
+  s: string;
+begin
+  masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
+  for i := ElementCount(masters) - 1 downto 0 do begin
+    s := geev(ElementByIndex(masters, i), 'MAST');
+    if s = mast then begin
+      Remove(ElementByIndex(masters, i));
+      break;
+    end;
+  end;
 end;
 
 {
@@ -1860,12 +1920,164 @@ begin
 end;
 
 {
+  EditOutOfDate:
+  Informs the user that their xEdit is out of date, and provides an 
+  option to open the AFKMods thread to download the current beta.
+  
+  Example usage:
+  EditOutOfDate('3.0.33 svn 1898');
+}
+procedure EditOutOfDate(minimumVersion: String);
+var
+  frm: TForm;
+  lbl: TLabel;
+  btnOk, btnCancel: TButton;
+  v: integer;
+  s: string;
+begin
+  frm := TForm.Create(nil);
+  try
+    frm.Caption := 'xEdit out of Date!';
+    frm.Width := 300;
+    frm.Height := 150;
+    frm.Position := poScreenCenter;
+    
+    try
+      v := wbVersionNumber;
+      s := Format('%sEdit version %d.%d.%d', [
+        wbAppName,
+        v shr 24,
+        v shr 16 and $FF,
+        v shr 8 and $FF
+      ]);
+    except on Exception do
+      s := wbAppName + 'Edit 3.0.31 or earlier';
+    end;
+    
+    lbl := TLabel.Create(frm);
+    lbl.Parent := frm;
+    lbl.Top := 8;
+    lbl.Left := 8;
+    lbl.WordWrap := True;
+    lbl.Width := 270;
+    lbl.Caption := 
+      'You''re using '+s+', but this script requires '+wbAppName+'Edit '+minimumVersion+' or newer.  '
+      'Click the Update button to be directed to get the latest beta from AFKMods.';
+    AddMessage('You''re using '+s+', but this script requires '+wbAppName+'Edit '+minimumVersion+' or newer.');
+    AddMessage('You can get the most recent beta at http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/');
+    
+    btnOk := TButton.Create(frm);
+    btnOk.Parent := frm;
+    btnOk.Top := lbl.Top + lbl.Height + 16;
+    btnOk.Left := 40;
+    btnOk.Caption := 'Update';
+    btnOk.ModalResult := mrOk;
+    btnOk.Hint := 'Click to open http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/ in '#13#10+
+    'your internet browser so you can download the latest xEdit beta version.';
+    btnOk.ShowHint := true;
+    
+    btnCancel := TButton.Create(frm);
+    btnCancel.Parent := frm;
+    btnCancel.Top := btnOk.Top;
+    btnCancel.Left := btnOk.Left + btnOk.Width + 20;
+    btnCancel.Caption := 'Cancel';
+    btnCancel.ModalResult := mrCancel;
+    
+    frm.Height := btnOk.Top + btnOk.Height + 50;
+    
+    if frm.ShowModal = mrOk then begin
+      ShellExecute(TForm(frm).Handle, 'open', 
+        'http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/', '', '', SW_SHOWNORMAL);
+    end;
+  finally 
+    frm.Free;
+  end;
+end;
+
+{
+  ConstructRadioGroup:
+  A function which can be used to make a radio group.  Used to make
+  code more compact.
+  
+  Example usage:
+  rg := ConstructRadioGroup(frm, frm, 8, 8, 200, 400, "Options");
+}
+function ConstructRadioGroup(h, p: TObject; top, left, height, 
+  width: Integer; text: String): TRadioGroup;
+var
+  rg: TRadioGroup;
+begin
+  rg := TRadioGroup.Create(h);
+  rg.Parent := p;
+  rg.Top := top;
+  rg.Left := left;
+  rg.Width := width;
+  rg.Height := height;
+  rg.Caption := text;
+  rg.ClientHeight := height - 15;
+  rg.ClientWidth := width - 15;
+  
+  Result := rg;
+end;
+
+{
+  cRadioGroup:
+  Shortened version of ConstructRadioGroup.
+  
+  Example usage:
+  rg := cRadioGroup(frm, frm, 8, 8, 200, 400, "Options");
+}
+function cRadioGroup(h, p: TObject; top, left, height, 
+  width: Integer; text: String): TRadioGroup;
+begin
+  Result := ConstructRadioGroup(h, p, top, left, height, width, text);
+end;
+
+{
+  ConstructRadioButton:
+  A function which can be used to make a radio button.  Used to make
+  code more compact.
+  
+  Example usage:
+  rb := ConstructRadioButton(frm, frm, 8, 8, 200, 400, "This way", false);
+}
+function ConstructRadioButton(h, p: TObject; top, left, height, 
+  width: Integer; text: String; checked: boolean): TRadioButton;
+var
+  rb: TRadioButton;
+begin
+  rb := TRadioButton.Create(h);
+  rb.Parent := p;
+  rb.Top := top;
+  rb.Left := left;
+  rb.Width := width;
+  rb.Height := height;
+  rb.Caption := text;
+  rb.Checked := checked;
+  
+  Result := rb;
+end;
+
+{
+  cRadioButton:
+  Shortened version of ConstructRadioButton.
+  
+  Example usage:
+  rg := cRadioButton(frm, frm, 8, 8, 200, 400, "This way", false);
+}
+function cRadioButton(h, p: TObject; top, left, height, 
+  width: Integer; text: String; checked: boolean): TRadioButton;
+begin
+  Result := ConstructRadioButton(h, p, top, left, height, width, text, checked);
+end;
+
+{
   ConstructMemo:
   A function which can be used to make a memo.  Used to make code
   more compact.
   
   Example usages:
-  memo := ConstructMemo(frm, frm, 
+  memo := ConstructMemo(frm, frm, 0, 0, 200, 400, True, True, ssBoth, "");
 }
 function ConstructMemo(h, p: TObject; top, left, height, 
   width: Integer; ww, ro: boolean; ss: TScrollStyle; text: String): TMemo;
@@ -1884,6 +2096,19 @@ begin
   memo.Text := text;
   
   Result := memo;
+end;
+
+{
+  cMemo:
+  Shortened function name for ConstructMemo.
+  
+  Example usages:
+  memo := ConstructMemo(frm, frm, 0, 0, 200, 400, True, True, ssBoth, "");
+}
+function cMemo(h, p: TObject; top, left, height, 
+  width: Integer; ww, ro: boolean; ss: TScrollStyle; text: String): TMemo;
+begin
+  Result := ConstructMemo(h, p, top, left, height, width, ww, ro, ss, text);
 end;
 
 {
@@ -1906,10 +2131,22 @@ begin
   
   Result := sb;
 end;
-  
 
 {
-  ConstructCheckBox:
+  cScrollBox:
+  Shortened function name for ConstructScrollBox.
+  
+  Example usage:
+  sb := cScrollBox(frm, frm, 400, alTop);
+}
+function cScrollBox(h, p: TObject; height: Integer; 
+  a: TAlign): TScrollBox;
+begin
+  Result := ConstructScrollBox(h, p, height, a);
+end;
+
+{
+  ConstructCheckbox:
   A function which can be used to make a checkbox.  Used to make 
   code more compact.
   
@@ -1917,7 +2154,7 @@ end;
   cb1 := ConstructCheckBox(frm, pnlBottom, 8, 8, 160, 
     'Remove persistent references', cbChecked);
 }
-function ConstructCheckbox(h, p: TObject; top, left, width: Integer; 
+function ConstructCheckBox(h, p: TObject; top, left, width: Integer; 
   s: String; state: TCheckBoxState): TCheckBox;
 var
   cb: TCheckBox;
@@ -1934,12 +2171,28 @@ begin
 end;
 
 {
+  cCheckBox:
+  Shortened function name for ConstructCheckBox.
+  
+  Example usage:
+  cb1 := cCheckBox(frm, pnlBottom, 8, 8, 160, 
+    'Remove persistent references', cbChecked);
+}
+function cCheckBox(h, p: TObject; top, left, width: Integer; 
+  s: String; state: TCheckBoxState): TCheckBox;
+var
+  cb: TCheckBox;
+begin
+  Result := cCheckbox(h, p, top, left, width, s, state);
+end;
+
+{
   ConstructLabel:
   A function which can be used to make a label.  Used to make 
   code more compact.
   
   Example usage:
-  lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 360, 0, 
+  lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 0, 0, 
     'Reference removal options:');
 }
 function ConstructLabel(h, p: TObject; top, left, height, 
@@ -1961,12 +2214,64 @@ begin
 end;
 
 {
+  cLabel:
+  Shortened function name for ConstructLabel.
+  
+  Example usage:
+  lbl3 := cLabel(frm, pnlBottom, 65, 8, 0, 0, 
+    'Reference removal options:');
+}
+function cLabel(h, p: TObject; top, left, height, 
+  width: Integer; s: String): TLabel;
+begin
+  Result := ConstructLabel(h, p, top, left, height, width, s);
+end;
+
+{
+  ConstructEdit:
+  A function which can be used to make an edit field.  Used to 
+  make code more compact.
+  
+  Example usage:
+  ed3 := ConstructEdit(frm, frm, 100, 8, 0, 0, 'Edit me!');
+}
+function ConstructEdit(h, p: TObject; top, left, height, 
+  width: Integer; s: String): TLabel;
+var
+  ed: TLabel;
+begin
+  ed := TEdit.Create(h);
+  ed.Parent := p;
+  ed.Top := top;
+  ed.Left := left;
+  if height > 0 then ed.Height := height;
+  if width > 0 then ed.Width := width;
+  if (height = 0) and (width = 0) then ed.AutoSize := true;
+  ed.Text := s;
+  
+  Result := ed;
+end;
+
+{
+  cEdit:
+  Shortened function name for ConstructEdit.
+  
+  Example usage:
+  ed3 := cEdit(frm, frm, 100, 8, 0, 0, 'Edit me!');
+}
+function cEdit(h, p: TObject; top, left, height, 
+  width: Integer; s: String): TLabel;
+begin
+  Result := ConstructEdit(h, p, top, left, height, width, s);
+end;
+
+{
   ConstructButton:
   A function which can be used to make a button.  Used to make 
   code more compact.
   
   Example usage:
-  cb1 := ConstructButton(frm, pnlBottom, 8, 8, 160, 'OK');
+  btn1 := ConstructButton(frm, pnlBottom, 8, 8, 160, 'OK');
 }
 function ConstructButton(h, p: TObject; 
   top, left, height, width: Integer; s: String): TButton;
@@ -1982,6 +2287,19 @@ begin
   btn.Caption := s;
   
   Result := btn;
+end;
+
+{
+  cButton:
+  Shortened function name for ConstructButton.
+  
+  Example usage:
+  cButton(frm, pnlBottom, 8, 8, 160, 'OK');
+}
+function cButton(h, p: TObject; 
+  top, left, height, width: Integer; s: String): TButton;
+begin
+  Result := ConstructButton(h, p, top, left, height, width, s);
 end;
 
 {
