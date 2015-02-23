@@ -15,9 +15,6 @@
     debugMCM isn't true.
   - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
     for clarity.  It now says "Explore".
-  - No longer writing exclude.txt to temporary directory if batCopy is false.
-  - Now always using Edit Scripts\mp\temp as temporary directory, to not have to
-    deal with the permission errors associated with trying to use TempPath.
   - Now logging important Conflicting FormID errors that were muted before.
   - Revised RenumberConflictingFormIDs to allow renumbering of injected formIDs
     while maintaing their injected status, fixing an issue with in-merge injections
@@ -28,11 +25,10 @@
     able to load them in the first place.
   - Now using Edit Scripts\mp\temp as temporary directory, and verifying files
     can be saved in the temporary directory.
-  - Fixed general asset copying failing due to exclude parameter issues relating
-    to spaces in the path to the temporary directory.  Now using a local path to
-    the exclude text document.
   - Implemented user-friendly EditOutOfDate method from mteFunctions when it has
     been detected that the user is using an out of date version of xEdit.
+  - Now using robocopy instead of the deprecated xcopy function when copying
+    general assets with batch copying.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1184,29 +1180,30 @@ var
   src, dst, modPath, exclusions, a: string;
 begin
   // construct ignore stringlist
-  a := '';
-  if not batCopy then a := '*';
   ignore := TStringList.Create;
-  ignore.Add('facegendata');
-  ignore.Add('voice');
-  ignore.Add('translations');
+  if not batCopy then begin
+    ignore.Add('facegendata');
+    ignore.Add('voice');
+    ignore.Add('translations');
+  end;
   ignore.Add('meta.ini');
-  ignore.Add(a+'.esp');
-  ignore.Add(a+'.esm');
+  ignore.Add('*.esp');
+  ignore.Add('*.esm');
   if extractBSAs then begin
-    ignore.Add(a+'.bsa');
-    ignore.Add(a+'.bsl');
+    ignore.Add('*.bsa');
+    ignore.Add('*.bsl');
   end;
   
   // find mod directory in Mod Organizer's mods folder
   if debugAssetCopying then LogMessage('    Searching for '+filename+' in '+moPath);
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
     repeat
-      if (Pos('.', rec.Name) = 1) then Continue;
-      if debugAssetCopying then LogMessage('    ...searching '+moPath+'mods\'+rec.Name);
-      if (FileExists(moPath + 'mods\' + rec.Name + '\' + filename)) then begin
-        modPath := moPath + 'mods\'+ rec.Name;
-        break;
+      if (Pos('.', rec.Name) <> 1) then begin
+        if debugAssetCopying then LogMessage('    ...searching '+moPath+'mods\'+rec.Name);
+        if (FileExists(moPath + 'mods\' + rec.Name + '\' + filename)) then begin
+          modPath := moPath + 'mods\'+ rec.Name;
+          break;
+        end;
       end;
     until FindNext(rec) <> 0;
     
@@ -1217,8 +1214,8 @@ begin
   if (modPath <> '') and (slCopiedFrom.IndexOf(modPath) = -1) then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
-    if batCopy then ignore.SavetoFile(temp+'exclude.txt');
-    if batCopy then batch.Add('xcopy "'+modPath+'" "'+astPath+'" /E /EXCLUDE:.\exclude.txt')
+    if batCopy then batch.Add('robocopy "'+modPath+'" "'+RemoveFromEnd(astPath, '\')+'" /e /xf '+
+      StringReplace(ignore.Text, #13#10, ' ', [rfReplaceAll])+' /xd facegendata voice translations')
     else CopyDirectory(modPath, astPath, ignore, debug);
   end;
   
@@ -2222,7 +2219,7 @@ begin
       LogMessage('It''s also important that you don''t close TES5Edit until the asset copying is completed.');
       LogMessage(#13#10#13#10);
       memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
-      bfn := temp+'\merge_'+
+      bfn := temp+'merge_'+
         StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+'_'+
         StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.bat';
       batch.SaveToFile(bfn);
