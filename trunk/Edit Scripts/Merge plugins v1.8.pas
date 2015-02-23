@@ -1177,7 +1177,7 @@ procedure CopyGeneralAssets(filename: string);
 var
   ignore: TStringList;
   rec: TSearchRec;
-  src, dst, modPath, exclusions, a: string;
+  src, dst, modPath, exclusions: string;
 begin
   // construct ignore stringlist
   ignore := TStringList.Create;
