@@ -5,14 +5,6 @@
   
   *CHANGES*
   v1.8.18
-  - Cleaned up for public release.
-  - Fixed issue with Renumber Conflicting FormIDs failing to properly index FormIDs
-    from a file being merged into.
-  - Fixed voice asset copying directory error.
-  - Revised hints in merge window.
-  - Removed unimplemented "Disable Plugins" checkbox.
-  - Made it so MCM translation file copying is logged at a basic level even when 
-    debugMCM isn't true.
   - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
     for clarity.  It now says "Explore".
   - Now logging important Conflicting FormID errors that were muted before.

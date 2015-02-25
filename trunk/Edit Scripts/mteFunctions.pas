@@ -82,6 +82,8 @@
   - [ExtractPathBSA]: extracts the contents of a BSA from a specified subpath to the 
     specified path.
   - [PrintBSAContents]: prints the contents of a BSA to xEdit's message log.
+  - [AddMastersToList]: adds masters from the specified file (and the file itself) to 
+    the specified stringlist.
   - [AddMastersToFile]: adds masters to the specified file from the specified stringlist.
     Will re-add masters if they were already added by AddMasterIfMissing and later
     removed.
@@ -1556,6 +1558,35 @@ begin
 end;
 
 {
+  AddMastersToList:
+  Adds the masters from a specific file, and the file itself, to a 
+  specified stringlist.
+  
+  Example usage:
+  slMasters := TStringList.Create;
+  slMasters := AddMastersToList(FileByName('Dragonborn.esm'), slMasters);
+}
+function AddMastersToList(f: IInterface; lst: TStringList): TStringList;
+var
+  masters, master: IInterface;
+  i: integer;
+  s: string;
+begin
+  // add file
+  s := GetFileName(f);
+  if (lst.IndexOf(s) = -1) then lst.Add(s);
+  
+  // add file's masters
+  masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
+  for i := 0 to ElementCount(masters) - 1 do begin
+    s := geev(ElementByIndex(masters, i), 'MAST');
+    if (lst.IndexOf(s) = -1) then lst.Add(s);
+  end;
+  
+  Result := lst;
+end;
+
+{
   AddMastersToFile:
   Adds masters from a stringlist to the specified file.
   
@@ -2000,7 +2031,7 @@ end;
   code more compact.
   
   Example usage:
-  rg := ConstructRadioGroup(frm, frm, 8, 8, 200, 400, "Options");
+  rg := ConstructRadioGroup(frm, frm, 8, 8, 200, 400, 'Options');
 }
 function ConstructRadioGroup(h, p: TObject; top, left, height, 
   width: Integer; text: String): TRadioGroup;
@@ -2025,7 +2056,7 @@ end;
   Shortened version of ConstructRadioGroup.
   
   Example usage:
-  rg := cRadioGroup(frm, frm, 8, 8, 200, 400, "Options");
+  rg := cRadioGroup(frm, frm, 8, 8, 200, 400, 'Options');
 }
 function cRadioGroup(h, p: TObject; top, left, height, 
   width: Integer; text: String): TRadioGroup;
@@ -2039,7 +2070,7 @@ end;
   code more compact.
   
   Example usage:
-  rb := ConstructRadioButton(frm, frm, 8, 8, 200, 400, "This way", false);
+  rb := ConstructRadioButton(frm, frm, 8, 8, 200, 400, 'This way', false);
 }
 function ConstructRadioButton(h, p: TObject; top, left, height, 
   width: Integer; text: String; checked: boolean): TRadioButton;
@@ -2050,8 +2081,8 @@ begin
   rb.Parent := p;
   rb.Top := top;
   rb.Left := left;
-  rb.Width := width;
-  rb.Height := height;
+  if width > 0 then rb.Width := width;
+  if height > 0 then rb.Height := height;
   rb.Caption := text;
   rb.Checked := checked;
   
@@ -2063,7 +2094,7 @@ end;
   Shortened version of ConstructRadioButton.
   
   Example usage:
-  rg := cRadioButton(frm, frm, 8, 8, 200, 400, "This way", false);
+  rg := cRadioButton(frm, frm, 8, 8, 200, 400, 'This way', false);
 }
 function cRadioButton(h, p: TObject; top, left, height, 
   width: Integer; text: String; checked: boolean): TRadioButton;
@@ -2077,7 +2108,7 @@ end;
   more compact.
   
   Example usages:
-  memo := ConstructMemo(frm, frm, 0, 0, 200, 400, True, True, ssBoth, "");
+  memo := ConstructMemo(frm, frm, 0, 0, 200, 400, True, True, ssBoth, '');
 }
 function ConstructMemo(h, p: TObject; top, left, height, 
   width: Integer; ww, ro: boolean; ss: TScrollStyle; text: String): TMemo;
@@ -2103,7 +2134,7 @@ end;
   Shortened function name for ConstructMemo.
   
   Example usages:
-  memo := ConstructMemo(frm, frm, 0, 0, 200, 400, True, True, ssBoth, "");
+  memo := ConstructMemo(frm, frm, 0, 0, 200, 400, True, True, ssBoth, '');
 }
 function cMemo(h, p: TObject; top, left, height, 
   width: Integer; ww, ro: boolean; ss: TScrollStyle; text: String): TMemo;
