@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.8.18
+  Merge Plugins Script v1.8.19
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.8.18
+  v1.8.19
   - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
     for clarity.  It now says "Explore".
   - Now logging important Conflicting FormID errors that were muted before.
@@ -21,6 +21,11 @@
     been detected that the user is using an out of date version of xEdit.
   - Now using robocopy instead of the deprecated xcopy function when copying
     general assets with batch copying.
+  - Now logging batch copying to the merge log.
+  - Merge logs named properly (no more AM/PM).
+  - Now using copy instead of robocopy when useRobocopy constant is false.  This
+    fix should help users who have privilege escalation issues when starting xEdit
+    through Mod Organizer.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -40,6 +45,7 @@ const
   debugRenumbering = false;
   debugAssetCopying = false;
   debugSearch = false;
+  useRobocopy = false;
   deleteTemp = true;
   pFlag = 'Record Header\Record Flags\PersistentReference QuestItem DisplaysInMainMenu';
 
@@ -48,7 +54,7 @@ var
   slTranslations, slCopiedFrom, batch: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp, rCount: integer;
-  moPath, astPath, bsaName, temp: string;
+  moPath, astPath, bsaName, temp, fdt: string;
   SkipProcess, disableColoring, extractBSAs, usingMo, copyAll, 
   firstRun, batCopy: boolean;
   mgf: IInterface;
@@ -1173,7 +1179,7 @@ var
 begin
   // construct ignore stringlist
   ignore := TStringList.Create;
-  if not batCopy then begin
+  if not (batCopy and useRobocopy) then begin
     ignore.Add('facegendata');
     ignore.Add('voice');
     ignore.Add('translations');
@@ -1190,12 +1196,11 @@ begin
   if debugAssetCopying then LogMessage('    Searching for '+filename+' in '+moPath);
   if FindFirst(moPath + 'mods\*', faDirectory, rec) = 0 then begin
     repeat
-      if (Pos('.', rec.Name) <> 1) then begin
-        if debugAssetCopying then LogMessage('    ...searching '+moPath+'mods\'+rec.Name);
-        if (FileExists(moPath + 'mods\' + rec.Name + '\' + filename)) then begin
-          modPath := moPath + 'mods\'+ rec.Name;
-          break;
-        end;
+      if (Pos('.', rec.Name) = 1) then Continue;
+      if debugAssetCopying then LogMessage('    ...searching '+moPath+'mods\'+rec.Name);
+      if (FileExists(moPath + 'mods\' + rec.Name + '\' + filename)) then begin
+        modPath := moPath + 'mods\'+ rec.Name;
+        break;
       end;
     until FindNext(rec) <> 0;
     
@@ -1206,9 +1211,13 @@ begin
   if (modPath <> '') and (slCopiedFrom.IndexOf(modPath) = -1) then begin
     slCopiedFrom.Add(modPath);
     LogMessage('    Copying assets from directory "'+modPath+'"');
-    if batCopy then batch.Add('robocopy "'+modPath+'" "'+RemoveFromEnd(astPath, '\')+'" /e /xf '+
+    if batCopy and useRobocopy then 
+      batch.Add('>> ..\logs\merge_'+fdt+'.txt robocopy "'+modPath+'" "'+RemoveFromEnd(astPath, '\')+'" /e /xf '+
       StringReplace(ignore.Text, #13#10, ' ', [rfReplaceAll])+' /xd facegendata voice translations')
-    else CopyDirectory(modPath, astPath, ignore, debug);
+    else if batCopy then 
+      batch := BatchCopyDirectory(modPath, astPath, ignore, batch, debug)
+    else 
+      CopyDirectory(modPath, astPath, ignore, debug);
   end;
   
   // free ignore stringlist
@@ -1928,7 +1937,8 @@ begin
   // set up for saving log
   ForceDirectories(ScriptsPath + '\mp\logs');
   today := Now;
-  fn := SanitizeFileName('merge_'+DateToStr(today)+'_'+TimeToStr(today)+'.txt');
+  fdt := FormatDateTime('mmddyy_hhnnss', today);
+  fn := 'merge_'+fdt+'.txt';
   
   // display progress bar
   frm := TForm.Create(nil);
@@ -2211,9 +2221,7 @@ begin
       LogMessage('It''s also important that you don''t close TES5Edit until the asset copying is completed.');
       LogMessage(#13#10#13#10);
       memo.Lines.SaveToFile(ScriptsPath+'\mp\logs\'+fn);
-      bfn := temp+'merge_'+
-        StringReplace(DateToStr(today), '/', '', [rfReplaceAll])+'_'+
-        StringReplace(TimeToStr(today), ':', '', [rfReplaceAll])+'.bat';
+      bfn := temp+'merge_'+fdt+'.bat';
       batch.SaveToFile(bfn);
       ShellExecute(TForm(frmMain).Handle, 'open', bfn, '', ExtractFilePath(bfn), SW_SHOWNORMAL);
     end;
