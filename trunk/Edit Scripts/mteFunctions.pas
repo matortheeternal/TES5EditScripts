@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 2/22/2015
+  edited 2/28/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -20,6 +20,7 @@
     CopyFile if it was synchronous, but it isn't yet.
   - [CopyDirectory]: recursively copies the contents of a directory to a new destination
     path.
+  - [BatchCopyDirectory]: batch variant of CopyDirectory.
   - [DeleteDirectory]: deletes the contents of a directory, and optionally the directory
     itself.
   - [RecursiveFileSearch]: recursively searches for a file in all the folders at a path.
@@ -487,6 +488,52 @@ begin
     
     FindClose(rec);
   end;
+end;
+
+{
+  BatchCopyDirectory:
+  Adds copy commands to a batch stringlist to copy all of the 
+  contents of a directory.
+  
+  Example usage:
+  slIgnore := TStringList.Create;
+  slIgnore.Add('mteFunctions.pas');
+  BatchCopyDirectory(ScriptsPath, 'C:\ScriptsBackup', slIgnore);
+}
+function BatchCopyDirectory(src, dst: string; ignore, batch: TStringList; verbose: boolean): TStringList;
+var
+  i: integer;
+  rec: TSearchRec;
+  skip: boolean;
+begin
+  // ignore . and ..
+  ignore.Add('.');
+  ignore.Add('..');
+  src := AppendIfMissing(src, '\');
+  dst := AppendIfMissing(dst, '\');
+  
+  if FindFirst(src + '*', faAnyFile, rec) = 0 then begin
+    repeat
+      skip := false;
+      for i := 0 to Pred(ignore.Count) do begin
+        skip := Matches(Lowercase(rec.Name), ignore[i]);
+        if skip then
+          break;
+      end;
+      if not skip then begin
+        ForceDirectories(dst);
+        if (rec.attr and faDirectory) <> faDirectory then begin
+          if verbose then AddMessage('    Copying file from '+src+rec.Name+' to '+dst+rec.Name);
+          batch.Add('copy /Y "'+src+rec.Name+'" "'+dst+rec.Name+'"');
+        end
+        else
+          BatchCopyDirectory(src+rec.Name, dst+rec.Name, ignore, batch, verbose);
+      end;
+    until FindNext(rec) <> 0;
+    
+    FindClose(rec);
+  end;
+  Result := batch;
 end;
 
 {
