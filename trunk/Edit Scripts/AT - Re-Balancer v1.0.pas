@@ -519,7 +519,7 @@ begin
   f := GetFile(e);
   if (save = 2) then 
     if slMasters.IndexOf(GetFileName(f)) = -1 then
-      slMasters := AddMastersToList(f, slMasters);
+      AddMastersToList(f, slMasters);
     
   // skip items that inherit from a template
   if ElementExists(e, 'TNAM - Template Armor') then

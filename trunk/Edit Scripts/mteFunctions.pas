@@ -1,8 +1,24 @@
 {
   matortheeternal's Functions
-  edited 2/28/2015
+  edited 3/2/2015
   
   A set of useful functions for use in TES5Edit scripts.
+  
+  **IMPORTANT NOTE!**
+  As of 3/2/2015 a few functions were changed to have parameters passed by reference
+  instead of returning a new variable of the same type.  These functions were all
+  added recently so it shouldn't affect your scripts.  The affected functions are
+  listed below:
+  - [BatchCopyDirectory]: the batch stringlist is now passed by reference. Is now a 
+    procedure.
+  - [AddMastersToList]: the lst stringlist is now passed by reference. Is now a 
+    procedure.
+  - [SetChar]: the input string is now passed by reference. Is now a procedure.
+  
+  Other functions (such as ReverseString, RemoveFromEnd, and SanitizeFileName) weren't
+  changed for clarity regarding string operations.
+  
+  This note will be removed 4/2/2015.
   
   **LIST OF INCLUDED FUNCTIONS**
   - [GetVersionString]: gets TES5Edit's version as a string.
@@ -497,10 +513,12 @@ end;
   
   Example usage:
   slIgnore := TStringList.Create;
+  batch := TStringList.Create;
   slIgnore.Add('mteFunctions.pas');
-  BatchCopyDirectory(ScriptsPath, 'C:\ScriptsBackup', slIgnore);
+  BatchCopyDirectory(ScriptsPath, 'C:\ScriptsBackup', batch, slIgnore, false);
 }
-function BatchCopyDirectory(src, dst: string; ignore, batch: TStringList; verbose: boolean): TStringList;
+procedure BatchCopyDirectory(src, dst: string; ignore: TStringList; 
+  var batch: TStringList; verbose: boolean);
 var
   i: integer;
   rec: TSearchRec;
@@ -533,7 +551,6 @@ begin
     
     FindClose(rec);
   end;
-  Result := batch;
 end;
 
 {
@@ -593,7 +610,8 @@ end;
   p := RecursiveFileSearch('Skyrim.exe', GamePath, ignore, 1, false);
   AddMessage(p);
 }
-function RecursiveFileSearch(aPath, aFileName: string; ignore: TStringList; maxDepth: integer; verbose: boolean): string;
+function RecursiveFileSearch(aPath, aFileName: string; ignore: TStringList; \
+  maxDepth: integer; verbose: boolean): string;
 var
   skip: boolean;
   i: integer;
@@ -650,7 +668,7 @@ begin
   for i := Length(Result) - 1 downto 0 do begin
     ch := GetChar(Result, i);
     if (Pos(ch, badChars) > 0) or (Ord(ch) < 32) then
-      Result := SetChar(Result, i, '');
+      SetChar(Result, i, '');
   end;
 end;
 
@@ -678,10 +696,10 @@ end;
   
   Example usage:
   s := 'backwards';
-  S := ReverseString(s);
+  s := ReverseString(s);
   AddMessage(s); // 'sdrawkcab'
 }
-function ReverseString(s: string): string;
+function ReverseString(var s: string): string;
 var
   i: integer;
 begin
@@ -808,16 +826,16 @@ end;
   
   Example usage:
   s := '1234';
-  s := SetChar(s, 2, 'A');
+  SetChar(s, 2, 'A');
   AddMessage(s); //'1A34'
 }
-function SetChar(const s: string; n: integer; c: char): string;
+procedure SetChar(var input: string; n: integer; c: char);
 var
   front, back: string;
 begin
-  front := Copy(s, 1, n - 1);
-  back := Copy(s, n + 1, Length(s));
-  Result := front + c + back;
+  front := Copy(input, 1, n - 1);
+  back := Copy(input, n + 1, Length(input));
+  input := front + c + back;
 end;
 
 {
@@ -1611,9 +1629,9 @@ end;
   
   Example usage:
   slMasters := TStringList.Create;
-  slMasters := AddMastersToList(FileByName('Dragonborn.esm'), slMasters);
+  AddMastersToList(FileByName('Dragonborn.esm'), slMasters);
 }
-function AddMastersToList(f: IInterface; lst: TStringList): TStringList;
+procedure AddMastersToList(f: IInterface; var lst: TStringList);
 var
   masters, master: IInterface;
   i: integer;
@@ -1629,8 +1647,6 @@ begin
     s := geev(ElementByIndex(masters, i), 'MAST');
     if (lst.IndexOf(s) = -1) then lst.Add(s);
   end;
-  
-  Result := lst;
 end;
 
 {

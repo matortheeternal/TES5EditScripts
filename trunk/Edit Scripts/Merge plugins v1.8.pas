@@ -1215,7 +1215,7 @@ begin
       batch.Add('>> ..\logs\merge_'+fdt+'.txt robocopy "'+modPath+'" "'+RemoveFromEnd(astPath, '\')+'" /e /xf '+
       StringReplace(ignore.Text, #13#10, ' ', [rfReplaceAll])+' /xd facegendata voice translations')
     else if batCopy then 
-      batch := BatchCopyDirectory(modPath, astPath, ignore, batch, debug)
+      BatchCopyDirectory(modPath, astPath, ignore, batch, debug)
     else 
       CopyDirectory(modPath, astPath, ignore, debug);
   end;
