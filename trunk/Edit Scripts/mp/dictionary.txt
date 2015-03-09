@@ -264,9 +264,9 @@ Weapons & Armor_TrueOrcish&DaedricWeapons.esp;1576;1.7;4.0;1;[Thalioden] @13Merg
 WetandCold - Ashes.esp;124;1.7;3.5;2;[Thalioden] @13Merges without errors@13@13[avantesma] @13Merged with W&C Main and Holiday.  No CTDs, but MCM mildly bugged (some odd characters appearing, e.g. tilde before main title).  Further testing needed to determine if MCM options apply correctly and if the mod itself works.@13@13
 HeroicDwarven.esp;53;1.7;4.0;1;[Mator] @13Merges perfectly, no issues encountered.@13@13
 MultiGlass.esp;558;1.7;3.5;2;[Mator] @13Merges perfectly, no issues encountered.@13@13[budgieboy87] @13NO ERRORS, NO CTDS    Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
-HighResTexturePack01.esp;1;1.7;0.0;1;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13
-HighResTexturePack02.esp;1;1.7;0.0;1;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13
-HighResTexturePack03.esp;1;1.7;0.0;1;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13
+HighResTexturePack01.esp;1;1.7;2.0;2;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13[DubhMacTire] @13Merges with no issues@13@13
+HighResTexturePack02.esp;1;1.7;2.0;2;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13[DubhMacTire] @13Merges with no issues@13@13
+HighResTexturePack03.esp;1;1.7;2.0;2;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13[DubhMacTire] @13Merges with no issues@13@13
 Unofficial High Resolution Patch.esp;1;1.7;4.0;1;[skyrimhitsta] @13Notes Works Fine 16 hrs gameplay@13@13
 ETaC - BDS Patch.esp;162;1.7;4.0;1;[keithinhanoi] @13Patch v13.0@13@13
 ETaC - Complete BFT Patch.esp;45;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
@@ -916,7 +916,7 @@ GarrettThiefArmor.esp;46;1.75;4.0;1;[psyched2die] @13Tested in game (only with c
 JP_Quickening.esp;9;1.75;3.0;1;
 Masters of Death.esp;44;1.75;4.0;4;[psyched2die] @13Tested in game (only with console command) and work perfectly@13@13[Dr Choucroute] @13Merges perfectly, no errors ingame    For SkyRe users : correctly patched by the ReProccer@13@13[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)    NOTE: Tryed to merge "Immersive Armors" in to that did not work, format ID errors.@13@13[badmoon22] @13Merged with no problem at all.@13@13
 MasterSpellsShouldBeMasterful.esp;48;1.75;3.0;1;
-Moss Rocks.esp;37;1.75;3.0;2;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
+Moss Rocks.esp;37;1.75;3.33333;3;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
 RemoveExteriorFog-AIO.esp;86;1.75;3.0;1;
 Rise of the Legend - Ysgramor.esp;24;1.75;4.0;2;[psyched2die] @13Tested in game (only with console command) and work perfectly@13@13[badmoon22] @13Merged with no problem at all.@13@13
 Soul Collector.esp;35;1.75;4.0;2;[psyched2die] @13Tested in game (only with console command) and work perfectly@13@13[Dr Choucroute] @13Merges perfectly, no errors ingame@13@13
@@ -994,13 +994,13 @@ IMCN - Hearthfire.esp;89;1.75;2.5;2;[r8der] @13All foods merged correctly and ca
 IMCN - Hunterborn - simple.esp;77;1.75;4.0;1;[r8der] @13All foods merged correctly and can be used as a plugin patch for Imp's More Complex Needs. Load after IMCN.@13@13
 IMCN - Missing Foods Fix for v031 - simple.esp;6;1.75;4.0;1;[r8der] @13All foods merged correctly and can be used as a plugin patch for Imp's More Complex Needs. Load after IMCN.@13@13
 IMCN - Wyrmstooth - simple.esp;3;1.75;4.0;1;[r8der] @13All foods merged correctly and can be used as a plugin patch for Imp's More Complex Needs. Load after IMCN.@13@13
-Populated Cities Towns Villages.esp;2031;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
+Populated Cities Towns Villages.esp;2031;1.75;4.0;2;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
 Populated Dungeons Caves Ruins for USKP.esp;1465;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
-Populated Dungeons Caves Ruins.esp;1465;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
-Populated Forts Towers Places.esp;1967;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
-Populated Lands Roads Paths.esp;1742;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
+Populated Dungeons Caves Ruins.esp;1465;1.75;4.0;2;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+Populated Forts Towers Places.esp;1967;1.75;4.0;2;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+Populated Lands Roads Paths.esp;1742;1.75;4.0;2;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
 Populated Skyrim Civil War.esp;1115;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
-Populated Skyrim Prisons Cells.esp;240;1.75;4.0;1;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13
+Populated Skyrim Prisons Cells.esp;240;1.75;4.0;2;[Shinzei] @13Merged without issues, no issues encountered in game, no scripting errors encountered with Pack (all 7 "Populated..." Mods.@13@13[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
 BardSoundsMalukah.esp;107;1.75;4.0;1;[gabrielmoridon] @13merged great, no issues at all@13@13
 PersonalizedMusic_v5.0.esp;627;1.75;4.0;1;[gabrielmoridon] @13merged great, no issues at all@13@13
 PM_BlackreachMusic_v1.0.esp;54;1.75;4.0;1;[gabrielmoridon] @13merged great, no issues at all@13@13
@@ -1134,7 +1134,7 @@ Dead Body Collision.esp;8;1.75;3.5;2;[MikeySkullivan] @13Merges, no CTDs when lo
 Distant DetailHF.esp;329;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 DragonShoutVoice.esp;21;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
 Dual Wield Parrying_SKSE.esp;4;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
-fFastTravelSpeedMult_4.esp;1;1.75;3.66667;3;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13[Leto85] @13Merges perfectly, no issues encountered.@13@13[ChiefZigZag] @13These work great!@13@13
+fFastTravelSpeedMult_4.esp;1;1.75;3.75;4;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13[Leto85] @13Merges perfectly, no issues encountered.@13@13[ChiefZigZag] @13These work great!@13@13[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
 Gildergreen Regrown.esp;32;1.75;3.5;2;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 HarvestingAnimation.esp;5;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 HarvestOverhaul.esp;469;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
@@ -1146,13 +1146,13 @@ iHUD.esp;29;1.75;3.75;4;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@
 Immersive Patrols II.esp;1034;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 Improved Combat Sounds v2.2.esp;11;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
 Lock Overhaul.esp;57;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
-Moss Rocks_DB.esp;2;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
+Moss Rocks_DB.esp;2;1.75;3.5;2;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
 Nausicaa's Tweaker.esp;9;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 NoxUE2.00.esp;47;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 Oblivion Gates v3 without Markers - Skyrim + Dawnguard DLC.esp;687;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 Paralyze.esp;12;1.75;3.66667;3;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13[Leto85] @13Merges perfectly, no issues encountered.@13@13[ChiefZigZag] @13These work great!@13@13
 Perfect Legionnaire - Troops Re-equipment.esp;11;1.75;3.5;2;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13[Dr Choucroute] @13Merges perfectly, no errors ingame    For SkyRe users : correctly patched by the ReProccer@13@13
-PilgrimsDelight.esp;31;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
+PilgrimsDelight.esp;31;1.75;3.5;2;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
 ProperWeaponScale.esp;1;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
 RaceMenuPluginXPMSE.esp;4;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
 Radiant and Unique Potions Poisons and Booze.esp;132;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
@@ -1163,7 +1163,7 @@ Skyrim Flora Overhaul.esp;73;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on l
 SkyrimImprovedPuddles-DG-HF-DB.esp;162;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 SMDropLitTorch.esp;5;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 Soul Gems Differ.esp;16;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
-SPTConsistentOlderPeople.esp;22;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13
+SPTConsistentOlderPeople.esp;22;1.75;3.5;2;[MikeySkullivan] @13Merges, no CTDs when loading save.@13@13[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
 TKRecoil.esp;18;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 WetandCold - Ashes.esp;124;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
 WetandCold.esp;489;1.75;3.0;1;[MikeySkullivan] @13Merges, no CTDs on loading save.@13@13
@@ -1338,7 +1338,7 @@ Warburg's 3D Paper World Map - Dragonborn.esp;1;1.75;0.5;2;[tdnarbedlih] @13No p
 Warburg's 3D Paper World Map - Texture 1.esp;34;1.75;0.0;1;[tdnarbedlih] @13No problems in TES5EDIT, but screws up the worldmap ingame@13@13
 Cutting Room Floor.esp;3336;1.75;4.0;1;[Leto85] @13Merges perfectly, no issues encountered.@13@13
 dD - Realistic Ragdoll Force - Realistic.esp;11;1.75;4.0;2;[Leto85] @13Merges perfectly, no issues encountered.@13@13[oxymarrow] @13Merges Perfectly@13@13
-Dead Body Collision.esp;2;1.75;4.0;1;[Leto85] @13Merges perfectly, no issues encountered.@13@13
+Dead Body Collision.esp;2;1.75;4.0;2;[Leto85] @13Merges perfectly, no issues encountered.@13@13[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
 Guard Dialogue Overhaul.esp;1024;1.75;4.0;1;[Leto85] @13Merges perfectly, no issues encountered.@13@13
 CoT-WeatherPatch.esp;548;1.75;4.0;1;[SkyrimCliff] @13Merged perfectly, no errors encountered.@13@13
 CoT-WeatherPatch_NL3.esp;8;1.75;4.0;1;[SkyrimCliff] @13Merged perfectly, no errors encountered.@13@13
@@ -1423,9 +1423,9 @@ BarenziahQuestMarkers.esp;1;1.8;4.0;1;[ChiefZigZag] @13Works perfect!@13@13
 BetterQuestObjectives-Dawnguard.esp;15;1.8;4.0;1;[ChiefZigZag] @13Works perfect!@13@13
 BetterQuestObjectives-DBForevertoMisc.esp;2;1.8;4.0;1;[ChiefZigZag] @13Works perfect!@13@13
 BetterQuestObjectives-Hearthfire.esp;3;1.8;4.0;1;[ChiefZigZag] @13Works perfect!@13@13
-BetterQuestObjectives-PaarDilemmaPatch.esp;1;1.8;4.0;1;[ChiefZigZag] @13Works perfect!@13@13
-BetterQuestObjectives-TheChoiceIsYoursPatch.esp;9;1.8;4.0;1;[ChiefZigZag] @13Works Perfect!@13@13
-BetterQuestObjectives-ThievesGuildRequirementsPatch.esp;2;1.8;4.0;1;[ChiefZigZag] @13Works Perfect!@13@13
+BetterQuestObjectives-PaarDilemmaPatch.esp;1;1.8;3.5;2;[ChiefZigZag] @13Works perfect!@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-TheChoiceIsYoursPatch.esp;9;1.8;3.5;2;[ChiefZigZag] @13Works Perfect!@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-ThievesGuildRequirementsPatch.esp;2;1.8;3.5;2;[ChiefZigZag] @13Works Perfect!@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
 BetterQuestObjectives-TimingIsEverythingPatch.esp;2;1.8;4.0;1;[ChiefZigZag] @13Excellent, perfect.@13@13
 BetterQuestObjectives.esp;224;1.8;4.0;1;[ChiefZigZag] @13Errors, But it works perfect!@13@13
 BLESSINGS - Altar Descriptions.esp;20;1.8;4.0;1;[ChiefZigZag] @13Works perfect!@13@13
@@ -1467,7 +1467,7 @@ LightsHeljarchenHall.esp;39;1.75;3.0;1;[WraithofShadow] @13Merge successful, no 
 LightsLakeviewManor.esp;39;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
 LightsWinstadManor.esp;55;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
 MorePerkPoints.esp;3;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
-PhysicsImpactDamageFix.esp;9;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
+PhysicsImpactDamageFix.esp;9;1.75;3.5;2;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
 ringofhircine.esp;1;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
 Scriptless werewolf bonus.esp;11;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
 SecretServantCapacity.esp;3;1.75;3.0;1;[WraithofShadow] @13Merge successful, no CTD on startup. Play test pending...@13@13
@@ -1485,14 +1485,14 @@ You Hunger.esp;15868;1.8;3.0;1;[ChiefZigZag] @13Merged fine, more testing requir
 SPTConsistentOlderPeople.esp;22;1.8b;1.0;1;[ChiefZigZag] @13This mod appers to merge fine. However there are errors which cause crtical problems within gameplay. Errors experienced with merging with BYOD and/or diverpriests.esp@13@13
 WarmongerArmory_Vanilla.esp;204;1.87;1.0;1;[ChiefZigZag] @13I have experienced errors when combining this mods with others. Particularly ImmersiveWeapons.esp and Chesko_WearbleLantern.esp.@13@13
 JK's Ivarstead.esp;956;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JK's Riverwood.esp;1047;1.8;4.0;2;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Riverwood.esp;1047;1.8;4.0;3;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
 JK's Rorikstead.esp;2021;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
 JKs Dragon Bridge.esp;1215;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JKs Markarth.esp;1103;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JKs Riften.esp;1437;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JKs Solitude.esp;1462;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JKs Whiterun.esp;2469;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
-JKs Windhelm.esp;2243;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
+JKs Markarth.esp;1103;1.8;3.66667;3;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JKs Riften.esp;1437;1.8;4.0;2;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JKs Solitude.esp;1462;1.8;3.66667;3;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JKs Whiterun.esp;2469;1.8;3.66667;3;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JKs Windhelm.esp;2243;1.8;3.66667;3;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
 JK's Rorikstead.esp;2386;1.75;4.0;1;[igora] @13merges perfectly@13@13
 AesirArmor.esp;5925;1.75;3.5;2;[Azderiel] @13Large merge of around 60 armor and weapon plugins. No errors or CTD.@13@13[badmoon22] @13Merged with no problem at all.@13@13
 AncientDraugr.esp;48;1.75;3.0;1;[Azderiel] @13Large merge of around 60 armor and weapon plugins. No errors or CTD.@13@13
@@ -1750,7 +1750,7 @@ BLESSINGS - Altar Descriptions.esp;20;1.75;4.0;1;
 DungeonQuestAwareness.esp;45;1.75;4.0;1;
 Slightly Reduced Distance NPC Greetings.esp;1;1.75;4.0;1;[littleraskol] @13Not 100% sure if it worked, the effect of this mod seems very subtle. Will try/test again with a version that reduces the distance further.@13@13
 UnreadBooksGlow.esp;46;1.75;4.0;2;[BigFood97] @13Had no issues@13@13
-Reduced Distance NPC Greetings.esp;1;1.75;4.0;1;[littleraskol] @13This version seems to noticably do its job. (i.e., moreso than the "Slightly Reduced" one, but they are probably both fine.)@13@13
+Reduced Distance NPC Greetings.esp;1;1.75;4.0;2;[littleraskol] @13This version seems to noticably do its job. (i.e., moreso than the "Slightly Reduced" one, but they are probably both fine.)@13@13[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
 TimingIsEverything.esp;68;1.75;4.0;1;[Cheeka] @13have played for months and no issue encountered@13@13
 AdalMatar.esp;5700;1.75;4.0;1;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)@13@13
 Amanda.esp;19;1.75;4.0;2;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)@13@13[FallenDarkAngel] @13Merges Perfectly@13@13
@@ -1790,8 +1790,8 @@ Wuwong_weapon.esp;5;1.75;4.0;1;[Legolas442003] @13Merges perfektly and works fin
 yukikaze.esp;16;1.75;4.0;1;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)@13@13
 Yzandra.esp;17;1.75;4.0;3;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)@13@13[FallenDarkAngel] @13Merges Perfectly@13@13[bloodstone2008] @13build #5 pack, all files have no errors before pack, and no errors after pack rebuild is due to pack 4 having errows with textures.@13@13
 ETaC - Complete ORS Patch.esp;27;;0.0;1;[Lakan] @13Cannot be merged, has errors.@13@13
-Chesko_LoreBasedLoadingScreens.esp;166;1.8;4.0;1;
-fFastTravelSpeedMult_4.esp;1;1.8;4.0;1;[littleraskol] @13Unsure of in-game effect, not about to bust out a stopwatch, etc.@13@13
+Chesko_LoreBasedLoadingScreens.esp;166;1.8;4.0;2;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+fFastTravelSpeedMult_4.esp;1;1.8;4.0;3;[littleraskol] @13Unsure of in-game effect, not about to bust out a stopwatch, etc.@13@13[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
 More Salt Please - Dragonborn Addon.esp;1;1.8;4.0;1;[littleraskol] @13Honestly forgot to visit a vender to test, but the merge works.@13@13
 More Salt Please.esp;22;1.8;4.0;1;[littleraskol] @13Honestly forgot to visit a vender to test, but the merge works.@13@13
 Random Vampire Attacks in Towns Disabled.esp;2;1.8;4.0;1;[littleraskol] @13Did not get a chance to advance into DG and test in game.@13@13
@@ -2207,7 +2207,7 @@ The Unclaimed Delivery.esp;49;1.75;4.0;1;[Ashesremain] @13Merges perfectly, no i
 1nivWICCloaks.esp;777;1.8;3.0;1;
 1nivWICSkyCloaksPatch.esp;27;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Black Mage Armor.esp;277;1.8;3.0;1;
-Chesko_WearableLantern.esp;368;1.8;3.0;1;
+Chesko_WearableLantern.esp;368;1.8;3.5;2;[PTC001] @13Perfectly merged@13@13
 Cloaks.esp;552;1.8;3.0;1;
 CommonClothes.esp;195;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 DrSKnapsacks.esp;133;1.8;3.0;1;
@@ -2222,7 +2222,7 @@ More Interesting Loot for Skyrim.esp;4863;1.8;3.0;1;
 NPO Module - Crossbows.esp;286;1.8;3.0;1;
 PrvtI_HeavyArmory.esp;866;1.8;3.0;1;
 Unique Uniques.esp;42;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
-Wandererarmor.esp;29;1.8;3.0;1;
+Wandererarmor.esp;29;1.8;3.5;2;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
 WarmongerArmory_DLC.esp;115;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 WarmongerArmory_LeveledList.esp;280;1.8;3.0;1;
 WarmongerArmory_Vanilla.esp;204;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
@@ -2270,7 +2270,7 @@ Cloaks.esp;552;1.75;4.0;1;[Ashesremain] @13Merges perfectly, tested in game with
 Dr_BandolierDG.esp;32;1.75;4.0;1;[Ashesremain] @13Merges perfectly, tested in game without problems.@13@13
 ERSO 02 - EFMS vanilla heights.esp;181;1.75;4.0;1;[Ashesremain] @13Merges perfecly, no in game problems.@13@13
 ERSO 02 - EFMS very bigger giant mammoths.esp;181;1.75;4.0;1;[Ashesremain] @13Merges perfecly, no in game problems.@13@13
-ERSO 02 - Enhanced Fauna and Monsters for Skyrim.esp;181;1.75;4.0;1;[Ashesremain] @13Merges perfecly, no in game problems.@13@13
+ERSO 02 - Enhanced Fauna and Monsters for Skyrim.esp;181;1.75;4.0;2;[Ashesremain] @13Merges perfecly, no in game problems.@13@13[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
 Dryad companions.esp;28;1.75;4.0;1;[bloodstone2008] @13build #5 pack, all files have no errors before pack, and no errors after pack rebuild is due to pack 4 having errows with textures.@13@13
 FaustaNPC.esp;15;1.75;4.0;1;[bloodstone2008] @13build #5 pack, all files have no errors before pack, and no errors after pack rebuild is due to pack 4 having errows with textures.@13@13
 RiftenMisfits.esp;529;1.75;4.0;1;[bloodstone2008] @13build #5 pack, all files have no errors before pack, and no errors after pack rebuild is due to pack 4 having errows with textures.@13@13
@@ -2314,12 +2314,12 @@ LongbowsPerks.esp;22;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues enco
 Artifact Disenchanting - Dawnguard.esp;125;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 Artifact Disenchanting - Dragonborn.esp;79;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 Artifact Disenchanting.esp;441;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
-Beards.esp;15;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13
+Beards.esp;15;1.8;3.66667;3;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13[Thaxari] @13Merges perfectly with no issues.@13@13[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
 BosmerArmorMATY743.esp;278;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Cloaks - Dawnguard.esp;20;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Cloaks.esp;536;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Crossbows_Basic_Collection_EN_LL.esp;181;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
-dD - Realistic Ragdoll Force - Realistic.esp;11;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
+dD - Realistic Ragdoll Force - Realistic.esp;11;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
 dD-No Spinning Death Animation.esp;9;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 ELFX - Dawnguard.esp;4580;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 ELFX - Dragonborn.esp;6349;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
@@ -2328,7 +2328,7 @@ Fantasy Soundtrack Project.esp;271;1.8;4.0;1;[MissNet] @13Merged without errors,
 FormsEdit.esp;44;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. Recommend to merge with FormEdit.esp last in load order.@13@13
 FSP - Dawnguard Edition.esp;7;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 FSP - Dragonborn Edition.esp;4;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
-FS_UltimateAssortment.esp;183;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
+FS_UltimateAssortment.esp;183;1.8;3.5;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
 Immersive Darkwater crossing.esp;83;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 Immersive Karthwasten.esp;172;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 Immersive Kynesgrove.esp;419;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
@@ -2338,12 +2338,12 @@ Immersive Solstheim.esp;265;1.8;4.0;1;[MissNet] @13Merged without errors, tested
 Immersive Stonehills.esp;369;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 isilNarsil.esp;118;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console. Clean before merge.@13@13
 JewelCraft.esp;290;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
-JK's Dawnstar.esp;2879;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
-JK's Falkreath.esp;1205;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
-JK's Ivarstead.esp;957;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
-JK's Morthal.esp;1251;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
-JK's Rorikstead.esp;2402;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
-JK's Winterhold.esp;1390;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
+JK's Dawnstar.esp;2879;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JK's Falkreath.esp;1205;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JK's Ivarstead.esp;957;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JK's Morthal.esp;1251;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JK's Rorikstead.esp;2402;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
+JK's Winterhold.esp;1390;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
 JKs Dragon Bridge.esp;1285;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13
 LadyKdCirclets.esp;223;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 Light Elven Armor.esp;24;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
@@ -2363,7 +2363,7 @@ Really Radiant Raiment.esp;7;1.8;4.0;1;[MissNet] @13Merged without errors, teste
 RRR_3DNPC-Patch.esp;87;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 RRR_ELFX-Patch.esp;811;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems.@13@13
 SellswordArmor.esp;45;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
-SGEyebrows.esp;52;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13
+SGEyebrows.esp;52;1.8;4.0;2;[MissNet] @13Merged without errors, tested in game. Found no problems. All options available in character creator.@13@13[Chaptermaster21] @13Merged perfectly, and works ingame (tried with new game)@13@13
 The Companions by Mizzog - AIO - Basic Edition.esp;10;1.8;3.0;1;[MissNet] @13Merged without errors, tested in game. Recommend to resolve conflicts with other NPC overhauls before merging. If experience NPC head/body color mismatch - check facegen data (could be overwritten by other mod).@13@13
 The Unclaimed Delivery.esp;49;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
 TrissArmorRetextured.esp;202;1.8;4.0;1;[MissNet] @13Merged without errors, tested in game. Found no problems. All armors available via crafting and via console.@13@13
@@ -2401,6 +2401,462 @@ ImprovedMagicSettings.esp;3;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors o
 IndividualizedShoutCooldowns.esp;6;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
 Lower Training Cost and 10 times per level.esp;6;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
 Traps Make Noise.esp;2;1.75;4.0;1;[Nazenn] @13Merged perfectly, no errors or CTDs, works in game@13@13
-Hothtrooper44_Armor_Ecksstra.esp;1;1.8;1.0;1;[badmoon22] @13Merge perfectly but the problem is In game it always making update of configuration of the mod.@13@13
+Hothtrooper44_Armor_Ecksstra.esp;1;1.8;2.5;2;[badmoon22] @13Merge perfectly but the problem is In game it always making update of configuration of the mod.@13@13[PTC001] @13Perfectly merged, kept the previous options@13@13
 ExplosiveBoltsVisualized.esp;36;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
 StahlrimCrossbow.esp;7;1.75;4.0;1;[joe1984ace] @13Merges perfectly, no issues encountered.@13@13
+ADEC DI Armor.esp;81;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+ADEC_TeraArmorCollection.esp;110;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+AlynShirArmor.esp;12;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+aMidianborn_Skyforge_Weapons.esp;78;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Amiella Outfit.esp;32;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Ancient Skyforge Armor.esp;17;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+AncientDraugr.esp;56;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Aradia Kato Outfit.esp;125;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Aradia Lingerie Dress.esp;16;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+AsharaImperialOutfit.esp;121;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+AsharaPrinceOfTheWoods.esp;646;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Ballet Boots.esp;102;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+BAMM.esp;1394;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+BarbarianExplorer.esp;38;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+BFPU Orcish Armor.esp;16;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+BlacktalonArmorV11UNP.esp;41;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Blade and Soul Negligee.esp;3;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Blood Raven - CBBE.esp;7;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+BloodWitchArmor.esp;20;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+bosmer-lingerie.esp;8;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Bouncy-Bodices-Booties-Belts-Stockings.esp;368;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+calyps-animal-ears.esp;19;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+calyps-bosmer.esp;127;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+ChainmailBikini.esp;3;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+CharmingHighHeels.esp;109;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+comvex-hmpriestess.esp;37;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+CrimsonTwilightArmor.esp;16;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Dagger Lady.esp;25;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DarkAtronach.esp;119;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Darklilith.esp;29;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DarkReplacer.esp;42;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Davjes_SorceressArmorHHS.esp;434;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DCSorceress.esp;18;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DemonHunterArmor.esp;12;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Demothris.esp;17;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DesertWindByNausicaa.esp;37;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DonMichHeels.esp;87;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DonMichHeelsstock.esp;52;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Doom Heavy Set.esp;23;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Draconic Bloodline.esp;168;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Dragon Lilly.esp;13;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Dragonbone Marauder armor Addon.esp;23;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Dragonbone Marauder armor.esp;114;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DragonBornCircletsComplete.esp;145;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+DragonPlateBrazen.esp;20;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Dread Huntress Armor.esp;33;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Ebon Shroud.esp;10;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Edhildils MrsClaus.esp;17;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+EdhildilsWitchDoctor.esp;27;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Elewin Pumps 2.esp;16;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Elewin Pumps.esp;352;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+EliteRogueArmour.esp;81;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Emfy Cleric Robes.esp;76;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+FarEastChristmas.esp;15;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+FestiveAttire.esp;10;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Fingerless Gloves.esp;125;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+FioraArmor.esp;48;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Forbidden Ebony Armor.esp;20;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Gwelda Armor Pack.esp;98;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Hentai'sSerenityByNausicaaCBBE.esp;68;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+HentaiSuccubusArmor.esp;12;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+hollowarmor.esp;7;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Jin Seo Yeon's Outfit.esp;6;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+JinhuaCat Outfit.esp;23;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+JinhuaCat Retextures.esp;196;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Katarina.esp;21;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+KCEDeathBell.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+KCEFlameBikini.esp;33;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+KCEIceBikini.esp;21;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+kuzak-bodyandstockings.esp;350;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Lace.esp;12;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Lady of Death.esp;25;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LadyLaceCloaks_EN.esp;32;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Latex Armor.esp;25;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LayerBikini.esp;34;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Leeloo_Monokini_Blue-DarkRed.esp;8;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LeiFangAndChristieByNausicaa.esp;30;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Lich King's Armor.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LingerieSetCBBE3_2ByNausicaa.esp;143;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LNL.esp;230;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LUSH Gear Breaker Set.esp;831;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LUSH Gear EasternPrincess Set.esp;164;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LUSH Gear FightingFae Set.esp;773;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+LustmordVampireArmor.esp;146;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Merta Assassin Armor.esp;131;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+MinaArmors.esp;32;1.8;2.0;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[phenix14000] @13errors but it's mods@13@13
+MomijiMummy.esp;6;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+More shiny catsuits.esp;1189;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+msAMV - VampireRogueArmor.esp;154;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+nanban_armor.esp;15;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Neo's Devilmaid2.esp;111;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Neo's Mandu Armours.esp;50;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Neo's Scouter Set.esp;68;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Neo's Selene.esp;51;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Neo's Slave Leia Renewal.esp;229;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NeoDizzySet.esp;189;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewmCBBELO1.esp;128;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewmGlassRobe.esp;13;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewmillerDarkVampKnight.esp;50;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewmillerPiercings2.esp;46;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewmillerPiercings3.esp;112;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+newmillerWitchElven.esp;97;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewVampChainsCuirass.esp;84;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NewVampChainsGloves.esp;74;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+nightshade_armor.esp;58;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+nightshade_armor_UNPB.esp;58;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Nordic Suit.esp;14;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+NS_HuntingGroundsOutfit.esp;140;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Ocean's Allure.esp;9;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+OCR-Fixes.esp;17;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Osare GothicLolita BU.esp;47;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Osare HotPants.esp;172;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+PS Armored Chainmail Bikini UNPB BBP.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+PS CTA Armored Chainmal Bikini.esp;271;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+R18Pn - Leere  Armor.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Rachel Nurse Outfit.esp;2;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Rayne Armor.esp;17;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Red Sonja Armor.esp;81;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Remodeled Armor - Vanilla Replacer - Dawnguard.esp;38;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Remodeled Armor - Vanilla Replacer - Dragonborn.esp;53;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Remodeled Armor - Vanilla Replacer.esp;515;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+ScaledBikini.esp;3;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+ScarletDawnArmor.esp;15;1.8;2.0;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[phenix14000] @13errors but it's mods@13@13
+Schwertleite Set.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+seethroughlook.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+selobl_Diano.esp;54;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Seraphim Set.esp;21;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+SeraphineHuntedArmor.esp;12;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+SexyBikinis.esp;86;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+SexyKunoichi2ndByNausicaa.esp;37;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Silverlight Armor.esp;34;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Skysan_UltraSkimpy.esp;73;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+SlingArmor.esp;8;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Sotteta Huntress Armor.esp;92;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Sotteta Necromancer Outfit.esp;42;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Spriggan Armor 2.esp;20;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Strap.esp;12;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Svs F&W armor.esp;16;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+SylphidByNausicaa.esp;40;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Tembtra Thief Armor.esp;73;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+TERAArmors_CBBE.esp;656;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+ThunderBirdArmor.esp;21;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+UNPB Barbarian Armor.esp;12;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Ursine Armor Pack.esp;120;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Veteran Nord Plate.esp;8;1.8;3.5;2;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+ViceroyInquisitor.esp;15;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Werehide.esp;9;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+WestWindAssault.esp;60;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+WickedBlade.esp;29;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+wjunlady.esp;24;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+XiNafay - Kitty Corset.esp;52;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+Zipsuit.esp;9;1.8;3.0;1;[Nightblue] @13Large Merge File Made (100+) for armors and clothes, Did not verify every piece in patch but no CTD if masters and skeleton were loaded with files.@13@13
+ethereal_elven_overhaul.esp;454;1.8;4.0;1;[Cheeka] @13No problems after several months use.@13@13
+MIDFollowMeEvenCloser.esp;6;1.8;4.0;1;[Cheeka] @13No problems after several months use.@13@13
+No Breathing Sound.esp;22;1.8;4.0;1;[Cheeka] @13No problems after several months use.@13@13
+SPTConsistentOlderPeople.esp;22;1.8;4.0;3;[Cheeka] @13No problems after several months use.@13@13[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+Follower - Chantez.esp;12;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Chelsea.esp;17;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Hotaru.esp;12;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Phey.esp;12;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+ClimatesOfTamriel Falskaar.esp;5;1.8;4.0;1;[Leebob] @13  merges perfectly@13@13
+ClimatesOfTamriel-Dawnguard-Patch.esp;24;1.8;4.0;1;[Leebob] @13  merges perfectly@13@13
+ClimatesOfTamriel-Dragonborn-Patch.esp;14;1.8;4.0;1;[Leebob] @13  merges perfectly@13@13
+Better City Entrances - All in one.esp;672;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+high hrothgar overhaul.esp;111;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+Understone Keep Repair.esp;305;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+Windhelm Lighthouse.esp;328;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BCS - BSQBN - PERMA Patch.esp;114;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BCS - CCOR Patch.esp;3;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BCS - NASB Better Patch.esp;90;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BCSLL-SKYREorPERMA Patch.esp;2;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+TCIY-BCS Patch.esp;1;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+ETaC - Better Dynamic Snow Patch.esp;162;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+ETaC - Complete BFT Patch.esp;81;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+ETaC - Complete EWDR Patch.esp;617;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+ETaC - Complete WC Holidays Patch.esp;362;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+ETaC - Whiterun Ext CRF Patch.esp;58;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+ETaC - Whiterun Ext ELFX Patch.esp;32;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+RND_Dawnguard-Patch.esp;12;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+RND_Dragonborn-Patch.esp;19;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+RND_ETaC-Patch.esp;40;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+RND_HearthFires-Patch.esp;49;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+RND_UniqueBoozeBottles-Patch.esp;14;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+RND_USKP-Patch.esp;14;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-AlternateStartPatch.esp;1;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-AMBSkyforgePatch.esp;1;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-BetterStealthAIPatch.esp;2;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-BSaQBPatch.esp;2;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+BetterQuestObjectives-PersidRRentalPatch.esp;1;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_CoT3_1_patch.esp;33;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_DSI Patch.esp;14;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_EBT Patch.esp;10;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_IWIE Patch.esp;1;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_RealisticWaterTwo Patch.esp;23;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_TAD Patch.esp;4;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_WAF Patch.esp;23;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+AOS2_WetandCold Patch.esp;2;1.8;3.0;1;[SirJesto] @13No errors, successful merge. No CTD on load or with short test.@13@13
+SGHairPack01.esp;80;1.8;4.0;1;[chiwa0810] @13Merge perfectly@13@13
+SGHairPack02.esp;80;1.8;4.0;1;[chiwa0810] @13Merge perfectly@13@13
+SGHairPack03.esp;80;1.8;4.0;1;[chiwa0810] @13Merge perfectly@13@13
+SGHairPack04.esp;80;1.8;4.0;1;[chiwa0810] @13Merge perfectly@13@13
+SGHairPack05.esp;80;1.8;4.0;1;[chiwa0810] @13Merge perfectly@13@13
+SGHairPack06.esp;40;1.8;4.0;1;[chiwa0810] @13Merge perfectly@13@13
+AMatterOfTime.esp;8;1.8;4.0;2;[Lamproly] @13iHud,   iActivate,   Less Intrusive Hud,   A Matter of Time   No problems, works like it should. Note: Extracted all .bsa files.@13@13[Jezzerat] @13Notes - Others have reported issues with this mod, but I've been merging it for a while with no problems. Extracted BSA and installed loose files.@13@13
+iActivate.esp;20;1.8;4.0;1;[Lamproly] @13iHud,   iActivate,   Less Intrusive Hud,   A Matter of Time   No problems, works like it should. Note: Extracted all .bsa files.@13@13
+iHUD.esp;29;1.8;4.0;2;[Lamproly] @13iHud,   iActivate,   Less Intrusive Hud,   A Matter of Time   No problems, works like it should. Note: Extracted all .bsa files.@13@13[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+LessIntrusiveHUD.esp;175;1.8;4.0;1;[Lamproly] @13iHud,   iActivate,   Less Intrusive Hud,   A Matter of Time   No problems, works like it should. Note: Extracted all .bsa files.@13@13
+Brows.esp;257;1.8;3.5;2;[Thaxari] @13Merges perfectly with no issues.@13@13[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+Brows.esp;172;1.8;4.0;1;[Chaptermaster21] @13Merged perfectly, and works ingame (tried with new game)@13@13
+Uncle Sheo does Climates of Tamriel.esp;8;1.8;4.0;1;[Mator] @13Merges perfectly, tested ingame and all load screens are working flawlessly.@13@13
+Uncle Sheo does Dawnguard.esp;18;1.8;4.0;1;[Mator] @13Merges perfectly, tested ingame and all load screens are working flawlessly.@13@13
+Uncle Sheo does Dragonborn.esp;30;1.8;4.0;1;[Mator] @13Merges perfectly, tested ingame and all load screens are working flawlessly.@13@13
+Uncle Sheo does Hearthfire.esp;4;1.8;4.0;1;[Mator] @13Merges perfectly, tested ingame and all load screens are working flawlessly.@13@13
+Uncle Sheo.esp;307;1.8;4.0;1;[Mator] @13Merges perfectly, tested ingame and all load screens are working flawlessly.@13@13
+CompanionArissa.esp;2599;1.8;3.0;1;[Mator] @13Merges but is broken ingame.  Initialization quest works fine, but dialogue options become broken immediately after it.@13@13
+Darrow.esp;883;1.8;4.0;1;[Mator] @13Merges perfectly, no issues encountered.@13@13
+Hermit.esp;1160;1.8;3.0;1;[Mator] @13Merges but is broken ingame.  Can't get her to follow you, all dialogue broken.@13@13
+Appropriately Attired Jarls Redux.esp;2;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+Clothing & Clutter Fixes.esp;1421;1.8;4.0;2;[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+Dead Body Collision.esp;8;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+Dr_Bandolier.esp;358;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+Dr_BandolierDG.esp;32;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+Guard Dialogue Overhaul.esp;1024;1.8;4.0;2;[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+Paralyze.esp;12;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+TradeBarter.esp;336;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+Weapons & Armor Fixes_Remade.esp;2313;1.8;4.0;2;[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+Weapons & Armor_TrueOrcish&DaedricWeapons.esp;1576;1.8;4.0;2;[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+WeaponsArmorFixes_ImmersiveWeapons_Patch.esp;529;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+NoxUE2.00.esp;47;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+RaceMenu.esp;3;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+RaceMenuOverlays.esp;1;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+RaceMenuPlugin.esp;1;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+SkyUI.esp;7;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
+Distant DetailHF.esp;329;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+FarmhouseChimneys.esp;241;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+FarmhouseChimneysCRF.esp;46;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+FarmhouseChimneysFalskaar.esp;68;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+FarmhouseChimneysLAL.esp;6;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+FarmhouseChimneysMaS.esp;17;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+FarmhouseChimneysWyrmstooth.esp;6;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+Footprints - Ash.esp;328;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+Footprints.esp;595;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+Moss Rocks.esp;37;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+Moss Rocks_DB.esp;2;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+SDO Full-LOD - Giant Campfires.esp;8;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+SDO Full-LOD - Waterfall Effects.esp;144;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+SDO Full-LOD - Whiterun Trundra Creeks.esp;73;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+Skyrim Flora Overhaul.esp;73;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+SkyrimImprovedPuddles-DG-HF-DB.esp;162;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
+83Willows_101BUGS_V4_LowRes.esp;108;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+BirdsHFclean.esp;372;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+ORM-Arvak.esp;11;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+BFSEffects.esp;75;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13
+BlockSparkles.esp;8;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13
+DawnguardRuneWeaponsFXSReplacer.esp;3;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13
+mintylightningmod.esp;161;1.8;3.5;2;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13[Jezzerat] @13Notes - Merges fine, no problems. Requires BSA extraction.@13@13
+MintyLightningMod_COT_Patch.esp;2;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13
+Rainbows.esp;21;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13
+ShootingStars.esp;38;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves are still working.@13@13
+Chesko_Step418_SN.esp;10;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+PilgrimsDelight.esp;31;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+Radiant and Unique Potions Poisons and Booze.esp;132;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+Soul Gems Differ.esp;16;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+DragonShoutVoice.esp;21;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+IHSS.esp;36;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+Improved Combat Sounds v2.2.esp;11;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+randomthunder.esp;1;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+CoT-WeatherPatch.esp;548;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+CoT-WeatherPatch_DB.esp;5;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+CoT-WeatherPatch_ESS.esp;9;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+CoT-WeatherPatch_ISSnowNight_Dark.esp;1;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+CoT-WeatherPatch_Snow-40.esp;3;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+CoT-WeatherPatch_SupStorms.esp;18;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+ESS Patch for CoT DG Patch.esp;5;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+ExpandedSnowSystems-CoT.esp;23;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+Morning Fogs.esp;125;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+RealisticNightsCOT_DB.esp;7;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+RealisticNightsDB.esp;9;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+RealisticNightsDG.esp;8;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+SplashofRain.esp;35;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+Supreme Storms - Cot Version.esp;9;1.8;3.0;1;[Shroom10] @13Merges perfectly, no errors encountered. Old saves still working.@13@13
+360WalkandRunPlus-RunBackwardSpeedAdjust.esp;1;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Better Dynamic Snow.esp;967;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+CandleLightRecolor.esp;2;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Convenient Bridges.esp;1189;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Facelight.esp;31;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Gatti12Jewelry.esp;24;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Giantess.esp;62;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+HoldBorderBanners.esp;146;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Magnus100_50.esp;7;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+masser Size x3.0.esp;1;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Neo's Oriental Dress.esp;134;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Point The Way.esp;306;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+secunda Size x2.0.esp;1;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+Skyrim Bridges.esp;3034;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLS-ELFXFrontStepspatch.esp;1;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLS-Invite-Uninvite-Amulet.esp;5;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLS-ODPoolNG.esp;7;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLSapachii.esp;34;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLSHousecarlsmovein.esp;98;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLSMotseerOutfits.esp;31;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLSsecretArmourRoom.esp;189;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLSspouse.esp;41;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLSVisitors.esp;396;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLS_PatioFurniture.esp;290;1.8;1.0;1;[KopyKatz] @13Merges bad , have  issues encountered.  Graphical errors missing things like whole body see only the head and furniture missing@13@13
+BBLuxurySuiteClassier.esp;1088;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+BBLuxurySuiteExt.esp;51;1.8;4.0;1;[KopyKatz] @13Merges perfecly, no issues encountered@13@13
+combinationVanillaOutfit.esp;758;1.8;4.0;1;[preeum] @13Merges with no problems.@13@13
+HmmWhatToWear.esm;567;1.8;4.0;1;[Preeum] @13Merges with no problems.@13@13
+HmmWhatToWearDawnGuard.esm;55;1.8;4.0;1;[Preeum] @13Merges with no problems.@13@13
+AshRocks.esp;38;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Bee Hives.esp;43;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+fallentreebridges.esp;1029;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Hjaalmarch Redux.esp;4038;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Purewaters-Falskaar.esp;8;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Purewaters.esp;45;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+PWwaterfall.esp;1266;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Real Roads.esp;176;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Unique Grasses.esp;81;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+UniqueBorderGates-All.esp;737;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Weathered Road Signs.esp;1476;1.75;4.0;1;[JADEBOND] @13Notes: EVERYTHING RUN GREAT HAD ZERO ISSUES@13@13
+Pureweather.esp;298;1.75;4.0;1;[JADEBOND] @13Notes: NO CTD AND WORKED VERY WELL TOGETHER@13@13
+Shadows - Dawnguard.esp;386;1.75;4.0;1;[JADEBOND] @13Notes: NO CTD AND WORKED VERY WELL TOGETHER@13@13
+Shadows - Skyrim.esp;9851;1.75;4.0;1;[JADEBOND] @13Notes: NO CTD AND WORKED VERY WELL TOGETHER@13@13
+Vividian - Extended Weathers - Pure weathers.esp;66;1.75;4.0;1;[JADEBOND] @13Notes: NO CTD AND WORKED VERY WELL TOGETHER@13@13
+BarenziahQuestMarkers_Droppable.esp;1;1.8;4.0;1;[Jezzerat] @13Notes - No issues. Have been merging since merge script first available.@13@13
+dD-No Spinning Death Animation Merged.esp;11;1.8;4.0;1;[Jezzerat] @13Notes - No issues found.@13@13
+Dragon Knowledge Spell.esp;4;1.8;4.0;1;[Jezzerat] @13Notes - Merges fine, no problems. Requires BSA extraction.@13@13
+Gri_BeastFeet.esp;30;1.8;4.0;1;[Jezzerat] @13Notes - Merges fine, no problems.@13@13
+ImprovedFireyFireSalts.esp;3;1.8;4.0;1;[Jezzerat] @13Notes - Merges fine, no problems. Requires BSA extraction.@13@13
+ImprovedFrostyFrostSalts.esp;3;1.8;4.0;1;[Jezzerat] @13Notes - No issues found.@13@13
+KDC - kevinsterable - Deadly Stronger Poisons.esp;36;1.8;4.0;1;[Jezzerat] @13Notes - Merges fine, no problems.@13@13
+NoNakedComments.esp;1;1.8;4.0;1;[Jezzerat] @13Notes - Merges fine, no problems.@13@13
+Skysan_Icicle.esp;6;1.8;4.0;1;[Jezzerat] @13Notes - No issues found.@13@13
+KillCicero.esp;1;1.8;0.0;1;[Jezzerat] @13Notes - File obsolete and will not work, merged or no. Replace with updated 4.0 version.@13@13
+tos_amber_guard.esp;820;1.8;4.0;1;[tapbeat] @13no problem@13@13
+tos_granitehall.esp;857;1.8;4.0;1;[tapbeat] @13no problem@13@13
+tos_laintardale_hf.esp;1613;1.8;4.0;1;[tapbeat] @13no problem@13@13
+tos_oakwood_hf.esp;1263;1.8;4.0;1;[tapbeat] @13no problem@13@13
+Clothing & Clutter Fixes.esp;1421;1.75;4.0;1;[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
+ERSO 01 - VRRHighElflore with Running.esp;90;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 02.1 - Realistic Animal Loots.esp;24;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 04 - Mighty Odahviing.esp;6;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 04.2 - Mighty Durnehviir.esp;4;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 05 - Dovah Holy Book.esp;12;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 06 - Wait More Time Dragon Encounter x3.0.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 07 - Mighty Dragon Priests.esp;19;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 08 - RUS-00 Main plus Dawnguard Dragonborn.esp;351;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 08.1 - ERSO MIRAAK.esp;3;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 08.2 - ERSO HARKON.esp;3;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 09 - RUS-Npcs overhaul USKP compatible.esp;2217;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 10 - RUS-(SIM)-Travellers and Adventurers.esp;474;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 10.03 - Immersive Battles.esp;434;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 10.07 - Immersive Factions.esp;25;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 10.08 - Immersive Mercenaries.esp;60;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 11 - RUS-(SIM)-Assassins and Thieves.esp;375;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 13 - MD - A Better Level Progression.esp;2;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 13.02 - Lower Skill Gain -40percent.esp;18;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14 - Vendors richer and Inns more expensive.esp;14;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.02 - Harder barter 6-4.esp;2;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.03 - Vendor Soul Gems Only Empty And Very Rare.esp;4;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.04 - Vendor Animal Parts Less Common.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.05 - Vendor Less Minerals no special.esp;4;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.06 - Vendor Minor Enchanted Weapons Armors Very Rare.esp;30;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.07 - Vendor Less Weapons Armors.esp;74;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 14.08 - Respawn Vendor Stuff 15 days.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 15 - Timescale 8.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 16 - Realistic Crime Alert Distances - MEDIUM.esp;2;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 17 - Training cost 2.5x.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 18 - LAWE Hardcore.esp;71;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 19 - Respawn 15 days - 180 days.esp;2;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 20 - Standing Stones Overhaul.esp;51;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 21.01 PM Dungeons.esp;144;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 21.02 PM Blackreach.esp;53;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 21.03 PM Dwemer.esp;117;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 22 - Better Necromancy Spells.esp;12;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 23 - Lockpicking Perks Changes.esp;4;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 24 - Pickpocket Perks Changes.esp;2;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 25 - Enchanting Perks Changes.esp;13;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 26 - Realistic Fall Damages.esp;8;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 29 - DPMO.esp;30;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 30 - Better Enemy AI.esp;117;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+ERSO 30.1 - Better Expert Level.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+HeavyArmorTree.esp;10;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGE...TWO THUMBS@13@13
+LightArmorTree.esp;5;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGE...TWO THUMBS@13@13
+No_stretching.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
+NPCs On Horses ERSOmized.esp;89;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+Populated Skyrim Civil War Patrols.esp;376;1.75;4.0;1;[JADEBOND] @13Notes  FANTASTIC...All of the mids in E.R.S.O merged together except with one mods with call "Reliance"  other then that the entire overhaul was reduced to one working ESP@13@13
+PTAlchemyFoodOverhaul.esp;585;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyFoodOverhaul_BetterSorting.esp;587;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyOverhaul_ONLY.esp;502;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyOverhaul_ONLY_BetterSorting.esp;504;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyOverhaul_SkillRate_0_33.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyOverhaul_SkillRate_0_5.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyOverhaul_SkillRate_0_75.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTAlchemyOverhaul_SkillRate_1_0.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+PTFoodOverhaul_ONLY.esp;82;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGING ESP'S@13@13
+SmithingTree.esp;134;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGE...TWO THUMBS@13@13
+SmithingTreeDB.esp;19;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGE...TWO THUMBS@13@13
+SmithingTreeDG.esp;15;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGE...TWO THUMBS@13@13
+SpeechTree.esp;30;1.75;4.0;1;[JADEBOND] @13Notes  GREAT MERGE...TWO THUMBS@13@13
+WeaponRangeFix.esp;47;1.75;4.0;1;[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
+xone Fix Those Wyrms.esp;1;1.75;4.0;1;[JADEBOND] @13Notes  THESE MODS WORKED PERFECTLY...A GREAT MERGE@13@13
+ApachiiHair.esm;194;1.8;4.0;1;[sam] @13Merges perfectly, no issues encountered.@13@13
+ApachiiHairFemales.esm;485;1.8;4.0;1;[sam] @13Merges perfectly, no issues encountered.@13@13
+ApachiiHairMales.esm;196;1.8;4.0;1;[sam] @13Merges perfectly, no issues encountered.@13@13
+ApachiiHelmetWigs.esp;105;1.8;4.0;1;[sam] @13Merges perfectly, no issues encountered.@13@13
+DemonHunterArmor.esp;213;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+DMC4 Trish.esp;9;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+ElvenScout.esp;16;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+I Love Cleavage 7B.esp;27;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+Kamille.esp;56;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+MashupUNP.esp;348;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+Mavari Armor.esp;21;1.8;2.5;2;[phenix14000] @13errors but it's mods@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Nocturnal.esp;17;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+ProType - Rocco.esp;11;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+SexyVest.esp;30;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+svs Pretty Ranger.esp;36;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+TERAArmors.esm;1024;1.8;2.5;2;[phenix14000] @13errors but it's mods@13@13[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+XXJuriHH.esp;111;1.8;1.0;1;[phenix14000] @13errors but it's mods@13@13
+K2 Naked Mage Jewelry.esp;21;1.8;4.0;1;[PTC001] @13Perfectly merged@13@13
+Cutting Room Floor.esp;3367;1.8;4.0;1;[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+Dead Body Collision.esp;2;1.8;4.0;1;[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+moveitLWT.esp;4;1.8;4.0;1;[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+no vampire attacks before dawnguard.esp;2;1.8;4.0;1;[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+sandboxcylinderheight.esp;2;1.8;4.0;1;[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+WeaponRangeFix.esp;47;1.8;4.0;1;[JADEBOND] @13NotesTHEY MERGE AND WORK WELL TOGETHER@13@13
+SMIM-DragonbornTernFix.esp;3;1.8;4.0;1;[JADEBOND] @13Notes SOLID MERGE@13@13
+SMIM-DungeonsCliffsIceSkirts.esp;9;1.8;4.0;1;[JADEBOND] @13Notes SOLID MERGE@13@13
+SMIM-FarmhouseFlickeringFix.esp;12;1.8;4.0;1;[JADEBOND] @13Notes SOLID MERGE@13@13
+SMIM-FurnitureChestSnowFix.esp;1;1.8;4.0;1;[JADEBOND] @13Notes SOLID MERGE@13@13
+SMIM-ShackRoofFixes.esp;85;1.8;4.0;1;[JADEBOND] @13Notes SOLID MERGE@13@13
+SMIM-ShackRoofFixesDragonborn.esp;13;1.8;4.0;1;[JADEBOND] @13Notes SOLID MERGE@13@13
+Armored Circlets.esp;122;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Contractor Armor.esp;46;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+DAO Morrigan's Robes.esp;13;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+DemonHunterV2armor.esp;12;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+DemonHunter_Scarf.esp;3;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Elven Archer Armor.esp;20;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+hunterarmor.esp;19;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+HuntressArmor.esp;64;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+nordicrangerarmor.esp;23;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Northgirl.esp;92;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+PaladinArmor.esp;29;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Raven Witch Armor.esp;36;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Seadog.esp;42;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+svs Pretty Ranger.esp;28;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Tera Armor Level List.esp;479;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+TERA Boots n Greaves - for HDT.esp;37;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Tera Deathskin - UNPB BBP.esp;15;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+VagabondArmor.esp;43;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+warchiefarmor.esp;42;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+WestWindAssault.esp;70;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+Withe01_Armor_BattleMage.esp;26;1.8;4.0;1;[SerdarS] @13Merges perfectly, no issues encountered.@13@13
+SkyrimGuardians.esp;83;1.8;4.0;1;[Astakos] @13No issues encountered. Asset copying works perfectly.@13@13
+SkyrimGuardiansStrongholds.esp;17;1.8;4.0;1;[Astakos] @13No issues encountered. Asset copying works perfectly.@13@13
