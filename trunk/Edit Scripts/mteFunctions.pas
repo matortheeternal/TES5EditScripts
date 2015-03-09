@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 3/2/2015
+  edited 3/9/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -2019,9 +2019,9 @@ end;
   option to open the AFKMods thread to download the current beta.
   
   Example usage:
-  EditOutOfDate('3.0.33 svn 1898');
+  EditOutOfDate('3.0.33 svn 1898', 'http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/');
 }
-procedure EditOutOfDate(minimumVersion: String);
+procedure EditOutOfDate(minimumVersion: String; url: string);
 var
   frm: TForm;
   lbl: TLabel;
@@ -2056,9 +2056,9 @@ begin
     lbl.Width := 270;
     lbl.Caption := 
       'You''re using '+s+', but this script requires '+wbAppName+'Edit '+minimumVersion+' or newer.  '
-      'Click the Update button to be directed to get the latest beta from AFKMods.';
+      'Click the Update button to be directed to get the latest version.';
     AddMessage('You''re using '+s+', but this script requires '+wbAppName+'Edit '+minimumVersion+' or newer.');
-    AddMessage('You can get the most recent beta at http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/');
+    AddMessage('You can get the latest version at '+url);
     
     btnOk := TButton.Create(frm);
     btnOk.Parent := frm;
@@ -2066,7 +2066,7 @@ begin
     btnOk.Left := 40;
     btnOk.Caption := 'Update';
     btnOk.ModalResult := mrOk;
-    btnOk.Hint := 'Click to open http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/ in '#13#10+
+    btnOk.Hint := 'Click to open '+url+' in '#13#10+
     'your internet browser so you can download the latest xEdit beta version.';
     btnOk.ShowHint := true;
     
@@ -2081,7 +2081,7 @@ begin
     
     if frm.ShowModal = mrOk then begin
       ShellExecute(TForm(frm).Handle, 'open', 
-        'http://afkmods.iguanadons.net/index.php?/topic/3750-wipz-tes5edit/', '', '', SW_SHOWNORMAL);
+        url, '', '', SW_SHOWNORMAL);
     end;
   finally 
     frm.Free;
