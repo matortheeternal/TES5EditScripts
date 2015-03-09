@@ -1,5 +1,5 @@
 {
-  NPC Transmogrifier v1.0
+  NPC Transmogrifier v1.1
   Created by matortheeternal
   
   *What it does*
@@ -22,8 +22,9 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '1.0';
+  vs = '1.1';
   processesps = true;
+  saveLists = false;
 
 var
   slFemaleHairs, slFemaleBrows, slFemaleEyes, slFemaleScars, slFemaleFaces, slMaleHairs, 
@@ -513,6 +514,28 @@ begin
     AddMessage('Stringlist loading failed.  Asset count in one or more essential stringlists was zero.');
     cancel := true;
   end;
+  if saveLists then begin
+    slFemaleHairs.SaveToFile(ScriptsPath + 'listFemaleHairs.txt');
+    slFemaleBrows.SaveToFile(ScriptsPath + 'listFemaleBrows.txt');
+    slFemaleEyes.SaveToFile(ScriptsPath + 'listFemaleEyes.txt');
+    slFemaleScars.SaveToFile(ScriptsPath + 'listFemaleScars.txt');
+    slFemaleFaces.SaveToFile(ScriptsPath + 'listFemaleFaces.txt');
+    slMaleHairs.SaveToFile(ScriptsPath + 'listMaleHairs.txt');
+    slMaleBrows.SaveToFile(ScriptsPath + 'listMaleBrows.txt');
+    slMaleFacialHairs.SaveToFile(ScriptsPath + 'listMaleFacialHairs.txt');
+    slMaleEyes.SaveToFile(ScriptsPath + 'listMaleEyes.txt');
+    slMaleScars.SaveToFile(ScriptsPath + 'listMaleScars.txt');
+    slMaleFaces.SaveToFile(ScriptsPath + 'listMaleFaces.txt');
+    slHairColors.SaveToFile(ScriptsPath + 'listHairColors.txt');
+    slDarkElfColors.SaveToFile(ScriptsPath + 'listDarkElfColors.txt');
+    slHighElfColors.SaveToFile(ScriptsPath + 'listHighElfColors.txt');
+    slHumanColors.SaveToFile(ScriptsPath + 'listHumanColors.txt');
+    slWoodElfColors.SaveToFile(ScriptsPath + 'listWoodElfColors.txt');
+    slRedguardColors.SaveToFile(ScriptsPath + 'listRedguardColors.txt');
+    slOrcColors.SaveToFile(ScriptsPath + 'listOrcColors.txt');
+    slTintColors.SaveToFile(ScriptsPath + 'listTintColors.txt');
+    slNPCs.SaveToFile(ScriptsPath + 'listNPCs.txt');
+  end;
 end;
 
 //=========================================================================
@@ -536,7 +559,7 @@ end;
 // finalize 
 function Finalize: integer;
 var
-  npc, npcfile, layer, group: IInterface;
+  npc, npcfile, baselayer, layer, group: IInterface;
   female: boolean;
   s, name: string;
   i, j: integer;
@@ -575,11 +598,14 @@ begin
       exit;
     end
     else AddMessage('Override NPCs will be stored in the file: '+GetFileName(npcfile));
-    for i := 0 to slMasters.Count - 1 do
-      if not SameText(GetFileName(npcfile), slMasters[i]) then
-        AddMasterIfMissing(npcfile, slMasters[i]);
-    Add(npcfile, 'NPC_', true);
-  end;
+  end
+  else npcfile := GetFile(ObjectToElement(slNPCs.Objects[0]));
+  
+  // add masters
+  for i := 0 to slMasters.Count - 1 do
+    if not SameText(GetFileName(npcfile), slMasters[i]) then
+      AddMasterIfMissing(npcfile, slMasters[i]);
+  Add(npcfile, 'NPC_', true);
   
   // transmogrify npcs
   AddMessage(#13#10+'Transmogrifying NPCs...');
@@ -593,6 +619,7 @@ begin
     AddMessage('    Transmogrifying '+name);
     
     // get npc gender
+    female := false;
     if (geev(npc, 'ACBS\Flags\female') = '1') then
       female := true;
     
@@ -1425,7 +1452,7 @@ begin
           CreateTintLayer(layer, 57, slTintColors, '', 100, '1-10'); //MaleHeadDirt_02
           layer := ElementAssign(group, HighInteger, nil, False);
           CreateTintLayer(layer, 58, slTintColors, '', 100, '1-10'); //MaleHeadDirt_03
-          if Random(100) < tatoochance then begin
+          if Random(100) < tattoochance then begin
             layer := ElementAssign(group, HighInteger, nil, False);
             r := Random(15);
             if r < 10 then
