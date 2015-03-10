@@ -1,5 +1,5 @@
 {
-  Merged Plugin Manager v1.1
+  Merged Plugin Manager v1.2
   Created by matortheeternal
   
   * DESCRIPTION *
@@ -12,7 +12,7 @@ unit mpManager;
 uses mteFunctions;
 
 const
-  vs = 'v1.1';
+  vs = 'v1.2';
   notesmax = 255;
 
 var
@@ -315,15 +315,15 @@ begin
 end;
 
 //=========================================================================
-function NotDuplicateForm(form: string; x: integer): boolean;
+function DuplicateForm(form: string; x: integer): boolean;
 var
   i: integer;
 begin
-  Result := true;
+  Result := false;
   for i := 0 to slPlugins.Count - 1 do begin
     if i = x then Continue;
-    if arForms[x].IndexOf(form) > -1 then begin
-      Result := false;
+    if arForms[i].IndexOf(form) > -1 then begin
+      Result := true;
       break;
     end;
   end;
@@ -333,20 +333,33 @@ end;
 procedure RemoveForms(flst: IInterface; x: integer);
 var
   forms, rec, e: IInterface;
+  i: integer;
+  val: string;
 begin
   AddMessage('Removing FormIDs associated with: '+geev(flst, 'EDID'));
   forms := ElementByPath(flst, 'FormIDs');
-  while ElementCount(forms) > 0 do begin
-    e := ElementByIndex(forms, 0);
+  i := 0;
+  for i := ElementCount(forms) - 1 downto 0 do begin
+    e := ElementByIndex(forms, i);
+    val := GetEditValue(e);
     rec := LinksTo(e);
-    AddMessage('  Removing '+SmallName(rec));
+    if Assigned(rec) and (GetFileName(GetFile(rec)) = GetFileName(GetFile(flst))) then begin
+      if smartremoval then begin
+        if not DuplicateForm(val, x) then begin
+          AddMessage('  Removing '+GetEditValue(e));
+          RemoveNode(rec);
+        end
+        else
+          AddMessage('  Skipping '+GetEditValue(e));
+      end
+      else begin
+        AddMessage('  Removing '+GetEditValue(e));
+        RemoveNode(rec);
+      end;
+    end;
     RemoveElement(forms, e);
-    if Assigned(rec) and smartRemoval then begin
-      if NotDuplicateForm(GetEditValue(e), x) then RemoveNode(rec);
-    end else if Assigned(rec) then
-      RemoveNode(rec);
   end;
-  AddMessage('  Removing '+SmallName(flst));
+  AddMessage('  Removing '+Name(flst));
   RemoveNode(flst);
 end;
 
@@ -383,7 +396,7 @@ begin
       end;
       // fix description
       desc := geev(ElementByIndex(plugin, 0), 'SNAM');
-      desc := StringReplace(desc, slPlugins[m] + #13#10, '', [rfReplaceAll]);
+      desc := StringReplace(desc, #13#10'  '+Trim(slPlugins[m]), '', [rfReplaceAll]);
       seev(ElementByIndex(plugin, 0), 'SNAM', desc);
       // remove masters
       CleanMasters(plugin);
