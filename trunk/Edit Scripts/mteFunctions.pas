@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 3/9/2015
+  edited 3/15/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -475,9 +475,6 @@ var
   rec: TSearchRec;
   skip: boolean;
 begin
-  // ignore . and ..
-  ignore.Add('.');
-  ignore.Add('..');
   src := AppendIfMissing(src, '\');
   dst := AppendIfMissing(dst, '\');
   
@@ -486,6 +483,11 @@ begin
       skip := false;
       for i := 0 to Pred(ignore.Count) do begin
         skip := Matches(Lowercase(rec.Name), ignore[i]);
+        if (Pos('.', ignore[i]) > 0) and ((rec.attr and faDirectory) = faDirectory) then
+          skip := false;
+        if (rec.Name = '.') or (rec.Name = '..') then
+          skip := true;
+        if skip and verbose then AddMessage('    Skipping '+rec.Name+', matched '+ignore[i]);
         if skip then
           break;
       end;
@@ -493,8 +495,6 @@ begin
         ForceDirectories(dst);
         if (rec.attr and faDirectory) <> faDirectory then begin
           if verbose then AddMessage('    Copying file from '+src+rec.Name+' to '+dst+rec.Name);
-          //ResourceCopy('Data', src+rec.Name, dst+rec.Name);
-          //wCopyFile(src+rec.Name, dst+rec.Name, true);
           CopyFile(PChar(src+rec.Name), PChar(dst+rec.Name), false);
         end
         else
@@ -524,9 +524,6 @@ var
   rec: TSearchRec;
   skip: boolean;
 begin
-  // ignore . and ..
-  ignore.Add('.');
-  ignore.Add('..');
   src := AppendIfMissing(src, '\');
   dst := AppendIfMissing(dst, '\');
   
@@ -535,6 +532,11 @@ begin
       skip := false;
       for i := 0 to Pred(ignore.Count) do begin
         skip := Matches(Lowercase(rec.Name), ignore[i]);
+        if (Pos('.', ignore[i]) > 0) and ((rec.attr and faDirectory) = faDirectory) then
+          skip := false;
+        if (rec.Name = '.') or (rec.Name = '..') then
+          skip := true;
+        if skip and verbose then AddMessage('    Skipping '+rec.Name+', matched '+ignore[i]);
         if skip then
           break;
       end;

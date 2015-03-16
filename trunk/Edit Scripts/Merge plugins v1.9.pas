@@ -1,33 +1,14 @@
 {
-  Merge Plugins Script v1.9.0
+  Merge Plugins Script v1.9.1
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.9.0
-  - Renamed and adjusted hint for "Browse" button in the Asset Destination helper
-    for clarity.  It now says "Explore".
-  - Now logging important Conflicting FormID errors that were muted before.
-  - Revised RenumberConflictingFormIDs to allow renumbering of injected formIDs
-    while maintaing their injected status, fixing an issue with in-merge injections
-    causing duplicate FormID errors.
-  - Fixed CopyGeneralAssets scanning "." and ".." folders on certain systems.
-  - Using FileExists for CopyGeneralAssets instead of FileSearch.  ESP and ESM files
-    will always be in the base folder for the mod, else xEdit wouldn't have been 
-    able to load them in the first place.
-  - Now using Edit Scripts\mp\temp as temporary directory, and verifying files
-    can be saved in the temporary directory.
-  - Implemented user-friendly EditOutOfDate method from mteFunctions when it has
-    been detected that the user is using an out of date version of xEdit.
-  - Now using robocopy instead of the deprecated xcopy function when copying
-    general assets with batch copying.
-  - Now logging batch copying to the merge log.
-  - Merge logs named properly (no more AM/PM).
-  - Now using copy instead of robocopy when useRobocopy constant is false.  This
-    fix should help users who have privilege escalation issues when starting xEdit
-    through Mod Organizer.
-  - Updated EditOutOfDate method to take a URL as a parameter, now pointing to Nexus
-    Mods for TES5Edit (because of the 3.1.0 release).
+  v1.9.1
+  - Fixed issue with GetDefinition with v = true not working properly because
+    there's the letter "v" in the vs constant, but not in reports.
+  - Fixed issue with CopyGeneralAssets skipping files that should be copied
+    from facegendata.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -146,7 +127,7 @@ begin
   if r then
     search := search + IntToStr(RecordCount(f)) + ';';
   if v then
-    search := search + vs + ';';
+    search := search + Copy(vs, 2, Length(vs) - 1) + ';';
   for i := 0 to Pred(slDictionary.Count) do begin
     if Pos(search, slDictionary[i]) = 1 then begin
       Result := slDictionary[i];
@@ -1182,8 +1163,7 @@ begin
   // construct ignore stringlist
   ignore := TStringList.Create;
   if not (batCopy and useRobocopy) then begin
-    ignore.Add('facegendata');
-    ignore.Add('voice');
+    ignore.Add(filename);
     ignore.Add('translations');
   end;
   ignore.Add('meta.ini');
@@ -1215,7 +1195,7 @@ begin
     LogMessage('    Copying assets from directory "'+modPath+'"');
     if batCopy and useRobocopy then 
       batch.Add('>> ..\logs\merge_'+fdt+'.txt robocopy "'+modPath+'" "'+RemoveFromEnd(astPath, '\')+'" /e /xf '+
-      StringReplace(ignore.Text, #13#10, ' ', [rfReplaceAll])+' /xd facegendata voice translations')
+      StringReplace(ignore.Text, #13#10, ' ', [rfReplaceAll])+' /xd '+filename+' translations')
     else if batCopy then 
       BatchCopyDirectory(modPath, astPath, ignore, batch, debug)
     else 
