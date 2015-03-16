@@ -5,7 +5,7 @@ TES5EditScripts is a collection of several scripts written in pascal
 which allow for the execution of useful functions for the editing and 
 creation of Bethesda plugin files.  These scripts were developed with 
 TES5Edit in mind, though many of them work fine in other versions of 
-Edit as well.  These scripts will allow you to save huge chunks of time 
+xEdit as well.  These scripts will allow you to save huge chunks of time 
 when creating mods for Bethesda games.
 
 * Nexus Mods: [matortheeternal](http://skyrim.nexusmods.com/users/3900618/?tb=mods&pUp=1)
@@ -19,8 +19,8 @@ when creating mods for Bethesda games.
 Current Scripts
 ==================================
 
-* **Merge Plugins:** v1.8 beta available.
 * **Mator Smash:** v0.8 beta available.
+* **Merge Plugins:** v1.9 released on Nexus Mods March 9, 2015.
 * **PerkTreeUI:** v1.2 released on Nexus Mods February 3, 2014. 
 * **QuickChange:** v2.4 released on Nexus Mods July 18, 2014.
 * **Find and Replace FormID:** v1.2 released on Nexus Mods February 3, 2014.
