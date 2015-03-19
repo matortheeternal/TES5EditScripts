@@ -25,7 +25,7 @@ const
   showRecTimes = false;
   verbose = false;
   // maximum records to be smashed
-  maxRecords = 10000;
+  maxRecords = 9001;
   disableStyles = false;
  
 var
@@ -276,12 +276,22 @@ end;
 
 //======================================================================
 // skipSubrecord: Check if a subrecord should be skipped
-function skipSubrecord(subrecord: IInterface): boolean;
+function skipSubrecord(subrecord: IInterface; ini: TMemIniFile): boolean;
+var
+  subrecords, subrecordMode, subrecordPath: string;
 begin
-  Result := ((subrecordMode = '0') and (Pos(Path(se)+#13, subrecords) > 0))
-    or ((subrecordMode = '1') and (Pos(Path(se)+#13, subrecords) = 0))
-    or ((global_subrecordMode = '0') and (Pos(Path(se)+#13, global_subrecords) > 0)) 
-    or ((global_subrecordMode = '1') and (Pos(Path(se)+#13, global_subrecords) = 0));
+  // load subrecord settings
+  subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
+  subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
+  
+  // path string
+  subrecordPath := Path(subrecord)+#13;
+  
+  // result boolean
+  Result := ((subrecordMode = '0') and (Pos(subrecordPath, subrecords) > 0))
+    or ((subrecordMode = '1') and (Pos(subrecordPath, subrecords) = 0))
+    or ((global_subrecordMode = '0') and (Pos(subrecordPath, global_subrecords) > 0)) 
+    or ((global_subrecordMode = '1') and (Pos(subrecordPath, global_subrecords) = 0));
 end;
 
 //======================================================================
@@ -301,13 +311,13 @@ end;
 // isValueElement: checks if an element is a value element
 function isValueElement(elementType: string): boolean;
 begin
-  Result := (dts = 'dtInteger') 
-    or (dts = 'dtFloat') 
-    or (dts = 'dtUnion') 
-    or (dts = 'dtByteArray')
-    or (dts = 'dtString') 
-    or (dts = 'dtLString') 
-    or (dts = 'dtLenString');
+  Result := (elementType = 'dtInteger') 
+    or (elementType = 'dtFloat') 
+    or (elementType = 'dtUnion') 
+    or (elementType = 'dtByteArray')
+    or (elementType = 'dtString') 
+    or (elementType = 'dtLString') 
+    or (elementType = 'dtLenString');
 end;
 
 //======================================================================
@@ -320,10 +330,6 @@ var
   diff: TRecordDiff;
   slDst, slMst: TStringList;
 begin
-  // load subrecord settings
-  subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
-  subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
-  
   // initialize stringlists
   slDst := TStringList.Create; // list of destination elements
   slMst := TStringList.Create; // list of master elements - currently unused, remove?
@@ -361,7 +367,7 @@ begin
       continue;
     end;
     // skip subrecordsToSkip
-    if skipSubrecord(se) then begin
+    if skipSubrecord(se, ini) then begin
       if showSkips then LogMessage('    Skipping '+Path(se));
       Inc(i);
       Inc(j);
@@ -455,6 +461,7 @@ var
   i: integer;
   fn, author: string;
   f, ovr, mr: IInterface;
+  ini: TMemIniFile;
 begin
   // loop through record's overrides
   for i := 0 to OverrideCount(rec) - 1 do begin
