@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.8.7';
+  vs = 'v0.8.8';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -31,7 +31,7 @@ const
 var
   slRecords, slSettings, slOptions, slFiles: TStringList;
   lstSettings: TList;
-  smashFile: IInterface;
+  userFile: IInterface;
   lbl: TLabel;
   frm: TForm;
   pb: TProgressBar;
@@ -275,6 +275,42 @@ begin
 end;
 
 //======================================================================
+// skipSubrecord: Check if a subrecord should be skipped
+function skipSubrecord(subrecord: IInterface): boolean;
+begin
+  Result := ((subrecordMode = '0') and (Pos(Path(se)+#13, subrecords) > 0))
+    or ((subrecordMode = '1') and (Pos(Path(se)+#13, subrecords) = 0))
+    or ((global_subrecordMode = '0') and (Pos(Path(se)+#13, global_subrecords) > 0)) 
+    or ((global_subrecordMode = '1') and (Pos(Path(se)+#13, global_subrecords) = 0));
+end;
+
+//======================================================================
+// AddElementsToList: adds children elements to a stringlist
+procedure AddElementsToList(element: IInterface; var sl: TStringList);
+var
+  i: integer;
+  childElement: IInterface;
+begin
+  for i := 0 to ElementCount(element) - 1 do begin
+    childElement := ebi(element, i);
+    sl.Add(Name(childElement));
+  end;
+end;
+
+//======================================================================
+// isValueElement: checks if an element is a value element
+function isValueElement(elementType: string): boolean;
+begin
+  Result := (dts = 'dtInteger') 
+    or (dts = 'dtFloat') 
+    or (dts = 'dtUnion') 
+    or (dts = 'dtByteArray')
+    or (dts = 'dtString') 
+    or (dts = 'dtLString') 
+    or (dts = 'dtLenString');
+end;
+
+//======================================================================
 // rcore: Recursively Copy Overridden Elements
 procedure rcore(src, mst, dst, dstrec: IInterface; depth: string; ini: TMemIniFile);
 var
@@ -284,27 +320,17 @@ var
   diff: TRecordDiff;
   slDst, slMst: TStringList;
 begin
-  // skip identical to master sources
-  if ConflictThisString(src) = 'ctIdenticalToMaster' then begin
-    if showSkips then LogMessage('  Skipping, ctIdenticalToMaster');
-    exit;
-  end;
-  
   // load subrecord settings
   subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
   subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
   
+  // initialize stringlists
+  slDst := TStringList.Create; // list of destination elements
+  slMst := TStringList.Create; // list of master elements - currently unused, remove?
+  
   // copy elements from source to destination if missing
-  slDst := TStringList.Create;
-  slMst := TStringList.Create;
-  for i := 0 to ElementCount(dst) - 1 do begin
-    de := ebi(dst, i);
-    slDst.Add(Name(de));
-  end;
-  for i := 0 to ElementCount(mst) - 1 do begin
-    me := ebi(mst, i);
-    slMst.Add(Name(me));    
-  end;
+  AddElementsToList(dst, slDst);
+  AddElementsToList(mst, slMst);
   for i := 0 to ElementCount(src) - 1 do begin
     se := ebi(src, i);
     if (slDst.IndexOf(Name(se)) = -1) then
@@ -314,12 +340,15 @@ begin
   // loop through subelements
   i := 0;
   j := 0;
-  While i < ElementCount(src) do begin
+  while i < ElementCount(src) do begin
+    // assign source, destination, master elements
+    // ensure index out of bounds doesn't occur by not reassigning
     if i < ElementCount(src) then
       se := ebi(src, i);
     if j < ElementCount(dst) then
       de := ebi(dst, j);
     me := ebn(mst, Name(se));
+    
     // DefType and ElementType strings
     ets := ElementTypeString(se);
     dts := DefTypeString(se);
@@ -331,12 +360,8 @@ begin
       Inc(j);
       continue;
     end;
-    
     // skip subrecordsToSkip
-    if ((subrecordMode = '0') and (Pos(Path(se)+#13, subrecords) > 0))
-    or ((subrecordMode = '1') and (Pos(Path(se)+#13, subrecords) = 0))
-    or ((global_subrecordMode = '0') and (Pos(Path(se)+#13, global_subrecords) > 0)) 
-    or ((global_subrecordMode = '1') and (Pos(Path(se)+#13, global_subrecords) = 0)) then begin
+    if skipSubrecord(se) then begin
       if showSkips then LogMessage('    Skipping '+Path(se));
       Inc(i);
       Inc(j);
@@ -348,7 +373,7 @@ begin
     if showTypeStrings then LogMessage('    ets: '+ets+'  dts: '+dts);
     
     // if destination element doesn't match source element
-    if Name(se) <> Name(de) then begin
+    if (Name(se) <> Name(de)) then begin
       // proceed to next destination element
       if (j < ElementCount(dst)) then
         Inc(j)
@@ -359,6 +384,7 @@ begin
     
     // deal with general array cases
     if (ets = 'etSubRecordArray') or (dts = 'dtArray') then begin
+      // deal with sorted array
       if IsSorted(se) then begin
         if debugArrays then LogMessage('    Sorted array found: '+Path(se));
         try
@@ -367,38 +393,39 @@ begin
           LogMessage('      !! MergeSortedArray exception: '+x.Message);
         end;
       end
+      // deal with unsorted array
       else begin
         if debugArrays then LogMessage('    Unsorted array found: '+Path(se));
         try 
+          //MergeUnsortedArray(me, se, de, dstrec, depth, ini);
           rcore(se, me, de, dstrec, depth + '    ', ini);
         except on x : Exception do
           LogMessage('      !! rcore exception: '+x.Message);
         end;
-        //MergeUnsortedArray(me, se, de, dstrec, depth, ini);
       end;
     end
+    
     // else recurse deeper
     else if (ElementCount(se) > 0) and (dts <> 'dtInteger') then begin
       if showTraversal then LogMessage('    Recursing deeper.');
-      try 
+      try
         rcore(se, me, de, dstrec, depth + '    ', ini);
       except on x : Exception do
-        LogMessage('      !! rcore exception: '+x.Message);
+        LogMessage('      !! rcore exception in element '+Path(se)+': '+x.Message);
       end;
     end
+    
     // else copy element if value differs from master
-    else if (dts = 'dtInteger') or (dts = 'dtFloat') or (dts = 'dtUnion') or (dts = 'dtByteArray')
-    or (dts = 'dtString') or (dts = 'dtLString') or (dts = 'dtLenString') then begin
-      if GetEditValue(se) <> GetEditValue(me) then begin
-        if (Assigned(me)) and showChanges then begin
-          if (not showTraversal) then LogMessage('    '+Path(se));
-          LogMessage('      > Found differing values: '+GetEditValue(se)+' and '+GetEditValue(me));
-        end;
-        try 
-          SetEditValue(de, GetEditValue(se));
-        except on x : Exception do
-          LogMessage('      !! Copy element value exception: '+x.Message);
-        end;
+    else if isValueElement(dts) and (GetEditValue(se) <> GetEditValue(me)) then begin
+      if (Assigned(me)) and showChanges then begin
+        if (not showTraversal) then LogMessage('    '+Path(se));
+        LogMessage('      > Found differing values: '+GetEditValue(se)+' and '+GetEditValue(me));
+      end;
+      // try to copy element value to destination element from source element
+      try 
+        SetEditValue(de, GetEditValue(se));
+      except on x : Exception do
+        LogMessage('      !! Copy element value exception: '+x.Message);
       end;
     end;
     
@@ -412,8 +439,68 @@ begin
 end;
 
 //======================================================================
-// MakeBold: makes a label caption bold.
-procedure MakeBold(lbl: TLabel);
+// isSmashedPatch: checks if a file is a smashed patch
+function isSmashedPatch(f: IInterface): boolean;
+var
+  author: string;
+begin
+  author := geev(ElementByIndex(f, 0), 'CNAM');
+  Result := (Pos('Mator Smash', author) = 1); 
+end;
+
+//======================================================================
+// smashRecord: smashes a record "rec" into a file "smashFile"
+procedure smashRecord(rec, smashFile: IInterface);
+var
+  i: integer;
+  fn, author: string;
+  f, ovr, mr: IInterface;
+begin
+  // loop through record's overrides
+  for i := 0 to OverrideCount(rec) - 1 do begin
+    ovr := OverrideByIndex(rec, i);
+    f := GetFile(ovr);
+    fn := GetFileName(f);
+    
+    // skip overrides in bethesda files
+    if (Pos(fn, bethesdaFiles) > 0) then
+      continue;
+    // skip overrides in smashed patches
+    if (isSmashedPatch(f)) then 
+      continue;
+    // skip ctIdenticalToMaster overrides
+    if (ConflictThisString(ovr) = 'ctIdenticalToMaster') then
+      continue;
+    
+    // if master record is not assigned, copy winning override to smashed patch
+    if (not Assigned(mr)) then begin
+      try
+        mr := wbCopyElementToFile(WinningOverride(ovr), smashFile, false, true);
+      except on x: Exception do
+        LogMessage('      !! Exception copying record '+Name(rec)+' : '+x.Message);
+      end;
+    end;
+    
+    // look up setting for this file
+    try
+      ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[slFiles.IndexOf(fn)])]);
+    except on x : Exception do
+      LogMessage('Setting lookup exception : '+x.Message);
+    end;
+    
+    // recursively copy overriden elements
+    try
+      LogMessage(#13#10'Smashing record '+Name(rec)+' from file: '+fn);
+      rcore(ovr, rec, mr, mr, '    ', ini);
+    except on x : Exception do
+      LogMessage('    !! Exception smashing record '+slRecords[i]+' : '+x.Message);
+    end;
+  end;
+end;
+
+//======================================================================
+// makeBold: makes a label caption bold.
+procedure makeBold(lbl: TLabel);
 begin
   if not disableStyles then begin
     lbl.WordWrap := false;
@@ -775,25 +862,25 @@ begin
     pfrm.Position := poScreenCenter;
     
     lbl := ConstructLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:');
-    MakeBold(lbl);
+    makeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:');
-    MakeBold(lbl);
+    makeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, author);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:');
-    MakeBold(lbl);
+    makeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, records);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:');
-    MakeBold(lbl);
+    makeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:');
-    MakeBold(lbl);
+    makeBold(lbl);
     memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, desc);
     lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:');
-    MakeBold(lbl);
+    makeBold(lbl);
     memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, masters);
     lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:');
-    MakeBold(lbl);
+    makeBold(lbl);
     memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 150, 348, true, true, ssVertical, groups);
     
     pfrm.ShowModal;
@@ -874,7 +961,7 @@ begin
       fnlbl := TLabel.Create(pnlArray[pnlCount]);
       fnlbl.Parent := pnlArray[pnlCount];
       fnlbl.Caption := '['+IntToHex(i - 1, 2)+'] '+fn;
-      MakeBold(fnlbl);
+      makeBold(fnlbl);
       fnlbl.Left := 24;
       fnlbl.Top := 14;
       fnlbl.OnClick := PluginForm;
@@ -1008,9 +1095,9 @@ end;
 // this is where everything happens
 function Initialize: integer;
 var
-  f, r, ovr, mr: IInterface;
+  f, r: IInterface;
   i, j, k: integer;
-  fn, rn, author, records, recordMode, logFileName: string;
+  fn, rn, records, recordMode, logFileName: string;
   ini: TMemIniFile;
   today, tStart, tRec: TDateTime;
   diff: double;
@@ -1104,14 +1191,13 @@ begin
       for i := 0 to FileCount - 1 do begin
         f := FileByIndex(i);
         fn := GetFileName(f);
-        author := geev(ebi(f, 0), 'CNAM');
         // skip bethesda files, we're not patching them
         if Pos(fn, bethesdaFiles) > 0 then
           continue;
-        // if smashFile found, skip and assign
-        if Pos('Mator Smash', author) = 1 then begin
-          smashFile := f;
-          continue;
+        // if smashed patch found, assign and break
+        if (isSmashedPatch(f)) then begin
+          userFile := f;
+          break;
         end;
         // build list of records with multiple overrides
         lbl.Caption := 'Processing '+fn;
@@ -1150,30 +1236,30 @@ begin
         end;
       end;
      
-      // make smashFile if not found
+      // make userFile if not found
       lbl.Caption := 'Assigning smashed patch.';
       application.processmessages;
-      if not Assigned(smashFile) then
-        smashFile := AddNewFile;
-      if not Assigned(smashFile) then begin
+      if not Assigned(userFile) then
+        userFile := AddNewFile;
+      if not Assigned(userFile) then begin
         LogMessage('Smashed patch not assigned, terminating script');
         FreeMemory;
         Result := -1;
         exit;
       end;
       
-      // set smashFile author to Mator Smash
+      // set userFile author to Mator Smash
       lbl.Caption := 'Adding masters to smashed patch.';
       application.processmessages;
-      seev(ebi(smashFile, 0), 'CNAM', 'Mator Smash '+vs);
-      // add masters to smashFile
+      seev(ebi(userFile, 0), 'CNAM', 'Mator Smash '+vs);
+      // add masters to userFile
       for i := 0 to FileCount - 3 do begin
         f := FileByLoadOrder(i);
         fn := GetFileName(f);
-        AddMasterIfMissing(smashFile, fn);
+        AddMasterIfMissing(userFile, fn);
       end;
      
-      // copy records that have been overridden multiple times to smashed patch
+      // smash records that have been overridden multiple times
       lbl.Caption := 'Smashing records (1/'+IntToStr(slRecords.Count)+')';
       application.processmessages;
       pb.Max := slRecords.Count;
@@ -1181,34 +1267,10 @@ begin
       for i := 0 to slRecords.Count - 1 do begin
         tRec := Now;
         if i = maxRecords then break;
-        mr := nil;
+        // smash record
         r := ObjectToElement(slRecords.Objects[i]);
-        for j := 0 to OverrideCount(r) - 1 do begin
-          ovr := OverrideByIndex(r, j);
-          fn := GetFileName(GetFile(ovr));
-          if (Pos(fn, bethesdaFiles) = 0) and (Pos('SmashedPatch', fn) = 0) then begin
-            if (not Assigned(mr)) and (not (ConflictThisString(ovr) = 'ctIdenticalToMaster')) then begin
-              try
-                mr := wbCopyElementToFile(WinningOverride(ovr), smashFile, false, true);
-              except on x: Exception do
-                LogMessage('      !! Exception copying record '+slRecords[i]+' : '+x.Message);
-              end;
-            end;
-            try
-              ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[slFiles.IndexOf(fn)])]);
-            except on x : Exception do
-              LogMessage('Setting lookup exception : '+x.Message);
-            end;
-            if debugArrays or showChanges or showTraversal or showSkips then
-              LogMessage('');
-            LogMessage('Smashing record '+slRecords[i]+' from file: '+fn);
-            try
-              rcore(ovr, r, mr, mr, '    ', ini); // recursively copy overriden elements
-            except on x : Exception do
-              LogMessage('    !! Exception smashing record '+slRecords[i]+' : '+x.Message);
-            end;
-          end;
-        end;
+        smashRecord(r, userFile);
+        // update label, print debug message to log after smashing record
         lbl.Caption := 'Smashing records ('+IntToStr(i + 2)+'/'+IntToStr(slRecords.Count)+')';
         pb.Position := pb.Position + 1;
         diff := (Now - tRec) * 86400;
@@ -1219,7 +1281,7 @@ begin
       // finishing messages
       lbl.Caption := 'All done.';
       LogMessage(#13#10+dashes);
-      LogMessage('Smashing complete.  '+IntToStr(RecordCount(smashfile))+' records smashed.');
+      LogMessage('Smashing complete.  '+IntToStr(RecordCount(userfile))+' records smashed.');
       diff := (Now - tStart) * 86400;
       LogMessage('Completed in ' + FormatFloat('0.###', diff) + ' seconds.');
       memo.Lines.SaveToFile(logFileName);
