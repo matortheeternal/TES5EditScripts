@@ -24,9 +24,9 @@ const
   showTypeStrings = false;
   showRecTimes = false;
   verbose = false;
+  disableStyles = false;
   // maximum records to be smashed
   maxRecords = 10000;
-  disableStyles = false;
  
 var
   slRecords, slSettings, slOptions, slFiles: TStringList;
@@ -118,23 +118,24 @@ begin
 end;
 
 //======================================================================
-// buildSortKeyList: puts the sort keys of elements in a stringlist
-procedure buildSortKeyList(element: IInterface; var sl: TStringList);
+// BuildSortKeyList: puts the sort keys of elements in a stringlist
+procedure BuildSortKeyList(element: IInterface; var sl: TStringList);
 var
   i, n: integer;
   childElement: IInterface;
-  sk: string;
+  sk, skAdj: string;
 begin
   for i := 0 to ElementCount(element) - 1 do begin
     childElement := ebi(element, i);
     sk := SortKey(childElement, false);
+    skAdj := sk;
     n := 0;
-    while sl.IndexOf(sk) > -1 do begin
+    while sl.IndexOf(skAdj) > -1 do begin
       Inc(n);
-      sk := SortKey(childElement, false) + '-' + IntTostr(n);
+      skAdj := sk + '-' + IntTostr(n);
     end;
-    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
-    sl.Add(sk);
+    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+skAdj);
+    sl.Add(skAdj);
   end;
 end;
 
@@ -153,9 +154,9 @@ begin
   slSrc := TStringList.Create;
   slDst := TStringList.Create;
   slDst.Sorted := true;
-  buildSortKeyList(mst, slMst);
-  buildSortKeyList(src, slSrc);
-  buildSortKeyList(dst, slDst);
+  BuildSortKeyList(mst, slMst);
+  BuildSortKeyList(src, slSrc);
+  BuildSortKeyList(dst, slDst);
   
   // Step 2: Remove elements that are in mst and dst, but missing from src
   for i := 0 to slMst.Count - 1 do begin
@@ -186,8 +187,8 @@ begin
     // Step 3.5: If array element is in dst and has subelements, traverse it.
     else if (d_ndx > -1) and ((dts = 'dtStruct') or (ets = 'etSubRecordArray')) then begin
 	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
-      if showTraversal and debugArrays then LogMessage('      > Source Element: '+gav(se));
-      if showTraversal and debugArrays then LogMessage('      > Destination Element: '+gav(ebi(dst, d_ndx)));
+      if showTraversal and debugArrays then LogMessage('      > Source Element: '+gav(se)+
+        #13#10'      > Destination Element: '+gav(ebi(dst, d_ndx)));
       try
         rcore(se, GetMasterElement(src, se, dstrec), ebi(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
@@ -197,8 +198,8 @@ begin
     end
     else if (d_ndx > -1) and (ets = 'etSubRecordStruct') then begin
 	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
-      if showTraversal and debugArrays then LogMessage('      > Source Element: '+gav(se));
-      if showTraversal and debugArrays then LogMessage('      > Destination Element: '+gav(ebi(dst, d_ndx)));
+      if showTraversal and debugArrays then LogMessage('      > Source Element: '+gav(se)+
+        #13#10'      > Destination Element: '+gav(ebi(dst, d_ndx)));
       try
         rcore(se, GetMasterElement(src, se, dstrec), ebi(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
@@ -215,64 +216,76 @@ begin
 end;
 
 //======================================================================
+// BuildAllValuesList: puts the values of elements in a stringlist
+procedure BuildAllValuesList(element: IInterface; var sl: TStringList);
+var
+  i, n: integer;
+  childElement: IInterface;
+  values, valuesAdj: string;
+begin
+  for i := 0 to ElementCount(element) - 1 do begin
+    childElement := ebi(element, i);
+    values := gav(childElement);
+    valuesAdj := values;
+    n := 0;
+    while (sl.IndexOf(valuesAdj) > -1) do begin
+      Inc(n);
+      valuesAdj := values + IntToStr(n);
+    end;
+    sl.Add(valuesAdj);
+  end;
+end;
+
+//======================================================================
 // MergeUnsortedArray: Merges unsorted array elements
 procedure MergeUnsortedArray(mst, src, dst, dstrec: IInterface; depth: string; ini: TMemIniFile);
 var
   i, m_ndx, s_ndx, d_ndx: integer;
   me, se, de: IInterface;
-  lstMst, lstSrc, lstDst: TList;
+  slMst, slSrc, slDst: TStringList;
   useValues: boolean;
   dts, ets: string;
 begin
-  // This function still needs some work.
   // Step 1: build lists of elements in each array for easy comparison
-  lstMst := TList.Create;
-  lstSrc := TList.Create;
-  lstDst := TList.Create;
-  
-  for i := 0 to ElementCount(mst) - 1 do begin
-    me := ebi(mst, i);
-    lstMst.Add(TObject(me));
-  end;
-  for i := 0 to ElementCount(src) - 1 do begin
-    se := ebi(src, i);
-    lstSrc.Add(TObject(se));
-  end;
-  for i := 0 to ElementCount(dst) - 1 do begin
-    de := ebi(dst, i);
-    lstDst.Add(TObject(de));
-  end;
+  slMst := TStringList.Create;
+  slSrc := TStringList.Create;
+  slDst := TStringList.Create;
+  BuildElementList(mst, slMst);
+  BuildElementList(src, slSrc);
+  BuildElementList(dst, slDst);
   
   // Step 2: Remove elements that are in mst and dst, but missing from src
-  for i := 0 to lstMst.Count - 1 do begin
-    s_ndx := lstSrc.IndexOf(lstMst[i]);
-    d_ndx := lstDst.IndexOf(lstMst[i]);
+  for i := 0 to slMst.Count - 1 do begin
+    s_ndx := slSrc.IndexOf(slMst[i]);
+    d_ndx := slDst.IndexOf(slMst[i]);
     
     if (s_ndx = -1) and (d_ndx > -1) then begin
-      RemoveNode(ebi(dst, d_ndx));
-      lstDst.Delete(d_ndx);
+      RemoveElement(dst, d_ndx);
+      slDst.Delete(d_ndx);
     end;
   end;
   
   // Step 3: Copy array elements in src that aren't in mst or dst
-  for i := 0 to lstSrc.Count - 1 do begin
-    d_ndx := lstDst.IndexOf(lstSrc[i]);
-    m_ndx := lstMst.IndexOf(lstSrc[i]);
+  for i := 0 to slSrc.Count - 1 do begin
+    d_ndx := slDst.IndexOf(slSrc[i]);
+    m_ndx := slMst.IndexOf(slSrc[i]);
     se := ebi(src, i);
     
-    if (m_ndx = -1) and (d_ndx = -1) then
+    if (m_ndx = -1) and (d_ndx = -1) then begin
       ElementAssign(dst, HighInteger, se, false);
+      slDst.Add(slSrc[i]);
+    end;
   end;
   
   // Step 4: Free lists.
-  lstMst.Free;
-  lstSrc.Free;
-  lstDst.Free;
+  slMst.Free;
+  slSrc.Free;
+  slDst.Free;
 end;
 
 //======================================================================
-// skipSubrecord: Check if a subrecord should be skipped
-function skipSubrecord(subrecord: IInterface; ini: TMemIniFile): boolean;
+// SkipSubrecord: Check if a subrecord should be skipped
+function SkipSubrecord(subrecord: IInterface; ini: TMemIniFile): boolean;
 var
   subrecords, subrecordMode, subrecordPath: string;
 begin
@@ -304,8 +317,8 @@ begin
 end;
 
 //======================================================================
-// isValueElement: checks if an element is a value element
-function isValueElement(elementType: string): boolean;
+// IsValueElement: checks if an element is a value element
+function IsValueElement(elementType: string): boolean;
 begin
   Result := (elementType = 'dtInteger') 
     or (elementType = 'dtFloat') 
@@ -363,7 +376,7 @@ begin
       continue;
     end;
     // skip subrecordsToSkip
-    if skipSubrecord(se, ini) then begin
+    if SkipSubrecord(se, ini) then begin
       if showSkips then LogMessage('    Skipping '+Path(se));
       Inc(i);
       Inc(j);
@@ -418,7 +431,7 @@ begin
     end
     
     // else copy element if value differs from master
-    else if isValueElement(dts) and (GetEditValue(se) <> GetEditValue(me)) then begin
+    else if IsValueElement(dts) and (GetEditValue(se) <> GetEditValue(me)) then begin
       if (Assigned(me)) and showChanges then begin
         if (not showTraversal) then LogMessage('    '+Path(se));
         LogMessage('      > Found differing values: '+GetEditValue(se)+' and '+GetEditValue(me));
@@ -441,8 +454,8 @@ begin
 end;
 
 //======================================================================
-// isSmashedPatch: checks if a file is a smashed patch
-function isSmashedPatch(f: IInterface): boolean;
+// IsSmashedPatch: checks if a file is a smashed patch
+function IsSmashedPatch(f: IInterface): boolean;
 var
   author: string;
 begin
@@ -451,8 +464,8 @@ begin
 end;
 
 //======================================================================
-// smashRecord: smashes a record "rec" into a file "smashFile"
-procedure smashRecord(rec, smashFile: IInterface);
+// SmashRecord: smashes a record "rec" into a file "smashFile"
+procedure SmashRecord(rec, smashFile: IInterface);
 var
   i: integer;
   fn, author: string;
@@ -469,7 +482,7 @@ begin
     if (Pos(fn, bethesdaFiles) > 0) then
       continue;
     // skip overrides in smashed patches
-    if (isSmashedPatch(f)) then 
+    if (IsSmashedPatch(f)) then 
       continue;
     // skip ctIdenticalToMaster overrides
     if (ConflictThisString(ovr) = 'ctIdenticalToMaster') then
@@ -502,8 +515,8 @@ begin
 end;
 
 //======================================================================
-// makeBold: makes a label caption bold.
-procedure makeBold(lbl: TLabel);
+// MakeBold: makes a label caption bold.
+procedure MakeBold(lbl: TLabel);
 begin
   if not disableStyles then begin
     lbl.WordWrap := false;
@@ -512,8 +525,8 @@ begin
 end;
 
 //======================================================================
-// updateSettings: Updates the setting comboboxes for OptionsForm
-procedure updateSettings;
+// UpdateSettings: Updates the setting comboboxes for OptionsForm
+procedure UpdateSettings;
 var
   i, ndx: integer;
   cb: TComboBox;
@@ -812,7 +825,7 @@ begin
   finally
     ofrm.free;
   end;
-  updateSettings;
+  UpdateSettings;
 end;
 
 //======================================================================
@@ -865,25 +878,25 @@ begin
     pfrm.Position := poScreenCenter;
     
     lbl := ConstructLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:');
-    makeBold(lbl);
+    MakeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:');
-    makeBold(lbl);
+    MakeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, author);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:');
-    makeBold(lbl);
+    MakeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, records);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:');
-    makeBold(lbl);
+    MakeBold(lbl);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides);
     lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:');
-    makeBold(lbl);
+    MakeBold(lbl);
     memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, desc);
     lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:');
-    makeBold(lbl);
+    MakeBold(lbl);
     memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, masters);
     lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:');
-    makeBold(lbl);
+    MakeBold(lbl);
     memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 150, 348, true, true, ssVertical, groups);
     
     pfrm.ShowModal;
@@ -964,7 +977,7 @@ begin
       fnlbl := TLabel.Create(pnlArray[pnlCount]);
       fnlbl.Parent := pnlArray[pnlCount];
       fnlbl.Caption := '['+IntToHex(i - 1, 2)+'] '+fn;
-      makeBold(fnlbl);
+      MakeBold(fnlbl);
       fnlbl.Left := 24;
       fnlbl.Top := 14;
       fnlbl.OnClick := PluginForm;
@@ -1198,7 +1211,7 @@ begin
         if Pos(fn, bethesdaFiles) > 0 then
           continue;
         // if smashed patch found, assign and break
-        if (isSmashedPatch(f)) then begin
+        if (IsSmashedPatch(f)) then begin
           userFile := f;
           break;
         end;
@@ -1272,7 +1285,7 @@ begin
         if i = maxRecords then break;
         // smash record
         r := ObjectToElement(slRecords.Objects[i]);
-        smashRecord(r, userFile);
+        SmashRecord(r, userFile);
         // update label, print debug message to log after smashing record
         lbl.Caption := 'Smashing records ('+IntToStr(i + 2)+'/'+IntToStr(slRecords.Count)+')';
         pb.Position := pb.Position + 1;
