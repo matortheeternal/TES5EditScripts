@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.7
+  Mator Smash v0.8.8
   created by matortheeternal
   
   * DESCRIPTION *
@@ -25,7 +25,7 @@ const
   showRecTimes = false;
   verbose = false;
   // maximum records to be smashed
-  maxRecords = 9001;
+  maxRecords = 10000;
   disableStyles = false;
  
 var
