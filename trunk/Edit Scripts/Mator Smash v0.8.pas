@@ -25,7 +25,7 @@ const
   showRecTimes = false;
   verbose = false;
   // maximum records to be smashed
-  maxRecords = 9001;
+  maxRecords = 10000;
   disableStyles = false;
  
 var
@@ -116,7 +116,28 @@ begin
       Result := Result + 1;
   end;
 end;
-  
+
+//======================================================================
+// buildSortKeyList: puts the sort keys of elements in a stringlist
+procedure buildSortKeyList(element: IInterface; var sl: TStringList);
+var
+  i, n: integer;
+  childElement: IInterface;
+  sk: string;
+begin
+  for i := 0 to ElementCount(element) - 1 do begin
+    childElement := ebi(element, i);
+    sk := SortKey(childElement, false);
+    n := 0;
+    while sl.IndexOf(sk) > -1 do begin
+      Inc(n);
+      sk := SortKey(childElement, false) + '-' + IntTostr(n);
+    end;
+    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
+    sl.Add(sk);
+  end;
+end;
+
 //======================================================================
 // MergeSortedArray: Merges sorted array elements
 procedure MergeSortedArray(mst, src, dst, dstrec: IInterface; depth: string; ini: TMemIniFile);
@@ -131,39 +152,10 @@ begin
   slMst := TStringList.Create;
   slSrc := TStringList.Create;
   slDst := TStringList.Create;
-  for i := 0 to ElementCount(mst) - 1 do begin
-    me := ebi(mst, i);
-    sk := SortKey(me, false);
-    n := 0;
-    while slMst.IndexOf(sk) > -1 do begin
-      Inc(n);
-      sk := SortKey(me, false) + '-' + IntToStr(n);
-    end;
-    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
-    slMst.Add(sk);
-  end;
-  for i := 0 to ElementCount(src) - 1 do begin
-    se := ebi(src, i);
-    sk := SortKey(se, false);
-    n := 0;
-    while slSrc.IndexOf(sk) > -1 do begin
-      Inc(n);
-      sk := SortKey(se, false) + '-' + IntToStr(n);
-    end;
-    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
-    slSrc.Add(sk);
-  end;
-  for i := 0 to ElementCount(dst) - 1 do begin
-    de := ebi(dst, i);
-    sk := SortKey(de, false);
-    n := 0;
-    while slDst.IndexOf(sk) > -1 do begin
-      Inc(n);
-      sk := SortKey(de, false) + '-' + IntToStr(n);
-    end;
-    if debugArrays and (n > 0) then LogMessage('    Adjusted SortKey: '+sk);
-    slDst.Add(sk);
-  end;
+  slDst.Sorted := true;
+  buildSortKeyList(mst, slMst);
+  buildSortKeyList(src, slSrc);
+  buildSortKeyList(dst, slDst);
   
   // Step 2: Remove elements that are in mst and dst, but missing from src
   for i := 0 to slMst.Count - 1 do begin
@@ -194,6 +186,8 @@ begin
     // Step 3.5: If array element is in dst and has subelements, traverse it.
     else if (d_ndx > -1) and ((dts = 'dtStruct') or (ets = 'etSubRecordArray')) then begin
 	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
+      if showTraversal and debugArrays then LogMessage('      > Source Element: '+gav(se));
+      if showTraversal and debugArrays then LogMessage('      > Destination Element: '+gav(ebi(dst, d_ndx)));
       try
         rcore(se, GetMasterElement(src, se, dstrec), ebi(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
@@ -203,6 +197,8 @@ begin
     end
     else if (d_ndx > -1) and (ets = 'etSubRecordStruct') then begin
 	    if showTraversal then LogMessage('      > Traversing element '+Path(se)+' with key: '+slSrc[i]);
+      if showTraversal and debugArrays then LogMessage('      > Source Element: '+gav(se));
+      if showTraversal and debugArrays then LogMessage('      > Destination Element: '+gav(ebi(dst, d_ndx)));
       try
         rcore(se, GetMasterElement(src, se, dstrec), ebi(dst, d_ndx), dstrec, depth + '    ', ini);
       except on x : Exception do begin
