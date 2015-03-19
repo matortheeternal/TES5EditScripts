@@ -493,7 +493,7 @@ begin
       LogMessage(#13#10'Smashing record '+Name(rec)+' from file: '+fn);
       rcore(ovr, rec, mr, mr, '    ', ini);
     except on x : Exception do
-      LogMessage('    !! Exception smashing record '+slRecords[i]+' : '+x.Message);
+      LogMessage('    !! Exception smashing record '+Name(rec)+' : '+x.Message);
     end;
   end;
 end;
