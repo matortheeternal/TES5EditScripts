@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.8
+  Mator Smash v0.8.9
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.8.8';
+  vs = 'v0.8.9';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -216,8 +216,8 @@ begin
 end;
 
 //======================================================================
-// BuildAllValuesList: puts the values of elements in a stringlist
-procedure BuildAllValuesList(element: IInterface; var sl: TStringList);
+// BuildElementList: puts the values of elements in a stringlist
+procedure BuildElementList(element: IInterface; var sl: TStringList);
 var
   i, n: integer;
   childElement: IInterface;
@@ -397,8 +397,8 @@ begin
       continue;
     end;
     
-    // deal with general array cases
-    if (ets = 'etSubRecordArray') or (dts = 'dtArray') then begin
+    // deal with subrecord arrays
+    if (ets = 'etSubRecordArray') then begin
       // deal with sorted array
       if IsSorted(se) then begin
         if debugArrays then LogMessage('    Sorted array found: '+Path(se));
@@ -412,8 +412,8 @@ begin
       else begin
         if debugArrays then LogMessage('    Unsorted array found: '+Path(se));
         try 
-          //MergeUnsortedArray(me, se, de, dstrec, depth, ini);
-          rcore(se, me, de, dstrec, depth + '    ', ini);
+          MergeUnsortedArray(me, se, de, dstrec, depth, ini);
+          //rcore(se, me, de, dstrec, depth + '    ', ini);
         except on x : Exception do
           LogMessage('      !! rcore exception: '+x.Message);
         end;
