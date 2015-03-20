@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.8.9
+  Mator Smash v0.9.0
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.8.9';
+  vs = 'v0.9.0';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -58,31 +58,35 @@ end;
 function GetMasterElement(src, se, dstrec: IInterface): IInterface;
 var
   i, j, ndx: integer;
-  p: string;
+  p, sk: string;
   ovr, ae, ne: IInterface;
   sorted: boolean;
 begin
   Result := nil;
   dstrec := MasterOrSelf(dstrec);
   p := IndexedPath(src);
-  sorted := not (SortKey(se, false) = '');
+  sk := SortKey(se, false);
+  sorted := not (sk = '');
+  // if sorted, look for an element matching sort key
   if sorted then begin
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' looking for SortKey '+SortKey(se, false));
+    // loop from override 0 to the second to last override
     for i := 0 to OverrideCount(dstrec) - 2 do begin
       ovr := OverrideByIndex(dstrec, i);
       ae := ebp(dstrec, p);
       for j := 0 to ElementCount(ae) - 1 do begin
         ne := ebi(ae, j);
-        if (SortKey(ne, false) = SortKey(se, false)) then begin
+        if (SortKey(ne, false) = sk) then begin
           Result := ne;
           break;
         end;
       end;
-      
+      // break if we found a subrecord matching the sortkey
       if Result <> nil then
         break;
     end;
   end 
+  // if unsorted, look for the element using indexOf
   else begin
     ndx := IndexOf(src, se);
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
@@ -341,14 +345,19 @@ var
 begin
   // initialize stringlists
   slDst := TStringList.Create; // list of destination elements
-  slMst := TStringList.Create; // list of master elements - currently unused, remove?
+  slMst := TStringList.Create; // list of master elements
   
   // copy elements from source to destination if missing
   AddElementsToList(dst, slDst);
   AddElementsToList(mst, slMst);
   for i := 0 to ElementCount(src) - 1 do begin
     se := ebi(src, i);
-    if (slDst.IndexOf(Name(se)) = -1) then
+    // if the element isn't in the destination record
+    // and wasn't in the master record, copy it to the destination
+    // if it isn't in the destination but is in the master it means
+    // that it was deleted and shouldn't be copied.
+    if (slDst.IndexOf(Name(se)) = -1) 
+    and (slMst.IndexOf(Name(se)) = -1) then
       wbCopyElementToRecord(se, dst, false, true);
   end;
   
@@ -358,6 +367,7 @@ begin
   while i < ElementCount(src) do begin
     // assign source, destination, master elements
     // ensure index out of bounds doesn't occur by not reassigning
+    // past the last element
     if i < ElementCount(src) then
       se := ebi(src, i);
     if j < ElementCount(dst) then
@@ -389,17 +399,19 @@ begin
     
     // if destination element doesn't match source element
     if (Name(se) <> Name(de)) then begin
+      // if we're not at the end of the destination elements
       // proceed to next destination element
+      // else proceed to next source element
       if (j < ElementCount(dst)) then
         Inc(j)
       else
-        Inc(i); // just in case
+        Inc(i);
       continue;
     end;
     
     // deal with subrecord arrays
-    if (ets = 'etSubRecordArray') then begin
-      // deal with sorted array
+    if (ets = 'etSubRecordArray') or (dts = 'dtArray') then begin
+      // if sorted, deal with sorted array
       if IsSorted(se) then begin
         if debugArrays then LogMessage('    Sorted array found: '+Path(se));
         try
@@ -408,12 +420,20 @@ begin
           LogMessage('      !! MergeSortedArray exception: '+x.Message);
         end;
       end
-      // deal with unsorted array
-      else begin
-        if debugArrays then LogMessage('    Unsorted array found: '+Path(se));
+      // else deal with unsorted etSubRecordArray
+      else if (ets = 'etSubRecordArray') then begin
+        if debugArrays then LogMessage('    Unsorted etSubRecordArray found: '+Path(se));
         try 
           MergeUnsortedArray(me, se, de, dstrec, depth, ini);
-          //rcore(se, me, de, dstrec, depth + '    ', ini);
+        except on x : Exception do
+          LogMessage('      !! MergeUnsortedArray exception: '+x.Message);
+        end;
+      end
+      // else deal with unsorted dtArray
+      else begin
+        if debugArrays then LogMessage('    Unsorted dtArray found: '+Path(se));
+        try 
+          rcore(se, me, de, dstrec, depth + ' ', ini);
         except on x : Exception do
           LogMessage('      !! rcore exception: '+x.Message);
         end;
@@ -422,7 +442,6 @@ begin
     
     // else recurse deeper
     else if (ElementCount(se) > 0) and (dts <> 'dtInteger') then begin
-      if showTraversal then LogMessage('    Recursing deeper.');
       try
         rcore(se, me, de, dstrec, depth + '    ', ini);
       except on x : Exception do
@@ -592,136 +611,61 @@ begin
   
   sfrm := TForm.Create(nil);
   try
+    // set up form
     sfrm.Width := 300;
     sfrm.Height := 515;
     sfrm.Position := poScreenCenter;
-    if caption = 'New setting' then
-      sfrm.Caption := 'Create new Smash Setting'
-    else if caption = 'Copy setting' then
-      sfrm.Caption := 'Copy Smash Setting'
-    else if caption = 'Edit setting' then
-      sfrm.Caption := 'Edit Smash Setting';
+    sfrm.Caption := 'Create new Smash Setting'
     
-    lblName := TLabel.Create(sfrm);
-    lblName.Parent := sfrm;
-    lblName.Left := 16;
-    lblName.Top := 16;
-    lblName.Caption := 'Name: ';
+    // make label and edit for name
+    lblName := cLabel(sfrm, sfrm, 16, 16, 0, 0, 'Name: ');
+    edName := cEdit(sfrm, sfrm, lblName.Top, lblName.Left + lblName.Width + 8, 0, 200, '');
     
-    edName := TEdit.Create(sfrm);
-    edName.Parent := sfrm;
-    edName.Left := lblName.Left + lblName.Width + 8;
-    edName.Top := lblName.Top;
-    edName.Width := 200;
-    if usingTemplate then
-      edName.Caption := template.ReadString('Setting', 'Name', '');
-    if caption = 'Edit setting' then 
-      edName.Enabled := false;
-    if caption = 'Copy setting' then
-      edName.Caption := 'Copy of '+edName.Caption;
-    
-    rg1 := TRadioGroup.Create(sfrm);
-    rg1.Parent := sfrm;
-    rg1.Top := lblName.Top + lblName.Height + 32;
-    rg1.Left := lblName.Left;
-    rg1.Caption := 'Record Mode';
-    rg1.Width := 250;
-    rg1.Height := 50;
-    
-    rb1 := TRadioButton.Create(rg1);
-    rb1.Parent := rg1;
-    rb1.Left := 26;
-    rb1.Top := 18;
-    rb1.Caption := 'Exclusion';
-    rb1.Width := 80;
+    // make radio group and buttons for record mode
+    rg1 := cRadioGroup(sfrm, sfrm, lblName.Top + lblName.Height + 32, 50, 250, 'Record Mode');
+    rb1 := cRadioButton(rg1, rg1, 18, 26, 0, 80, 'Exclusion');
     rb1.Checked := true;
-    if usingTemplate then
-      rb1.Checked := not template.ReadBool('Setting', 'recordMode', true);
+    rb2 := cRadioButton(rg1, rg1, rb1.Top, rb1.Left + rb1.Width + 30, 0, 100, 'Inclusion');
     
-    rb2 := TRadioButton.Create(rg1);
-    rb2.Parent := rg1;
-    rb2.Left := rb1.Left + rb1.Width + 30;
-    rb2.Top := rb1.Top;
-    rb2.Caption := 'Inclusion';
-    rb2.Width := 100;
-    if usingTemplate then
-      rb2.Checked := template.ReadBool('Setting', 'recordMode', true);
-    
-    rg2 := TRadioGroup.Create(sfrm);
-    rg2.Parent := sfrm;
-    rg2.Top := rg1.Top + rg1.Height + 16;
-    rg2.Left := lblName.Left;
-    rg2.Caption := 'Subrecord Mode';
-    rg2.Width := 250;
-    rg2.Height := 50;
-    
-    rb3 := TRadioButton.Create(rg2);
-    rb3.Parent := rg2;
-    rb3.Left := 26;
-    rb3.Top := 18;
-    rb3.Caption := 'Exclusion';
-    rb3.Width := 80;
+    // make radio group and buttons for subrecord mode
+    rg2 := cRadioGroup(sfrm, sfrm, rg1.Top + rg1.Height + 16, lblName.Left, 50, 250, 'Subrecord Mode');
+    rb3 := cRadioButton(rg2, rg2, 18, 26, 0, 80, 'Exclusion');
     rb3.Checked := true;
-    if usingTemplate then
+    rb4 := cRadioButton(rg2, rg2, rb3.Top, rb3.Left + rb3.Width + 30, 0, 100, 'Inclusion');
+    
+    // make label and memo for records to skip
+    lblRecords := cLabel(sfrm, sfrm, rg2.Top + rg2.Height + 16, lblName.Left, 0, 0, 'Records: ');
+    meRecords := cMemo(sfrm, sfrm, lblRecords.Top + lblRecords.Height + 8, lblRecords.Left, 
+      80, 250, true, false, ssVertical, '');
+    
+    // make label and memo for subrecords to skip
+    lblSubrecords := cLabel(sfrm, sfrm, meRecords.Top + meRecords.Height + 16, lblRecords.Left, 0, 0, 'Subrecords: ');
+    meSubrecords := cMemo(sfrm, sfrm, lblSubrecords.Top + lblSubrecords.Height + 8, lblSubrecords.Left,
+      80, 250, true, false, ssVertical, '');
+    
+    // construct ok and cancel buttons
+    ConstructOkCancelButtons(sfrm, sfrm, meSubrecords.Top + meSubrecords.Height + 20);
+    
+    // if using template, load values from it for form
+    if usingTemplate then begin
+      edName.Caption := template.ReadString('Setting', 'Name', '');
+      if caption = 'Copy setting' then begin
+        sfrm.Caption := 'Copy Smash Setting';
+        edName.Caption := 'Copy of '+edName.Caption;
+      end
+      else if caption = 'Edit setting' then begin
+        sfrm.Caption := 'Edit Smash Setting';
+        edName.Enabled := false;
+      end;
+      rb1.Checked := not template.ReadBool('Setting', 'recordMode', true);
+      rb2.Checked := template.ReadBool('Setting', 'recordMode', true);
       rb3.Checked := not template.ReadBool('Setting', 'subrecordMode', true);
-    
-    rb4 := TRadioButton.Create(rg2);
-    rb4.Parent := rg2;
-    rb4.Left := rb3.Left + rb3.Width + 30;
-    rb4.Top := rb3.Top;
-    rb4.Caption := 'Inclusion';
-    rb4.Width := 100;
-    if usingTemplate then
       rb4.Checked := template.ReadBool('Setting', 'subrecordMode', true);
+      meRecords.Lines.Text := StringReplace(template.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceAll]);
+      meSubrecords.Lines.Text := StringReplace(template.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
+    end;
     
-    lblRecords := TLabel.Create(sfrm);
-    lblRecords.Parent := sfrm;
-    lblRecords.Left := lblName.Left;
-    lblRecords.Top := rg2.Top + rg2.Height + 16;
-    lblRecords.Caption := 'Records: ';
-    
-    meRecords := TMemo.Create(sfrm);
-    meRecords.Parent := sfrm;
-    meRecords.Left := lblRecords.Left;
-    meRecords.Top := lblRecords.Top + lblRecords.Height + 8;
-    meRecords.Height := 80;
-    meRecords.Width := 250;
-    meRecords.ScrollBars := ssVertical;
-    if usingTemplate then
-      meRecords.Lines.Text := 
-        StringReplace(template.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceAll]);
-    
-    lblSubrecords := TLabel.Create(sfrm);
-    lblSubrecords.Parent := sfrm;
-    lblSubrecords.Left := lblRecords.Left;
-    lblSubrecords.Top := meRecords.Top + meRecords.Height + 16;
-    lblSubrecords.Caption := 'Subrecords: ';
-    
-    meSubrecords := TMemo.Create(sfrm);
-    meSubrecords.Parent := sfrm;
-    meSubrecords.Left := lblSubrecords.Left;
-    meSubrecords.Top := lblSubrecords.Top + lblSubrecords.Height + 8;
-    meSubrecords.Height := 80;
-    meSubrecords.Width := 250;
-    meSubrecords.ScrollBars := ssVertical;
-    if usingTemplate then
-      meSubrecords.Lines.Text := 
-        StringReplace(template.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
-    
-    btnOk := TButton.Create(sfrm);
-    btnOk.Parent := sfrm;
-    btnOk.Caption := 'OK';
-    btnOk.Left := sfrm.Width div 2 - btnOk.Width - 8;
-    btnOk.Top := meSubrecords.Top + meSubrecords.Height + 20;
-    btnOk.ModalResult := mrOk;
-    
-    btnCancel := TButton.Create(sfrm);
-    btnCancel.Parent := sfrm;
-    btnCancel.Left := btnOk.Left + btnOk.Width + 16;
-    btnCancel.Top := btnOk.Top;
-    btnCancel.Caption := 'Cancel';
-    btnCancel.ModalResult := mrCancel;
-    
+    // if user clicks ok, save to ini and update lists
     if sfrm.ShowModal = mrOk then begin
       ini := TMemIniFile.Create(settingsPath + edName.Caption + '.ini');
       ini.WriteString('Setting', 'Name', edName.Caption);
@@ -768,6 +712,7 @@ begin
     ofrm.Position := poScreenCenter;
     ofrm.Height := 300;
     
+    // list box of settings
     lst := TListBox.Create(ofrm);
     lst.Parent := ofrm;
     lst.Top := 8;
@@ -777,51 +722,27 @@ begin
     for i := 0 to slSettings.Count - 1 do
       lst.Items.Add(slSettings[i]);
     lst.OnClick := ToggleButtons;
-      
-    btnNew := TButton.Create(ofrm);
-    btnNew.Parent := ofrm;
-    btnNew.Top := 8;
-    btnNew.Left := lst.Left + lst.Width + 8;
-    btnNew.Caption := 'New setting';
-    btnNew.Width := 100;
-    btnNew.OnClick := SettingForm;
     
-    btnEdit := TButton.Create(ofrm);
-    btnEdit.Parent := ofrm;
-    btnEdit.Top := btnNew.Top + btnNew.Height + 8;
-    btnEdit.Left := btnNew.Left;
-    btnEdit.Caption := 'Edit setting';
-    btnEdit.Width := 100;
+    // new setting button
+    btnNew := cButton(ofrm, ofrm, 8, lst.Left + lst.Width + 8, 0, 100, 'New setting');
+    btnNew.OnClick := SettingForm;
+    // edit setting button
+    btnEdit := cButton(ofrm, ofrm, btnNew.Top + btnNew.Height + 8, btnNew.Left, 0, 100, 'Edit setting');
     btnEdit.OnClick := SettingForm;
     btnEdit.Enabled := false;
-    
-    btnCopy := TButton.Create(ofrm);
-    btnCopy.Parent := ofrm;
-    btnCopy.Top := btnEdit.Top + btnEdit.Height + 8;
-    btnCopy.Left := btnNew.Left;
-    btnCopy.Caption := 'Copy setting';
-    btnCopy.Width := 100;
+    // copy setting button
+    btnCopy := cButton(ofrm, ofrm, btnEdit.Top + btnEdit.Height + 8, btnNew.Left, 0, 100, 'Copy Setting');
     btnCopy.OnClick := SettingForm;
     btnCopy.Enabled := false;
-    
-    btnDel := TButton.Create(ofrm);
-    btnDel.Parent := ofrm;
-    btnDel.Top := btnCopy.Top + btnCopy.Height + 8;
-    btnDel.Left := btnNew.Left;
-    btnDel.Caption := 'Delete setting';
-    btnDel.Width := 100;
+    // delete setting button
+    btnDel := cButton(ofrm, ofrm, btnCopy.Top + btnCopy.Height + 8, btnNew.Left, 0, 100, 'Delete setting');
     btnDel.OnClick := DeleteSetting;
     btnDel.Enabled := false;
-    
-    btnOk := TButton.Create(ofrm);
-    btnOk.Parent := ofrm;
-    btnOk.Top := ofrm.Height - 80;
-    btnOk.Left := ofrm.Width div 2 - btnOk.Width div 2;
-    btnOk.Caption := 'OK';
+    // OK button
+    btnOk := cButton(ofrm, ofrm, ofrm.Height - 80, ofrm.Width div 2 - btnOk.Width div 2, 0, 0, 'OK');
     btnOk.ModalResult := mrOk;
     
-    if ofrm.ShowModal = mrOk then begin
-    end;
+    ofrm.ShowModal;
   finally
     ofrm.free;
   end;
@@ -877,27 +798,27 @@ begin
     pfrm.Height := 600;
     pfrm.Position := poScreenCenter;
     
-    lbl := ConstructLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:');
+    lbl := cLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:');
     MakeBold(lbl);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn);
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:');
     MakeBold(lbl);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, author);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, author);
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:');
     MakeBold(lbl);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, records);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, records);
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:');
     MakeBold(lbl);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides);
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:');
     MakeBold(lbl);
-    memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, desc);
-    lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:');
+    memo := cMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, desc);
+    lbl := cLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:');
     MakeBold(lbl);
-    memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, masters);
-    lbl := ConstructLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:');
+    memo := cMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, masters);
+    lbl := cLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:');
     MakeBold(lbl);
-    memo := ConstructMemo(pfrm, pfrm, lbl.Top + 22, 16, 150, 348, true, true, ssVertical, groups);
+    memo := cMemo(pfrm, pfrm, lbl.Top + 22, 16, 150, 348, true, true, ssVertical, groups);
     
     pfrm.ShowModal;
   finally
@@ -949,11 +870,8 @@ begin
       holder := frm;
     end;
     
-    optionslbl := TLabel.Create(frm);
-    optionslbl.Parent := holder;
-    optionslbl.Top := 8;
-    optionslbl.Left := 8;
-    optionslbl.Caption := 'Set the options you want to use for smashing the following plugins:';
+    optionslbl := cLabel(frm, holder, 8, 8, 0, 450, 
+      'Set the options you want to use for smashing the following plugins:');
     
     pnlCount := 0;
     for i := 0 to FileCount - 1 do begin
@@ -974,13 +892,9 @@ begin
       pnlArray[pnlCount].BevelInner := bvNone; // or bvLowered
       pnlArray[pnlCount].BorderStyle := bsNone; // or bsSingle
       
-      fnlbl := TLabel.Create(pnlArray[pnlCount]);
-      fnlbl.Parent := pnlArray[pnlCount];
-      fnlbl.Caption := '['+IntToHex(i - 1, 2)+'] '+fn;
-      MakeBold(fnlbl);
-      fnlbl.Left := 24;
-      fnlbl.Top := 14;
+      fnlbl := cLabel(pnlArray[pnlCount], pnlArray[pnlCount], 14, 24, 0, 0, '['+IntToHex(i - 1, 2)+'] '+fn);
       fnlbl.OnClick := PluginForm;
+      MakeBold(fnlbl);
       
       cb := TComboBox.Create(pnlArray[pnlCount]);
       cb.Parent := pnlArray[pnlCount];
@@ -998,12 +912,8 @@ begin
     end;
     
     // create global setting controls
-    gslbl := TLabel.Create(frm);
-    gslbl.Parent := holder;
-    gslbl.Top := pnlArray[pnlCount - 1].Top + pnlArray[pnlCount -1].Height + 16;
-    gslbl.Left := optionslbl.left;
-    gslbl.Caption := 'Global setting: ';
-    
+    gslbl := cLabel(frm, holder, pnlArray[pnlCount - 1].Top + pnlArray[pnlCount - 1].Height + 16,
+      optionslbl.Left, 0, 0, 'Caption');
     gscb := TComboBox.Create(frm);
     gscb.Parent := holder;
     gscb.Top := gslbl.Top;
@@ -1021,30 +931,13 @@ begin
     pnl.Align := alBottom;
     pnl.Height := 50;
     
-    imgOptions := TImage.Create(pnl);
-    imgOptions.Parent := pnl;
-    imgOptions.Picture := gear;
-    imgOptions.Width := 24;
-    imgOptions.Height := 24;
-    imgOptions.ShowHint := true;
-    imgOptions.Hint := 'Advanced Options';
+    imgOptions := cImage(pnl, pnl, pnl.Height - 40, frm.Width - 50, 24, 24, gear, 'Advanced Options');
     imgOptions.OnClick := AdvancedOptions;
-    imgOptions.Left := frm.Width - 50;
-    imgOptions.Top := pnl.Height - 40;
     
     // create ok/cancel buttons
-    btnSmash := TButton.Create(frm);
-    btnSmash.Parent := pnl;
-    btnSmash.Top := pnl.Height - 40;
-    btnSmash.Left := frm.Width div 2 - btnSmash.Width - 8;
-    btnSmash.Caption := 'Smash!';
+    btnSmash := cButton(frm, pnl, pnl.Height - 40, frm.Width div 2 - 88, 0, 0, 'Smash!');
     btnSmash.ModalResult := mrOk;
-    
-    btnCancel := TButton.Create(frm);
-    btnCancel.Parent := pnl;
-    btnCancel.Top := btnSmash.Top;
-    btnCancel.Left := btnSmash.Left + btnSmash.Width + 16;
-    btnCancel.Caption := 'Cancel';
+    btnCancel := cButton(frm, pnl, btnSmash.Top, btnSmash.Left + btnSmash.Width + 16, 0, 0, 'Cancel');
     btnCancel.ModalResult := mrCancel;
     
     if frm.ShowModal = mrOk then begin
@@ -1100,10 +993,23 @@ begin
 end;
 
 //======================================================================
+// SkipRecord: returns whether or not a record should be skipped
+function SkipRecord(rec: IInterface; records, recordMode: string): boolean;
+var
+  s: string;
+begin
+  s := Signature(rec);
+  Result := ((Pos(s, records) > 0) and (recordMode = '0'))
+    or ((Pos(s, records) = 0) and (recordMode = '1'))
+    or ((Pos(s, global_records) > 0) and (global_recordMode = '0')) 
+    or ((Pos(s, global_records) = 0) and (global_recordMode = '1'))
+end;
+
+//======================================================================
 // FreeMemory: frees memory used by script
 procedure FreeMemory;
 begin
-  gear.Free; slOptions.Free; slFiles.Free; slSettings.Free; 
+  gear.Free; slOptions.Free; slFiles.Free; slSettings.Free;
   lstSettings.Free;
 end;
 
@@ -1113,9 +1019,9 @@ function Initialize: integer;
 var
   f, r: IInterface;
   i, j, k: integer;
-  fn, rn, records, recordMode, logFileName: string;
+  fn, rn, records, recordMode, logFileName, fdt: string;
   ini: TMemIniFile;
-  today, tStart, tRec: TDateTime;
+  tStart, tRec: TDateTime;
   diff: double;
 begin
   // track time
@@ -1129,14 +1035,13 @@ begin
   gear := TPicture.Create;
   gear.LoadFromFile(ScriptsPath + 'smash\assets\gear.png');
   
-  // initialize settings
+  // load setting files
   InitializeSettings;
   
   // set up for saving log
   ForceDirectories(ScriptsPath + '\smash\logs');
-  today := Now;
-  logFileName := ScriptsPath + '\smash\logs\' + 
-    SanitizeFileName('smash_'+DateToStr(today)+'_'+TimeToStr(today)+'.txt');
+  fdt := FormatDateTime('mmddyy_hhnnss', Now);
+  logFileName := ScriptsPath + '\smash\logs\smash' + fdt + '.txt';
   
   // initial options form
   if OptionsForm then begin
@@ -1147,15 +1052,10 @@ begin
       frm.Position := poScreenCenter;
       frm.Height := 150;
       
-      lbl := TLabel.Create(frm);
-      lbl.Parent := frm;
-      lbl.Top := 20;
-      lbl.Left := 20;
-      lbl.Width := frm.Width - 55;
-      lbl.Height := 30;
-      lbl.Caption := 'Initializing... ';
-      lbl.Visible := true;
+      // make progress label
+      lbl := cLabel(frm, frm, 20, 20, 30, 600, 'Initializing...');
       
+      // make progress bar
       pb := TProgressBar.Create(frm);
       pb.Parent := frm;
       pb.Top := 40;
@@ -1166,27 +1066,17 @@ begin
       pb.Min := 0;
       pb.Position := 0;
       
-      memo := TMemo.Create(frm);
-      memo.Parent := frm;
-      memo.Top := 70;
-      memo.Left := 20;
-      memo.Width := pb.Width;
-      memo.WordWrap := false;
-      memo.ScrollBars := ssBoth;
+      // make log memo
+      memo := cMemo(frm, frm, 70, 20, 0, pb.Width, false, true, ssBoth, '');
       memo.Visible := false;
-      memo.ReadOnly := true;
       
-      btnDetails := TButton.Create(frm);
-      btnDetails.Parent := frm;
-      btnDetails.Top := pb.Top + pb.Height + 8;
-      btnDetails.Left := pb.Left;
-      btnDetails.Caption := 'Show Details';
-      btnDetails.Width := 100;
+      // make details button
+      btnDetails := cButton(frm, frm, pb.Top + pb.Height + 8, pb.Left, 0, 100, 'Show Details');
       btnDetails.OnClick := ShowDetails;
       
+      // display form, initial logging messages
       frm.Show;
       application.processmessages;
-      
       LogMessage(dashes);
       LogMessage('Mator Smash '+vs+': Makes a smashed patch.');
       LogMessage(dashes);
@@ -1207,6 +1097,7 @@ begin
       for i := 0 to FileCount - 1 do begin
         f := FileByIndex(i);
         fn := GetFileName(f);
+        
         // skip bethesda files, we're not patching them
         if Pos(fn, bethesdaFiles) > 0 then
           continue;
@@ -1215,19 +1106,21 @@ begin
           userFile := f;
           break;
         end;
+        
         // build list of records with multiple overrides
         lbl.Caption := 'Processing '+fn;
         LogMessage('Processing '+fn);
         application.processmessages;
+        // load ini settings
         ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[k])]);
         records := StringReplace(ini.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceAll]);
         recordMode := ini.ReadString('Setting', 'recordMode', '0');
+        
+        // loop through records
         for j := 0 to RecordCount(f) - 1 do begin
           r := MasterOrSelf(RecordByIndex(f, j));
-          if ((Pos(Signature(r), records) > 0) and (recordMode = '0'))
-          or ((Pos(Signature(r), records) = 0) and (recordMode = '1'))
-          or ((Pos(Signature(r), global_records) > 0) and (global_recordMode = '0')) 
-          or ((Pos(Signature(r), global_records) = 0) and (global_recordMode = '1')) then 
+          // skip records according to ini settings
+          if SkipRecord(r, records, recordMode) then 
             continue;
           rn := Name(r);
           if (nbsOverrideCount(r) > 1) then
@@ -1310,10 +1203,10 @@ begin
       end;
     except on x : Exception do begin
         // smash failed
-        LogMessage(#13#10'Smash failed.  Exception: '+x.Message); //+x.Message
+        LogMessage(#13#10'Smash failed.  Exception: '+x.Message);
         memo.Lines.SaveToFile(logFileName);
         pb.Position := 0;
-        lbl.Caption := 'Smash Failed.  Exception: '+x.Message; //+x.Message
+        lbl.Caption := 'Smash Failed.  Exception: '+x.Message;
         if not memo.Visible then ShowDetails;
         frm.Visible := false;
         frm.ShowModal;
@@ -1322,8 +1215,10 @@ begin
     end;
     frm.Free;
   end;
+
   // free memory
   FreeMemory;
+
   // call RemoveFilter() to update TES5Edit GUI
   try
     RemoveFilter();
