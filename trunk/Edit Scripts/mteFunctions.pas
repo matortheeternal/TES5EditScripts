@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 3/15/2015
+  edited 3/19/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -111,6 +111,7 @@
   - [RecordSelect]: creates a window from which the user can choose a record.
   - [EditOutOfDate]: alerts the user that their xEdit is out of date, and provides them
     with a button they can click to go to the AFKMods page to download an updated version.
+  - [ConstructImage]: an all-in-one image constructor.
   - [ConstructRadioGroup]: an all-in-one radiogroup constructor.
   - [ConstructRadioButton]: an all-in-one radiobutton constructor.
   - [ConstructMemo]: an all-in-one memo constructor.
@@ -121,6 +122,7 @@
   - [ConstructButton]: an all-in-one button constructor.
   - [ConstructOkCancelButtons]: a procedure to make the standard OK and Cancel buttons on 
     a form.
+  - [cImage]: ConstructImage shortened function name.
   - [cRadioGroup]: ConstructRadioGroup shortened function name.
   - [cRadioButton]: ConstructRadioButton shortened function name.
   - [cMemo]: ConstructMemo shortened function name.
@@ -2091,6 +2093,47 @@ begin
 end;
 
 {
+  ConstructImage:
+  A function which can be used to make an image.  Used to make
+  code more compact.
+  
+  Example usage:
+  img := ConstructImage(frm, frm, 8, 8, 300, 300, gear);
+}
+function ConstructImage(h, p: TObject; top, left, height, 
+  width: Integer; picture: TPicture; t: string): TImage;
+var
+  img: TImage;
+begin
+  img := TImage.Create(h);
+  img.Parent := p;
+  img.Top := top;
+  img.Left := left;
+  img.Width := width;
+  img.Height := height;
+  img.Picture := picture;
+  if (t <> '') then begin 
+    img.ShowHint := true;
+    img.Hint := t;
+  end;
+  
+  Result := img;
+end;
+
+{
+  cImage:
+  Shortened version of ConstructImage
+  
+  Example usage:
+  img := cImage(frm, frm, 8, 8, 300, 300, gear);
+}
+function cImage(h, p: TObject; top, left, height, 
+  width: Integer; picture: TPicture; t: String): TImage;
+begin
+  Result := ConstructImage(h, p, top, left, height, width, picture, t);
+end;
+
+{
   ConstructRadioGroup:
   A function which can be used to make a radio group.  Used to make
   code more compact.
@@ -2300,6 +2343,7 @@ begin
   lb.Parent := p;
   lb.Top := top;
   lb.Left := left;
+  lb.AutoSize := false;
   lb.WordWrap := true;
   if height > 0 then lb.Height := height;
   if width > 0 then lb.Width := width;
