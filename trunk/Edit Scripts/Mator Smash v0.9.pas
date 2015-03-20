@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.9.0
+  Mator Smash v0.9.1
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.9.0';
+  vs = 'v0.9.1';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -59,11 +59,11 @@ function GetMasterElement(src, se, dstrec: IInterface): IInterface;
 var
   i, j, ndx: integer;
   p, sk: string;
-  ovr, ae, ne: IInterface;
+  ovr, ae, ne, mst: IInterface;
   sorted: boolean;
 begin
   Result := nil;
-  dstrec := MasterOrSelf(dstrec);
+  mst := MasterOrSelf(dstrec);
   p := IndexedPath(src);
   sk := SortKey(se, false);
   sorted := not (sk = '');
@@ -71,9 +71,9 @@ begin
   if sorted then begin
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' looking for SortKey '+SortKey(se, false));
     // loop from override 0 to the second to last override
-    for i := 0 to OverrideCount(dstrec) - 2 do begin
-      ovr := OverrideByIndex(dstrec, i);
-      ae := ebp(dstrec, p);
+    for i := 0 to OverrideCount(mst) - 2 do begin
+      ovr := OverrideByIndex(mst, i);
+      ae := ebp(mst, p);
       for j := 0 to ElementCount(ae) - 1 do begin
         ne := ebi(ae, j);
         if (SortKey(ne, false) = sk) then begin
@@ -88,17 +88,16 @@ begin
   end 
   // if unsorted, look for the element using indexOf
   else begin
-    ndx := IndexOf(src, se);
+    sk := gav(se);
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
-    ae := ebp(dstrec, p);
-    if (ElementCount(ae) - 1 >= ndx) then 
-      Result := ebi(ae, ndx)
-    else begin
-      for i := 0 to OverrideCount(dstrec) - 1 do begin
-        ovr := OverrideByIndex(dstrec, i);
-        ae := ebp(ovr, p);
-        if (ElementCount(ae) - 1 >= ndx) then begin
-          Result := ebi(ae, ndx);
+    ae := ebp(mst, p);
+    for i := 0 to OverrideCount(mst) - 1 do begin
+      ovr := OverrideByIndex(mst, i);
+      ae := ebp(ovr, p);
+      for j := 0 to ElementCount(ae) - 1 do begin
+        ne := ebi(ae, j);
+        if (gav(ne) = sk) then begin
+          Result := ne;
           break;
         end;
       end;
@@ -597,7 +596,6 @@ var
   rg1, rg2: TRadioGroup;
   rb1, rb2, rb3, rb4: TRadioButton;
   ini, template: TMemIni;
-  btnOk, btnCancel: TButton;
   usingTemplate: boolean;
   caption: string;
 begin
@@ -615,23 +613,21 @@ begin
     sfrm.Width := 300;
     sfrm.Height := 515;
     sfrm.Position := poScreenCenter;
-    sfrm.Caption := 'Create new Smash Setting'
+    sfrm.Caption := 'Create new Smash Setting';
     
     // make label and edit for name
     lblName := cLabel(sfrm, sfrm, 16, 16, 0, 0, 'Name: ');
     edName := cEdit(sfrm, sfrm, lblName.Top, lblName.Left + lblName.Width + 8, 0, 200, '');
     
     // make radio group and buttons for record mode
-    rg1 := cRadioGroup(sfrm, sfrm, lblName.Top + lblName.Height + 32, 50, 250, 'Record Mode');
-    rb1 := cRadioButton(rg1, rg1, 18, 26, 0, 80, 'Exclusion');
-    rb1.Checked := true;
-    rb2 := cRadioButton(rg1, rg1, rb1.Top, rb1.Left + rb1.Width + 30, 0, 100, 'Inclusion');
+    rg1 := cRadioGroup(sfrm, sfrm, lblName.Top + lblName.Height + 32, lblName.Left, 65, 250, 'Record Mode');
+    rb1 := cRadioButton(rg1, rg1, 18, 26, 0, 80, 'Exclusion', true);
+    rb2 := cRadioButton(rg1, rg1, rb1.Top, rb1.Left + rb1.Width + 30, 0, 100, 'Inclusion', false);
     
     // make radio group and buttons for subrecord mode
-    rg2 := cRadioGroup(sfrm, sfrm, rg1.Top + rg1.Height + 16, lblName.Left, 50, 250, 'Subrecord Mode');
-    rb3 := cRadioButton(rg2, rg2, 18, 26, 0, 80, 'Exclusion');
-    rb3.Checked := true;
-    rb4 := cRadioButton(rg2, rg2, rb3.Top, rb3.Left + rb3.Width + 30, 0, 100, 'Inclusion');
+    rg2 := cRadioGroup(sfrm, sfrm, rg1.Top + rg1.Height + 16, lblName.Left, 65, 250, 'Subrecord Mode');
+    rb3 := cRadioButton(rg2, rg2, 18, 26, 0, 80, 'Exclusion', true);
+    rb4 := cRadioButton(rg2, rg2, rb3.Top, rb3.Left + rb3.Width + 30, 0, 100, 'Inclusion', false);
     
     // make label and memo for records to skip
     lblRecords := cLabel(sfrm, sfrm, rg2.Top + rg2.Height + 16, lblName.Left, 0, 0, 'Records: ');
@@ -739,7 +735,7 @@ begin
     btnDel.OnClick := DeleteSetting;
     btnDel.Enabled := false;
     // OK button
-    btnOk := cButton(ofrm, ofrm, ofrm.Height - 80, ofrm.Width div 2 - btnOk.Width div 2, 0, 0, 'OK');
+    btnOk := cButton(ofrm, ofrm, ofrm.Height - 80, ofrm.Width div 2 - 40, 0, 0, 'OK');
     btnOk.ModalResult := mrOk;
     
     ofrm.ShowModal;
@@ -913,7 +909,7 @@ begin
     
     // create global setting controls
     gslbl := cLabel(frm, holder, pnlArray[pnlCount - 1].Top + pnlArray[pnlCount - 1].Height + 16,
-      optionslbl.Left, 0, 0, 'Caption');
+      optionslbl.Left, 0, 70, 'Global setting: ');
     gscb := TComboBox.Create(frm);
     gscb.Parent := holder;
     gscb.Top := gslbl.Top;
@@ -1153,6 +1149,7 @@ begin
       if not Assigned(userFile) then begin
         LogMessage('Smashed patch not assigned, terminating script');
         FreeMemory;
+        frm.Free;
         Result := -1;
         exit;
       end;
@@ -1186,6 +1183,10 @@ begin
         if showRecTimes then LogMessage('  '+FormatFloat('0.###', diff) + 's');
         application.processmessages;
       end;
+      
+      // clean and sort masters
+      SortMasters(userFile);
+      CleanMasters(userFile);
       
       // finishing messages
       lbl.Caption := 'All done.';
