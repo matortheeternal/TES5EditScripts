@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.9.1
+  Mator Smash v0.9.2
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.9.1';
+  vs = 'v0.9.2';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -20,7 +20,7 @@ const
   listOverrides = false;
   showChanges = false;
   showTraversal = false;
-  showSkips = false;
+  showSkips = true;
   showTypeStrings = false;
   showRecTimes = false;
   verbose = false;
@@ -41,7 +41,7 @@ var
   pnlArray: Array[0..255] of TPanel;
   pnlCount: integer;
   global_records, global_subrecords, global_recordMode, 
-  global_subrecordMode: string;
+  global_subrecordMode, global_setting: string;
   gear: TPicture;
   lst: TListBox;
 
@@ -89,7 +89,7 @@ begin
   // if unsorted, look for the element using indexOf
   else begin
     sk := gav(se);
-    if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' and index '+IntToStr(ndx));
+    if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' looking for '+sk);
     ae := ebp(mst, p);
     for i := 0 to OverrideCount(mst) - 1 do begin
       ovr := OverrideByIndex(mst, i);
@@ -941,7 +941,7 @@ begin
         s := TComboBox(pnlArray[i].Components[1]).Text;
         slOptions.Add(s);
       end;
-      slOptions.Add(gscb.Text);
+      global_setting := gscb.Text;
       Result := true;
     end;
   finally
@@ -1081,11 +1081,11 @@ begin
       slRecords := TStringList.Create;
       
       // load global settings
-      ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[Pred(slOptions.Count)])]);
+      ini := TMemIniFile(lstSettings[slSettings.IndexOf(global_setting)]);
       global_records := StringReplace(ini.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceall]);
       global_recordMode := ini.ReadString('Setting', 'recordMode', '0');
       global_subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceall]);
-      global_subrecordMode := ini.ReadString('Setting', 'records', '0');
+      global_subrecordMode := ini.ReadString('Setting', 'subRecordMode', '0');
      
       // loop through all loaded files
       k := 0;
