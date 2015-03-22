@@ -1,14 +1,17 @@
 {
-  Merge Plugins Script v1.9.1
+  Merge Plugins Script v1.9.2
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.9.1
+  v1.9.2
   - Fixed issue with GetDefinition with v = true not working properly because
     there's the letter "v" in the vs constant, but not in reports.
   - Fixed issue with CopyGeneralAssets skipping files that should be copied
     from facegendata.
+  - Fixed issue with renumbering of injected formIDs breaking overrides of
+    injected FormIDs.  May have also fixed other inter-file override
+    renumbering issues.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1307,8 +1310,6 @@ begin
                 LogMessage('            Copying asset "'+src+'"');
                 if batCopy then AddCopyOperation(srcPath+src, dstPath+dst)
                 else CopyFile(PChar(srcPath+src), PChar(dstPath+dst), true);
-                //ResourceCopy('Data', srcPath + src, dstPath + dst);
-                //wCopyFile(srcPath + src, dstPath + dst, true);
               end
               // asset renumbered
               else begin
@@ -1316,8 +1317,6 @@ begin
                 dst := StringReplace(src, oldForm, newForm, [rfReplaceAll]);
                 if batCopy then AddCopyOperation(srcPath+src, dstPath+dst)
                 else CopyFile(PChar(srcPath+src), PChar(dstPath+dst), true);
-                //ResourceCopy('Data', srcPath + src, dstPath + dst);
-                //wCopyFile(srcPath + src, dstPath + dst, true);
                 LogMessage('            Copying asset "'+src+'" to "'+dst+'"');
               end;
             end;
@@ -1568,6 +1567,8 @@ begin
     prc := ReferencedByCount(e);
     CompareExchangeFormID(ReferencedByIndex(e, 0), OldFormID, NewFormID);
   end;
+  for i := 0 to OverrideCount(e) - 1 do
+    SetLoadOrderFormID(OverrideByIndex(e, i), NewFormID);
   SetLoadOrderFormID(e, NewFormID);
 end;
 
