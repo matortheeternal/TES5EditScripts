@@ -79,12 +79,11 @@ end;
 // main entry point
 function Initialize: integer;
 var
-  i, formIndex, recordsModified, recordsCreated: integer;
+  i, recordsModified, recordsCreated: integer;
   fn, form, objectID, positionX, positionY, positionZ, rotationX, 
   rotationY, rotationZ, scale, oldObjectID, oldPositionX, oldPositionY, 
   oldPositionZ, oldRotationX, oldRotationY, oldRotationZ, oldScale: string;
-  f, group, cell, newCell, newChildren, tempGroup, persGroup,
-  element, testElement, ovr, refr: IInterface;
+  f, group, cell, newCell, tempGroup, element, refr: IInterface;
   disabled, oldDisabled, valuesChanged: boolean;
 begin
   // welcome messages
@@ -150,7 +149,7 @@ begin
   // copy cell to userfile
   AddMessage(#13#10'Copying '+Name(cell)+' to '+GetFileName(userFile));
   try
-    newCell := wbCopyElementToFile(cell, userFile, false, true);
+    newCell := wbCopyElementToFile(WinningOverride(cell), userFile, false, true);
   except on x : Exception do begin
       AddMessage('Exception copying '+Name(cell)+': '+x.Message);
       FreeMemory;
@@ -160,7 +159,6 @@ begin
   
   // set up cell
   group := ChildGroup(cell);
-  persGroup := FindChildGroup(group, 8, cell);
   tempGroup := FindChildGroup(group, 9, cell);
   // copy initial temporary reference to file to create temporary group
   element := wbCopyElementToFile(ElementByIndex(tempGroup, 0), userFile, false, true);
@@ -169,7 +167,6 @@ begin
   // create/modify records according to dump file
   AddMessage('Creating and modifying references...');
   group := ChildGroup(newCell);
-  persGroup := FindChildGroup(group, 8, newCell);
   tempGroup := FindChildGroup(group, 9, newCell);
   for i := 3 to slDump.Count - 1 do begin
     // load attributes from line
@@ -204,7 +201,7 @@ begin
     // else try to find record
     else begin
       try
-        element := RecordByHexFormID(objectID);
+        element := WinningOverride(RecordByHexFormID(objectID));
       except on x : Exception do begin
           AddMessage('    Couldn''t find record matching: '+form);
           continue;
