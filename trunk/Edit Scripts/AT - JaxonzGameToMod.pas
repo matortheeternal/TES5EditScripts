@@ -1,5 +1,5 @@
 {
-  Import Script v0.8
+  Import Script v0.9
   Created by matortheeternal
   
   For use with JaxonzGameToMod.
@@ -10,7 +10,7 @@ unit jaxonzImport;
 uses mteFunctions;
 
 const
-  vs = '0.8';
+  vs = '0.9';
   debug = true;
   removeOnException = true;
   dashes = '---------------------------------------------------------------------------';
@@ -24,7 +24,7 @@ const
 
 var
   userFile: IInterface;
-  slDump, slSpaces, slLine, slMasters, slRecords, slLog: TStringList;
+  slDump, slLine, slMasters, slLog: TStringList;
   dlgOpen: TOpenDialog;
 
 // splits a line on commas using newline characters
@@ -55,23 +55,6 @@ begin
       sl.AddObject(HexFormID(element), TObject(element))
     else
       AddRecordsFromGroup(element, sl);
-  end;
-end;
-
-// copies records from a group to file and adds them to list
-procedure AddElementsToList(g, f: IInterface; var sl: TStringList);
-var
-  i: integer;
-  element: IInterface;
-  form: string;
-begin
-  if not Assigned(g) then exit;
-  
-  for i := 0 to ElementCount(g) - 1 do begin
-    element := WinningOverride(ElementByIndex(g, i));
-    form := HexFormID(element);
-    if slRecords.IndexOf(form) = -1 then
-      sl.AddObject(form, TObject(element));
   end;
 end;
 
@@ -112,11 +95,9 @@ end;
 // free all memory allocated by the script
 procedure FreeMemory;
 begin
-  slDump.Free; 
-  slSpaces.Free; 
+  slDump.Free;
   slLine.Free;
   slMasters.Free;
-  slRecords.Free;
   dlgOpen.Free;
 end;
 
@@ -128,7 +109,7 @@ var
   rotationY, rotationZ, scale, oldObjectID, oldPositionX, oldPositionY, 
   oldPositionZ, oldRotationX, oldRotationY, oldRotationZ, oldScale: string;
   f, group, cell, newCell, newChildren, tempGroup, persGroup,
-  element, testElement, ovr: IInterface;
+  element, testElement, ovr, refr: IInterface;
   disabled, oldDisabled, valuesChanged: boolean;
 begin
   // welcome messages
@@ -139,17 +120,9 @@ begin
 
   // initialize resources
   slDump := TStringList.Create;
-  slSpaces := TStringList.Create;
   slLine := TStringList.Create;
   slMasters := TStringList.Create;
-  slRecords := TStringList.Create;
   slLog := TStringList.Create;
-  
-  // build list of CELL/WRLD records
-  for i := 0 to FileCount - 1 do begin
-    f := FileByIndex(i);
-    AddRecordsFromGroup(GroupBySignature(f, 'CELL'), slSpaces);
-  end;
   
   // user selects log file to import
   dlgOpen := TOpenDialog.Create(nil);
@@ -190,13 +163,13 @@ begin
   // find matching cell record
   slLine.Text := SplitCsvLine(slDump[1]);
   form := UpperCase(Copy(slLine[1], 2, 8));
-  if slSpaces.IndexOf(form) > -1 then begin
-    cell := ObjectToElement(slSpaces.Objects[slSpaces.IndexOf(form)]);
-  end
-  else begin
-    AddMessage('Couldn''t find CELL matching '+form);
-    FreeMemory;
-    exit;
+  try
+    cell := RecordByHexFormID(form);
+  except on x: Exception do begin
+      AddMessage('Couldn''t find CELL matching '+form);
+      FreeMemory;
+      exit;
+    end;
   end;
   
   // copy cell to userfile
@@ -210,28 +183,16 @@ begin
     end;
   end;
   
-  // build list of existing records
-  AddMessage('    Indexing children records in cell...');
+  // set up cell
   group := ChildGroup(cell);
   persGroup := FindChildGroup(group, 8, cell);
   tempGroup := FindChildGroup(group, 9, cell);
   // copy initial temporary reference to file to create temporary group
   element := wbCopyElementToFile(ElementByIndex(tempGroup, 0), userFile, false, true);
   Remove(element);
-  // add elements from persistent group and temporary group to slRecords
-  AddElementsToList(persGroup, userFile, slRecords);
-  AddElementsToList(tempGroup, userFile, slRecords);
-  // add elements from overrides
-  for i := 0 to OverrideCount(cell) - 1 do begin
-    group := ChildGroup(OverrideByIndex(cell, i));
-    persGroup := FindChildGroup(group, 8, cell);
-    tempGroup := FindChildGroup(group, 9, cell);
-    AddElementsToList(persGroup, userFile, slRecords);
-    AddElementsToList(tempGroup, userFile, slRecords);
-  end;
   
   // create/modify records according to dump file
-  AddMessage(#13#10'Creating and modifying references...');
+  AddMessage('Creating and modifying references...');
   group := ChildGroup(newCell);
   persGroup := FindChildGroup(group, 8, newCell);
   tempGroup := FindChildGroup(group, 9, newCell);
@@ -240,7 +201,6 @@ begin
     slLine.Text := SplitCsvLine(slDump[i]);
     objectID := UpperCase(Copy(slLine[1], 2, 8));
     form := UpperCase(Copy(slLine[2], 2, 8));
-    formIndex := slRecords.IndexOf(objectID);
     positionX := slLine[4];
     positionY := slLine[5];
     positionZ := slLine[6];
@@ -250,23 +210,31 @@ begin
     scale := slLine[10];
     disabled := UpperCase(slLine[13]) = 'FALSE';
     
+    // check reference record, skip if not an allowed type
+    try
+      refr := RecordByHexFormID(form);
+      if not ElementIsAllowed(refr) then 
+        continue;
+    except on x : Exception do begin
+        AddMessage('    Couldn''t find record matching: '+form);
+        continue;
+      end;
+    end;
+    
     // if objectID is null, create new record
     if (objectID = '00000000') then begin
-      // determine what kind of record form refers to
-      // if it's a record type we allow, we create record
       element := Add(tempGroup, 'REFR', true);
       Inc(recordsCreated);
     end
-    // else find record in cell children
-    else if formIndex > -1 then begin
-      element := ObjectToElement(slRecords.Objects[formIndex]);
-      // skip NPC_ records
-      if Signature(LinksTo(ElementByPath(element, 'NAME'))) = 'NPC_' then
-        continue;
-    end
+    // else try to find record
     else begin
-      AddMessage('    Couldn''t find record matching: '+objectID);
-      continue;
+      try
+        element := RecordByHexFormID(objectID);
+      except on x : Exception do begin
+          AddMessage('    Couldn''t find record matching: '+form);
+          continue;
+        end;
+      end;
     end;
     
     // if record values changed, set boolean to true
@@ -320,8 +288,7 @@ begin
         seev(element, 'XSCL', scale);
         SetIsInitiallyDisabled(element, disabled);
       except on x : Exception do begin
-          if (Pos('Found a NPC_ reference', x.Message) = 0) then
-            AddMessage('    Exception setting values: '+x.Message);
+          AddMessage('    Exception setting values: '+x.Message);
           if removeOnException then Remove(element);
         end;
       end;
