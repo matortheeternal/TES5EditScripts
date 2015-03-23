@@ -1558,6 +1558,7 @@ end;
 procedure RenumberRecord(e: IInterface; NewFormID: Cardinal);
 var
   OldFormID, prc: Cardinal;
+  i: integer;
 begin
   OldFormID := GetLoadOrderFormID(e);
   // change references, then change form
