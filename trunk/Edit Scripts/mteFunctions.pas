@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 3/19/2015
+  edited 3/22/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -1647,9 +1647,11 @@ begin
   
   // add file's masters
   masters := ElementByPath(ElementByIndex(f, 0), 'Master Files');
-  for i := 0 to ElementCount(masters) - 1 do begin
-    s := geev(ElementByIndex(masters, i), 'MAST');
-    if (lst.IndexOf(s) = -1) then lst.Add(s);
+  if Assigned(masters) then begin
+    for i := 0 to ElementCount(masters) - 1 do begin
+      s := geev(ElementByIndex(masters, i), 'MAST');
+      if (lst.IndexOf(s) = -1) then lst.Add(s);
+    end;
   end;
 end;
 
