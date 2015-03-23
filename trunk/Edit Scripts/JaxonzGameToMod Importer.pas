@@ -1,5 +1,5 @@
 {
-  Import Script v0.9
+  Import Script v0.9.1
   Created by matortheeternal
   
   For use with JaxonzGameToMod.
@@ -10,7 +10,7 @@ unit jaxonzImport;
 uses mteFunctions;
 
 const
-  vs = '0.9';
+  vs = '0.9.1';
   debug = true;
   removeOnException = true;
   dashes = '---------------------------------------------------------------------------';
@@ -18,9 +18,10 @@ const
     'ARTO'#13'ASPC'#13'BOOK'#13'CONT'#13'DOOR'#13'FLOR'#13'FURN'#13'GRAS'#13'IDLM'#13
     'INGR'#13'KEYM'#13'LIGH'#13'LVLC'#13'LVLN'#13'MISC'#13'MSTT'#13'SCRL'#13'SLGM'#13
     'SNDR'#13'SOUN'#13'SPEL'#13'STAT'#13'TACT'#13'TREE'#13'TXST'#13'WEAP'#13;
-  positionDiff = 0.002;
-  rotationDiff = 0.01;
+  positionDiff = 0.5;
+  rotationDiff = 0.5;
   scaleDiff = 0.01;
+  splitChar = ',';
 
 var
   userFile: IInterface;
@@ -30,7 +31,7 @@ var
 // splits a line on commas using newline characters
 function SplitCsvLine(line: string): string;
 begin
-  Result := StringReplace(line, ',', #13, [rfReplaceAll]);
+  Result := StringReplace(line, splitChar, #13, [rfReplaceAll]);
 end;
 
 // fixes rotation to be between 0 and 360 degrees
@@ -41,7 +42,7 @@ begin
   realRotation := StrToFloat(rotation);
   
   // fix to be between 0.0 and 360.0
-  while realRotation >= 360.0 do
+  while realRotation > 360.001 do
     realRotation := realRotation - 360.0;
   while realRotation < -0.001 do
     realRotation := realRotation + 360.0;
@@ -82,8 +83,9 @@ var
   i, recordsModified, recordsCreated: integer;
   fn, form, objectID, positionX, positionY, positionZ, rotationX, 
   rotationY, rotationZ, scale, oldObjectID, oldPositionX, oldPositionY, 
-  oldPositionZ, oldRotationX, oldRotationY, oldRotationZ, oldScale: string;
-  f, group, cell, newCell, tempGroup, element, refr: IInterface;
+  oldPositionZ, oldRotationX, oldRotationY, oldRotationZ, oldScale,
+  sourceModName, loadForm: string;
+  f, group, cell, newCell, tempGroup, element, refr, sourceMod: IInterface;
   disabled, oldDisabled, valuesChanged: boolean;
 begin
   // welcome messages
@@ -181,10 +183,25 @@ begin
     rotationZ := FixRotation(slLine[9]);
     scale := slLine[10];
     disabled := UpperCase(slLine[13]) = 'FALSE';
+    sourceModName := slLine[17];
+    
+    // skip references from JaxonzEnhGrab.esp
+    if (sourceModName = 'JaxonzEnhGrab.esp') then
+      continue;
+    
+    // find source mod
+    sourceMod := FileByName(sourceModName);
+    if not Assigned(sourceMod) then begin
+      AddMessage('    Couldn''t find file matching: '+sourceModName);
+      continue;
+    end;
+    
+    // get load order formID
+    loadForm := IntToHex(GetLoadOrder(sourceMod), 2) + Copy(form, 3, 6);
     
     // check reference record, skip if not an allowed type
     try
-      refr := RecordByHexFormID(form);
+      refr := RecordByFormID(sourceMod, StrToInt('$' + loadForm), true);
       if not ElementIsAllowed(refr) then 
         continue;
     except on x : Exception do begin
@@ -197,6 +214,7 @@ begin
     if (objectID = '00000000') then begin
       element := Add(tempGroup, 'REFR', true);
       Inc(recordsCreated);
+      AddMessage('    Placing '+Name(refr));
     end
     // else try to find record
     else begin
@@ -248,7 +266,7 @@ begin
         element := wbCopyElementToFile(element, userFile, false, true);
       end;
       try
-        seev(element, 'NAME', form);
+        seev(element, 'NAME', loadForm);
         seev(element, 'DATA\Position\X', positionX);
         seev(element, 'DATA\Position\Y', positionY);
         seev(element, 'DATA\Position\Z', positionZ);
