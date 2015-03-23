@@ -54,6 +54,7 @@
   - [SetChar]: Sets a character in a string to a different character and returns the
     resulting string.
   - [GetChar]: Gets a character in a string and returns it.
+  - [RecordByHexFormID]: Gets a record by a hexadecimal FormID string.
   - [FileByName]: gets a file from a filename.
   - [OverrideByFile]: gets the override for a particular record in a particular file,
     if it exists.
@@ -853,6 +854,22 @@ end;
 function GetChar(const s: string; n: integer): char;
 begin
   Result := Copy(s, n, 1);
+end;
+
+{
+  RecordByHexFormID:
+  Gets a record by its hexadecimal FormID.
+  
+  Example usage:
+  e := RecordByHexFormID('0002BFA2');
+  AddMessage(Name(e));
+}
+function RecordByHexFormID(id: string): IInterface;
+var
+  f: IInterface;
+begin
+  f := FileByIndex(StrToInt('$' + Copy(id, 1, 2)));
+  Result := RecordByFormID(f, StrToInt('$' + id), true);
 end;
 
 {
