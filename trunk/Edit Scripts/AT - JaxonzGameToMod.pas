@@ -33,31 +33,6 @@ begin
   Result := StringReplace(line, ',', #13, [rfReplaceAll]);
 end;
 
-// adds records from a group in a file to a stringlist recursively
-procedure AddRecordsFromGroup(group: IInterface; var sl: TStringList);
-var
-  i: integer;
-  ets: string;
-  element: IInterface;
-begin
-  // loop through elements in the group
-  for i := 0 to ElementCount(group) - 1 do begin
-    element := ElementByIndex(group, i);
-    ets := ElementTypeString(element);
-    
-    // skip children
-    if Pos('Children of ', Name(element)) > 0 then
-      continue;
-      
-    // if element is a Main Record, add it to our list
-    // else recurse
-    if ets = 'etMainRecord' then
-      sl.AddObject(HexFormID(element), TObject(element))
-    else
-      AddRecordsFromGroup(element, sl);
-  end;
-end;
-
 // fixes rotation to be between 0 and 360 degrees
 function FixRotation(rotation: string): string;
 var
