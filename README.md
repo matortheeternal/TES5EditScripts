@@ -19,6 +19,7 @@ when creating mods for Bethesda games.
 Current Scripts
 ==================================
 
+* **JaxonzGameToMod Importer:** v0.9 beta available.
 * **Mator Smash:** v0.9 beta available.
 * **Merge Plugins:** v1.9 released on Nexus Mods March 9, 2015.
 * **PerkTreeUI:** v1.2 released on Nexus Mods February 3, 2014. 
