@@ -1,8 +1,17 @@
 {
   matortheeternal's Functions
-  edited 3/22/2015
+  edited 3/31/2015
   
   A set of useful functions for use in TES5Edit scripts.
+  
+  **IMPORTANT NOTE #2!**
+  As of 3/31/2015 the construct functions have been adjusted to support hints.  This
+  includes ConstructLabel, ConstructEdit and ConstructCheckBox.  Scripts that used these
+  functions will need to be changed to reflect this (just add an extra parameter
+  to these function calls that's an empty string).  This also applies to the shortened
+  versions of these functions (cLabel, cEdit, cCheckBox).
+  
+  This note will be removed 4/30/2015.
   
   **IMPORTANT NOTE!**
   As of 3/2/2015 a few functions were changed to have parameters passed by reference
@@ -112,6 +121,9 @@
   - [RecordSelect]: creates a window from which the user can choose a record.
   - [EditOutOfDate]: alerts the user that their xEdit is out of date, and provides them
     with a button they can click to go to the AFKMods page to download an updated version.
+  - [BoolToChecked]: converts a boolean to a TCheckBoxState value.
+  - [CheckedToBool]: converts TCheckBoxState value to boolean.
+  - [ConstructGroup]: an all-in-one group box constructor.
   - [ConstructImage]: an all-in-one image constructor.
   - [ConstructRadioGroup]: an all-in-one radiogroup constructor.
   - [ConstructRadioButton]: an all-in-one radiobutton constructor.
@@ -121,8 +133,10 @@
   - [ConstructLabel]: an all-in-one label constructor.
   - [ConstructEdit]: an all-in-one edit constructor.
   - [ConstructButton]: an all-in-one button constructor.
-  - [ConstructOkCancelButtons]: a procedure to make the standard OK and Cancel buttons on 
+  - [ConstructLabelEditPair]: constructs a TLabel and TEdit side-by-side.
+  - [ConstructModalButtons]: a procedure to make the standard OK and Cancel buttons on 
     a form.
+  - [cGroup]: ConstructGroup shortened function name.
   - [cImage]: ConstructImage shortened function name.
   - [cRadioGroup]: ConstructRadioGroup shortened function name.
   - [cRadioButton]: ConstructRadioButton shortened function name.
@@ -132,6 +146,8 @@
   - [cLabel]: ConstructLabel shortened function name.
   - [cEdit]: ConstructEdit shortened function name.
   - [cButton]: ConstructButton shortened function name.
+  - [cPair]: ConstructLabelEditPair shortened function name.
+  - [cModal]: ConstructModalButtons shortened function name.
 }
 
 unit mteFunctions;
@@ -2112,12 +2128,83 @@ begin
 end;
 
 {
+  BoolToChecked:
+  A function which returns the TCheckBoxState corresponding to a
+  boolean value.
+  
+  Example usage:
+  cb.State := BoolToCheck(true);
+}
+function BoolToChecked(b: boolean): TCheckBoxState;
+begin
+  if b then Result := cbChecked
+  else Result := cbUnchecked;
+end;
+
+{
+  CheckedToBool:
+  A function which returns a boolean corresponding to a 
+  TCheckBoxState.
+  
+  Example usage:
+  if CheckedToBool(cb.State) then
+    AddMessage('Hi!');
+}
+function CheckedToBool(cbs: TCheckBoxState): boolean;
+begin
+  Result := (cbs = cbChecked);
+end;
+
+{
+  ConstructGroup:
+  A function which can be used to make a GroupBox.  Used to make
+  code more compact.
+  
+  Example usage:
+  group := ConstructGroup(frm, frm, 8, 8, 300, 300, 'My Group');
+}
+function ConstructGroup(h, p: TObject; top, left, height, 
+  width: Integer; caption, t: string): TGroupBox;
+var
+  gb: TGroupBox;
+begin
+  gb := TGroupBox.Create(h);
+  gb.Parent := p;
+  gb.Top := top;
+  gb.Left := left;
+  gb.Width := width;
+  gb.Height := height;
+  gb.ClientWidth := width - 15;
+  gb.ClientHeight := height - 15;
+  gb.Caption := caption;
+  if (t <> '') then begin
+    gb.ShowHint := true;
+    gb.Hint := t;
+  end;
+  
+  Result := gb;
+end;
+
+{
+  cGroup:
+  Shortened version of ConstructGroup
+  
+  Example usage:
+  group := cGroup(frm, frm, 8, 8, 300, 300, 'My Group');
+}
+function cGroup(h, p: TObject; top, left, height, 
+  width: Integer; caption, t: string): TGroupBox;
+begin
+  Result := ConstructGroup(h, p, top, left, height, width, caption, t);
+end;
+
+{
   ConstructImage:
   A function which can be used to make an image.  Used to make
   code more compact.
   
   Example usage:
-  img := ConstructImage(frm, frm, 8, 8, 300, 300, gear);
+  img := ConstructImage(frm, frm, 8, 8, 300, 300, gear, 'Options');
 }
 function ConstructImage(h, p: TObject; top, left, height, 
   width: Integer; picture: TPicture; t: string): TImage;
@@ -2144,7 +2231,7 @@ end;
   Shortened version of ConstructImage
   
   Example usage:
-  img := cImage(frm, frm, 8, 8, 300, 300, gear);
+  img := cImage(frm, frm, 8, 8, 300, 300, gear, 'Options');
 }
 function cImage(h, p: TObject; top, left, height, 
   width: Integer; picture: TPicture; t: String): TImage;
@@ -2313,7 +2400,7 @@ end;
     'Remove persistent references', cbChecked);
 }
 function ConstructCheckBox(h, p: TObject; top, left, width: Integer; 
-  s: String; state: TCheckBoxState): TCheckBox;
+  s: String; state: TCheckBoxState; t: string): TCheckBox;
 var
   cb: TCheckBox;
 begin
@@ -2324,6 +2411,10 @@ begin
   cb.Width := width;
   cb.Caption := s;
   cb.State := state;
+  if (t <> '') then begin
+    cb.ShowHint := true;
+    cb.Hint := t;
+  end;
   
   Result := cb;
 end;
@@ -2337,11 +2428,9 @@ end;
     'Remove persistent references', cbChecked);
 }
 function cCheckBox(h, p: TObject; top, left, width: Integer; 
-  s: String; state: TCheckBoxState): TCheckBox;
-var
-  cb: TCheckBox;
+  s: String; state: TCheckBoxState; t: string): TCheckBox;
 begin
-  Result := cCheckbox(h, p, top, left, width, s, state);
+  Result := ConstructCheckBox(h, p, top, left, width, s, state, t);
 end;
 
 {
@@ -2354,7 +2443,7 @@ end;
     'Reference removal options:');
 }
 function ConstructLabel(h, p: TObject; top, left, height, 
-  width: Integer; s: String): TLabel;
+  width: Integer; s, t: String): TLabel;
 var
   lb: TLabel;
 begin
@@ -2368,6 +2457,10 @@ begin
   if width > 0 then lb.Width := width;
   if (height = 0) and (width = 0) then lb.AutoSize := true;
   lb.Caption := s;
+  if (t <> '') then begin
+    lb.ShowHint := true;
+    lb.Hint := t;
+  end;
   
   Result := lb;
 end;
@@ -2381,9 +2474,9 @@ end;
     'Reference removal options:');
 }
 function cLabel(h, p: TObject; top, left, height, 
-  width: Integer; s: String): TLabel;
+  width: Integer; s, t: String): TLabel;
 begin
-  Result := ConstructLabel(h, p, top, left, height, width, s);
+  Result := ConstructLabel(h, p, top, left, height, width, s, t);
 end;
 
 {
@@ -2395,7 +2488,7 @@ end;
   ed3 := ConstructEdit(frm, frm, 100, 8, 0, 0, 'Edit me!');
 }
 function ConstructEdit(h, p: TObject; top, left, height, 
-  width: Integer; s: String): TLabel;
+  width: Integer; s, t: String): TLabel;
 var
   ed: TLabel;
 begin
@@ -2407,6 +2500,10 @@ begin
   if width > 0 then ed.Width := width;
   if (height = 0) and (width = 0) then ed.AutoSize := true;
   ed.Text := s;
+  if (t <> '') then begin
+    ed.ShowHint := true;
+    ed.Hint := t;
+  end;
   
   Result := ed;
 end;
@@ -2419,9 +2516,9 @@ end;
   ed3 := cEdit(frm, frm, 100, 8, 0, 0, 'Edit me!');
 }
 function cEdit(h, p: TObject; top, left, height, 
-  width: Integer; s: String): TLabel;
+  width: Integer; s, t: String): TLabel;
 begin
-  Result := ConstructEdit(h, p, top, left, height, width, s);
+  Result := ConstructEdit(h, p, top, left, height, width, s, t);
 end;
 
 {
@@ -2462,14 +2559,46 @@ begin
 end;
 
 {
-  ConstructOkCancelButtons:
+  ConstructLabelEditPair:
+  A function which makes a TLabel TEdit pair in a container
+  and returns a reference to the edit.
+  
+  Example usage:
+  edPosition := ConstructLabelEditPair(frm, 8, 8, 150, 'Minimum position offset:', '0.5');
+}
+function ConstructLabelEditPair(c: TObject; 
+  top, left, spacing, edw: Integer; caption, text, t: string): TEdit;
+var
+  lbl: TLabel;
+  ed: TEdit;
+begin
+  lbl := cLabel(c, c, top, left, 0, spacing, caption, t);
+  ed := cEdit(c, c, top, left + spacing, 0, edw, text, t);
+  Result := ed;
+end;
+
+{
+  cPair:
+  Shortened function name for ConstructLabelEditPair.
+  
+  Example usage:
+  edPosition := cPair(frm, 8, 8, 150, 'Minimum position offset:', '0.5');
+}
+function cPair(c: TObject; 
+  top, left, spacing, edw: Integer; caption, text, t: string): TEdit;
+begin
+  Result := ConstructLabelEditPair(c, top, left, spacing, edw, caption, text, t);
+end;
+
+{
+  ConstructModalButtons:
   A procedure which makes the standard OK and Cancel buttons 
   on a form.
   
   Example usage:
-  ConstructOkCancelButtons(frm, pnlBottom, frm.Height - 80);
+  ConstructModalButtons(frm, pnlBottom, frm.Height - 80);
 }
-procedure ConstructOkCancelButtons(h, p: TObject; top: Integer);
+procedure ConstructModalButtons(h, p: TObject; top: Integer);
 var
   btnOk: TButton;
   btnCancel: TButton;
@@ -2487,6 +2616,15 @@ begin
   btnCancel.ModalResult := mrCancel;
   btnCancel.Left := btnOk.Left + btnOk.Width + 16;
   btnCancel.Top := btnOk.Top;
+end;
+
+{
+  cModal:
+  Shortened function name for ConstructModalButtons.
+}
+procedure cModal(h, p: TObject; top: Integer);
+begin
+  ConstructModalButtons(h, p, top);
 end;
 
 end.
