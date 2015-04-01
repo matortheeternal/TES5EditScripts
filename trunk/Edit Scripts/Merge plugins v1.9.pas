@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.9.2
+  Merge Plugins Script v1.9.3
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.9.2
+  v1.9.3
   - Fixed issue with GetDefinition with v = true not working properly because
     there's the letter "v" in the vs constant, but not in reports.
   - Fixed issue with CopyGeneralAssets skipping files that should be copied
@@ -12,6 +12,8 @@
   - Fixed issue with renumbering of injected formIDs breaking overrides of
     injected FormIDs.  May have also fixed other inter-file override
     renumbering issues.
+  - Never copying child groups.
+  - Now compatible with latest version of mteFunctions.pas
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -203,7 +205,7 @@ begin
     end;
     cmbFiles.ItemIndex := 0;
     
-    ConstructOkCancelButtons(frm, frm, cmbFiles.Top + 50);
+    cModal(frm, frm, cmbFiles.Top + 50);
     
     if frm.ShowModal = mrOk then begin
       if (cmbFiles.Items[cmbFiles.ItemIndex] = '-- CREATE NEW FILE --') then begin
@@ -902,15 +904,13 @@ begin
     pfrm.Position := poScreenCenter;
     
     // construct labels
-    lbl := ConstructLabel(pfrm, pfrm, 8, 8, 0, 300, 'Filename: '+fn);
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
-      'Records in plugin: '+IntToStr(RecordCount(f)));
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
-      'Script version: '+vs);
-    lbl.ShowHint := true;
-    lbl.Hint := 'The version of the Merge Plugins script you''re using.';
-    lbl := ConstructLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
-      'Reports: ');
+    lbl := cLabel(pfrm, pfrm, 8, 8, 0, 300, 'Filename: '+fn, '');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
+      'Records in plugin: '+IntToStr(RecordCount(f)), '');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
+      'Script version: '+vs, 'The version of the Merge Plugins script you''re using.');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
+      'Reports: ', '');
     
     sb := TScrollBox.Create(pfrm);
     sb.Parent := pfrm;
@@ -930,18 +930,18 @@ begin
     lbl.Height := 0;
     i := 0;
     while i + 6 <= slDefinitions.Count - 1 do begin
-      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 12, 8, 0, 360, 
-        'Filename:   '+slDefinitions[i]);
-      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Number of records:   '+slDefinitions[i+1]);
-      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Script version:   '+slDefinitions[i+2]);
-      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Average rating:   '+slDefinitions[i+3]);
-      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Number of reports:   '+slDefinitions[i+4]);
-      lbl := ConstructLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Notes:'#13'    '+ StringReplace(slDefinitions[i+5], '@13', #13'    ', [rfReplaceall]));
+      lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 12, 8, 0, 360, 
+        'Filename:   '+slDefinitions[i], '');
+      lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Number of records:   '+slDefinitions[i+1], '');
+      lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Script version:   '+slDefinitions[i+2], '');
+      lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Average rating:   '+slDefinitions[i+3], '');
+      lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Number of reports:   '+slDefinitions[i+4], '');
+      lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
+        'Notes:'#13'    '+ StringReplace(slDefinitions[i+5], '@13', #13'    ', [rfReplaceall]), '');
       i := i + 6;
     end;
     
@@ -1496,14 +1496,11 @@ begin
   for i := 0 to ElementCount(g) - 1 do begin
     e := ElementByIndex(g, i);
     if Signature(e) = 'TES4' then Continue;
-    if Signature(e) = 'GRUP' then begin
-      if (Pos('GRUP Cell', Name(e)) = 1) or (Pos('GRUP Exterior Cell', Name(e)) = 1) then begin
-        if not CopyElement(e, remove) then
-        MergeIntelligently(e, remove);
-      end
-      else MergeIntelligently(e, remove);
+    if ElementType(e) = etMainRecord then begin
+      CopyElement(e, remove);
     end
-    else CopyElement(e, remove);
+    else
+      MergeIntelligently(e, remove);
   end;
 end;
 

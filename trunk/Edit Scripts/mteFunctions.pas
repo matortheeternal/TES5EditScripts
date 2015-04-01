@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 3/31/2015
+  edited 4/1/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -58,6 +58,8 @@
   - [AppendIfMissing]: appends a substring to the end of a string, if it's not already 
     there.
   - [ItPos]: finds the position of an iteration of a substring in a string.
+  - [rPos]: finds the last position of a substring in a string by starting at the end of 
+    the string and moving to the front.
   - [CopyFromTo]: copies all characters in a string from a starting position to an 
     ending position.
   - [SetChar]: Sets a character in a string to a different character and returns the
@@ -813,6 +815,32 @@ begin
     if found = it then begin
       Result := i;
       Break;
+    end;
+  end;
+end;
+
+{
+  rPos:
+  A reverse position function.
+  
+  This function will allow you to find the last position of a substring 
+  in a string.
+  
+  Example usage:
+  s := 'C:\SomePath\to\a\file.txt';
+  AddMessage(Copy(s, rPos('\', s) + 1, Length(s)));
+}
+function rPos(substr, str: string): integer;
+var
+  i: integer;
+begin
+  Result := -1;
+  if (Length(str) - Length(substr) < 0) then
+    exit;
+  for i := Length(str) - Length(substr) downto 1 do begin
+    if (Copy(str, i, Length(substr)) = substr) then begin
+      Result := i;
+      break;
     end;
   end;
 end;

@@ -1,5 +1,5 @@
 {
-  GameToMod Importer v0.9.9
+  GameToMod Importer v1.0
   created by matortheeternal
   
   For use with GameToMod, by Jaxonz and matortheeternal.
@@ -10,16 +10,15 @@ unit gameToModImport;
 uses mteFunctions;
 
 const
-  vs = '0.9.9';
-  debug = true;
+  vs = '1.0';
   removeOnException = true;
   dashes = '---------------------------------------------------------------------------';
   allowedReferences = 'ACTI'#13'ADDN'#13'ALCH'#13'AMMO'#13'APPA'#13'ARMA'#13'ARMO'#13
     'ARTO'#13'ASPC'#13'BOOK'#13'CONT'#13'DOOR'#13'FLOR'#13'FURN'#13'GRAS'#13'IDLM'#13
     'INGR'#13'KEYM'#13'LIGH'#13'LVLC'#13'LVLN'#13'MISC'#13'MSTT'#13'SCRL'#13'SLGM'#13
-    'SNDR'#13'SOUN'#13'SPEL'#13'STAT'#13'TACT'#13'TREE'#13'TXST'#13'WEAP'#13;
+    'SNDR'#13'SOUN'#13'SPEL'#13'STAT'#13'TACT'#13'TREE'#13'TXST'#13'WEAP'#13'NPC_'#13;
   splitChar = ';';
-  havokMode = '4';
+  allowNPCs = false;
 
 var
   userFile: IInterface;
@@ -30,8 +29,9 @@ var
   currentCellForm: string;
   // options values
   positionDiff, rotationDiff, scaleDiff: real;
-  crossCellMoves, globalRenaming, instanceRenaming, papyrusHavok, papyrusRenaming,
+  crossCellMoves, globalRenaming, papyrusHavok, dontHavokSettle,
   logAdditions, logCrossCellMoves, logChanges: boolean;
+  instanceRenaming: integer;
   // progress form
   frm: TForm;
   btnDetails: TButton;
@@ -59,7 +59,7 @@ begin
     seev(script, 'scriptName', 'GameToModAdjuster');
     seev(script, 'Flags', 'Local');
     properties := ElementByPath(script, 'Properties');
-    if (name <> '') and (papyrusRenaming) then begin
+    if (name <> '') and (instanceRenaming = 2) then begin
       p := ElementAssign(properties, HighInteger, nil, false);
       seev(p, 'propertyName', 'sDisplayName');
       seev(p, 'Type', 'String');
@@ -128,12 +128,17 @@ end;
 //=========================================================================
 // checks if the absolute value of the difference between two values exceeds a third value
 function diffGreaterThan(v1, v2: string; v3: real): boolean;
+var
+  diff: real;
 begin
   if (v1 = '') or (v2 = '') then begin
     Result := true;
     exit;
   end;
-  Result := (abs(StrToFloat(v1) - StrToFloat(v2)) >= v3);
+  diff := abs(StrToFloat(v1) - StrToFloat(v2));
+  if diff > 180.0 then
+    diff := abs(diff - 360.0);
+  Result := (diff >= v3);
 end;
 
 //=========================================================================
@@ -230,6 +235,10 @@ begin
     refr := RecordByFormID(sourceMod, StrToInt('$' + loadForm), true);
     if not ElementIsAllowed(refr) then 
       exit;
+    if (objectID <> '00000000') and (Signature(refr) = 'NPC_') then
+      exit;
+    if (Signature(refr) = 'NPC_') and (not allowNPCs) then
+      exit;
   except on x : Exception do begin
       LogMessage('    Couldn''t find record matching: '+form);
       exit;
@@ -238,7 +247,10 @@ begin
   
   // if objectID is null, create new record
   if (objectID = '00000000') then begin
-    element := Add(tempGroup, 'REFR', true);
+    if Signature(refr) <> 'NPC_' then
+      element := Add(tempGroup, 'REFR', true)
+    else if (allowNPCs) then
+      element := Add(tempGroup, 'ACHR', true);
     Inc(recordsCreated);
     if logAdditions then
       LogMessage('    Placing '+Name(refr));
@@ -257,16 +269,16 @@ begin
   // rename base record (all instances)
   if globalRenaming then begin
     oldBase := geev(refr, 'FULL');
-    if (LowerCase(oldBase) <> LowerCase(base)) then begin
+    if (oldBase <> '') and (LowerCase(oldBase) <> LowerCase(base)) then begin
       refr := wbCopyElementToFile(refr, userFile, false, true);
-      seev(refr, 'FULL', full);
+      seev(refr, 'FULL', base);
     end;
   end;
   
   // rename object reference (just this instance)
-  if instanceRenaming and (not papyrusRenaming) then begin
+  if (instanceRenaming = 1) then begin
     oldFull := geev(refr, 'FULL');
-    if (LowerCase(oldFull) <> LowerCase(full)) then begin
+    if (oldFull <> '') and (LowerCase(oldFull) <> LowerCase(full)) then begin
       refr := wbCopyElementToFile(refr, userFile, true, true);
       seev(refr, 'FULL', full);
       loadForm := HexFormID(refr);
@@ -279,6 +291,7 @@ begin
     valuesChanged := true
   else begin
     // get old values
+    oldFull := geev(refr, 'FULL');
     oldPositionX := geev(element, 'DATA\Position\X');
     oldPositionY := geev(element, 'DATA\Position\Y');
     oldPositionZ := geev(element, 'DATA\Position\Z');
@@ -300,7 +313,8 @@ begin
     or diffGreaterThan(oldRotationZ, rotationZ, rotationDiff)
     or diffGreaterThan(oldScale, scale, scaleDiff)
     or (oldDisabled <> (disabled or deleted))
-    or (motionType > 0) then begin
+    or (motionType > 0) 
+    or (LowerCase(oldFull) <> LowerCase(full)) then begin
       if logChanges then
         LogMessage('    Values changed on '+SmallName(element));
       valuesChanged := true;
@@ -333,13 +347,13 @@ begin
         Add(element, 'XSCL', true);
       seev(element, 'XSCL', scale);
       SetIsInitiallyDisabled(element, disabled or deleted);
-      if (motionType > 0) and (Signature(refr) <> 'FURN') and (not papyrusHavok) then
+      if (Signature(refr) <> 'FURN') and (dontHavokSettle) then
         SetIsDontHavok(element, true);
       // move from one CELL to next
       if (HexFormID(LinksTo(ElementByPath(element, 'Cell'))) <> currentCellForm) then
         seev(element, 'Cell', currentCellForm);
       // add GameToMod script
-      if papyrusHavok or (papyrusRenaming and instanceRenaming) then begin
+      if papyrusHavok or (instanceRenaming = 2) then begin
         if (Lowercase(full) <> Lowercase(geev(refr, 'FULL'))) then
           AddGameToModScript(element, full, motionType)
         else if papyrusHavok then
@@ -357,10 +371,13 @@ end;
 // the main options form
 function OptionsForm: boolean;
 var
-  groupTransform, groupRenaming, groupPapyrus, groupLog: TGroupBox;
+  groupTransform, groupRenaming, groupHavok, groupLog: TGroupBox;
   edPosition, edRotation, edScale: TEdit;
-  kbCrossCellMoves, kbGlobalRenaming, kbInstanceRenaming, kbPapyrusHavok, 
-  kbPapyrusRenaming, kbLogAdditions, kbLogChanges, kbLogCrossCellMoves: TCheckBox;
+  rgRenaming: TRadioGroup;
+  rbPapyrusRenaming, rbDuplicateRenaming, rbNoInstanceRenaming: TRadioButton;
+  kbCrossCellMoves, kbGlobalRenaming, kbPapyrusHavok, 
+  kbLogAdditions, kbLogChanges, kbLogCrossCellMoves,
+  kbDontHavokSettle: TCheckBox;
   groupWidth: integer;
   ini: TMemIniFile;
 begin
@@ -374,9 +391,9 @@ begin
   scaleDiff := ini.ReadFloat('Transform', 'scaleDiff', 0.1);
   crossCellMoves := ini.ReadBool('Transform', 'crossCellMoves', true);
   globalRenaming := ini.ReadBool('Renaming', 'globalRenaming', true);
-  instanceRenaming := ini.ReadBool('Renaming', 'instanceRenaming', true);
-  papyrusHavok := ini.ReadBool('Papyrus', 'papyrusHavok', true);
-  papyrusRenaming := ini.ReadBool('Papyrus', 'papyrusRenaming', true);
+  instanceRenaming := ini.ReadInteger('Renaming', 'instanceRenaming', 2);
+  papyrusHavok := ini.ReadBool('Havok', 'papyrusHavok', true);
+  dontHavokSettle := ini.ReadBool('Havok', 'dontHavokSettle', true);
   logAdditions := ini.ReadBool('Logging', 'logAdditions', true);
   logCrossCellMoves := ini.ReadBool('Logging', 'logCrossCellMoves', true);
   logChanges := ini.ReadBool('Logging', 'logChanges', false);
@@ -386,7 +403,7 @@ begin
     // form attributes
     frm.Caption := 'GameToMod '+vs;
     frm.Width := 350;
-    frm.Height := 500;
+    frm.Height := 570;
     frm.Position := poScreenCenter;
     groupWidth := frm.Width - 24;
     
@@ -407,37 +424,37 @@ begin
       'being moved if this is unchecked.');
     
     // renaming options
-    groupRenaming := cGroup(frm, frm, groupTransform.Top + groupTransform.Height + 12, 12, 84, groupWidth, 'Renaming options', '');
+    groupRenaming := cGroup(frm, frm, groupTransform.Top + groupTransform.Height + 12, 12, 160, groupWidth, 'Renaming options', '');
     kbGlobalRenaming := cCheckBox(groupRenaming, groupRenaming, 20, 8, 170, ' Allow global renaming', BoolToChecked(globalRenaming),
       'Allow items to be renamed globally based on the export.'#13
       'If you have a mod that renames items or renamed the base'#13
       'name of items using JaxonzRenamer, enabling this will'#13
-      'preserve those changes in the modified CELL.');
-    kbInstanceRenaming := cCheckBox(groupRenaming, groupRenaming, 42, 8, 170, ' Allow instance renaming', BoolToChecked(instanceRenaming),
-      'Allow instances of items to be renamed based on the export.'#13
-      'This will allow individual instances of items to be renamed'#13
-      'in the modified CELL, e.g. through using JaxonzRenamer.');
+      'preserve those changes globally.');
+    rgRenaming := cRadioGroup(groupRenaming, groupRenaming, 42, 8, 108, groupWidth - 16, 'Instance renaming');
+    rbNoInstanceRenaming := cRadioButton(rgRenaming, rgRenaming, 20, 8, 0, 250, 'Don''t rename instances', (instanceRenaming = 0));
+    rbDuplicateRenaming := cRadioButton(rgRenaming, rgRenaming, 44, 8, 0, 250, 'Rename instances by duplicating base form', (instanceRenaming = 1));
+    rbPapyrusRenaming := cRadioButton(rgRenaming, rgRenaming, 68, 8, 0, 250, 'Rename instances with attached script', (instanceRenaming = 2));
     
     // papyrus options
-    groupPapyrus := cGroup(frm, frm, groupRenaming.Top + groupRenaming.Height + 12, 12, 84, groupWidth, 'Papyrus options', 
+    groupHavok := cGroup(frm, frm, groupRenaming.Top + groupRenaming.Height + 12, 12, 84, groupWidth, 'Havok options', 
       'These are options that modify how the GameToMod adjuster'#13
       'script is implemented on added or changed references.'#13
       'If you don''t want to have a script attached to every '#13
       'added or changed item in the CELL, disable these options.');
-    kbPapyrusHavok := cCheckBox(groupPapyrus, groupPapyrus, 20, 8, 170, ' Use Papyrus SetMotionType', BoolToChecked(papyrusHavok),
-      'This will lock all items using the SetMotionType papyrus'#13
-      'function in a script that is attached to all added or'#13
-      'changed ObjectReferences in the CELL.  If disabled, items'#13
-      'will still be initially frozen by the Don''t Havok Settle'#13
-      'flag.');
-    kbPapyrusRenaming := cCheckBox(groupPapyrus, groupPapyrus, 42, 8, 170, ' Use Papyrus SetDisplayName', BoolToChecked(papyrusRenaming),
-      'This will rename instances of items using the SetDisplayName'#13
+    kbDontHavokSettle := cCheckBox(groupHavok, groupHavok, 20, 8, 170, ' Set Don''t Havok Settle flag', BoolToChecked(dontHavokSettle),
+      'If checked, all modified and placed items will have the'#13
+      'Don''t Havok Settle flag set, which will disable the initial'#13
+      'Havok impulse that is normally given to all items in a cell.'#13
+      'Items will not be permanently locked, they will move if'#13
+      'another object collides with them.');
+    kbPapyrusHavok := cCheckBox(groupHavok, groupHavok, 42, 8, 250, ' Honor locked objects with attached script', BoolToChecked(papyrusHavok),
+      'This will preserve items that have been locked using'#13
+      'JaxonzPositioner.  This is done using the SetMotionType'#13
       'papyrus function in a script that is attached to all added'#13
-      'or changed ObjectReferences in the CELL.  This option only'#13
-      'takes effect if Allow instance renaming is checked.');
+      'or changed ObjectReferences in the CELL.');
     
     // logging options
-    groupLog := cGroup(frm, frm, groupPapyrus.Top + groupPapyrus.Height + 12, 12, 108, groupWidth, 'Logging options', 
+    groupLog := cGroup(frm, frm, groupHavok.Top + groupHavok.Height + 12, 12, 108, groupWidth, 'Logging options', 
       'These options control what is printed to the script''s internal'#13
       'log.  You may be asked to adjust these for debugging purposes'#13
       'if you report a problem with the script.');
@@ -462,9 +479,14 @@ begin
       scaleDiff := StrToFloat(edScale.Text);
       crossCellMoves := CheckedToBool(kbCrossCellMoves.State);
       globalRenaming := CheckedToBool(kbGlobalRenaming.State);
-      instanceRenaming := CheckedToBool(kbInstanceRenaming.State);
+      if (rbNoInstanceRenaming.Checked) then
+        instanceRenaming := 0
+      else if (rbDuplicateRenaming.Checked) then
+        instanceRenaming := 1
+      else if (rbPapyrusRenaming.Checked) then
+        instanceRenaming := 2;
       papyrusHavok := CheckedToBool(kbPapyrusHavok.State);
-      papyrusRenaming := CheckedToBool(kbPapyrusRenaming.State);
+      dontHavokSettle := CheckedToBool(kbDontHavokSettle.State);
       logAdditions := CheckedToBool(kbLogAdditions.State);
       logCrossCellMoves := CheckedToBool(kbLogCrossCellMoves.State);
       logChanges := CheckedToBool(kbLogChanges.State);
@@ -474,9 +496,9 @@ begin
       ini.WriteFloat('Transform', 'scaleDiff', scaleDiff);
       ini.WriteBool('Transform', 'crossCellMoves', crossCellMoves);
       ini.WriteBool('Renaming', 'globalRenaming', globalRenaming);
-      ini.WriteBool('Renaming', 'instanceRenaming', instanceRenaming);
-      ini.WriteBool('Papyrus', 'papyrusHavok', papyrusHavok);
-      ini.WriteBool('Papyrus', 'papyrusRenaming', papyrusRenaming);
+      ini.WriteInteger('Renaming', 'instanceRenaming', instanceRenaming);
+      ini.WriteBool('Havok', 'papyrusHavok', papyrusHavok);
+      ini.WriteBool('Havok', 'dontHavokSettle', dontHavokSettle);
       ini.WriteBool('Logging', 'logAdditions', logAdditions);
       ini.WriteBool('Logging', 'logCrossCellMoves', logCrossCellMoves);
       ini.WriteBool('Logging', 'logChanges', logChanges);
@@ -576,6 +598,13 @@ begin
   end;
   AddMessage('Script is using '+GetFileName(userFile)+' as the GameToMod mod file.');
   
+  // set up file attributes
+  seev(ElementByIndex(userFile, 0), 'CNAM', 'GameToMod '+vs);
+  Add(ElementByIndex(userFile, 0), 'SNAM', true);
+  fn := Copy(dlgOpen.FileName, rPos('\', dlgOpen.FileName) + 1, Length(dlgOpen.FileName));
+  seev(ElementByIndex(userFile, 0), 'SNAM', 'Generated from "'+fn+'" by GameToMod.');
+  
+  // progress form
   frm := TForm.Create(nil);
   try 
     frm.Caption := 'GameToMod Importer';
@@ -647,7 +676,7 @@ begin
         end;
         // prepare to create/modify references
         skipCell := false;
-        status := 'Importing changes from '+slLine[3];
+        status := 'Importing changes for '+slLine[3];
         currentCellForm := HexFormID(newCell);
         group := FindChildGroup(ChildGroup(newCell), 9, newCell);
         LogMessage('Creating and modifying references...');

@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.9.2
+  Mator Smash v0.9.3
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.9.2';
+  vs = 'v0.9.3';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -86,7 +86,7 @@ begin
         break;
     end;
   end 
-  // if unsorted, look for the element using indexOf
+  // if unsorted, look for the element using gav
   else begin
     sk := gav(se);
     if debugGetMaster then LogMessage('  Called GetMasterElement at path '+p+' looking for '+sk);
@@ -263,6 +263,7 @@ begin
     d_ndx := slDst.IndexOf(slMst[i]);
     
     if (s_ndx = -1) and (d_ndx > -1) then begin
+      if debugArrays then LogMessage('      > Removing element at '+Path(dst)+' with values: '+slMst[i]);
       RemoveElement(dst, d_ndx);
       slDst.Delete(d_ndx);
     end;
@@ -275,6 +276,7 @@ begin
     se := ebi(src, i);
     
     if (m_ndx = -1) and (d_ndx = -1) then begin
+      if debugArrays then LogMessage('      > Adding element at '+Path(dst)+' with values: '+slSrc[i]);
       ElementAssign(dst, HighInteger, se, false);
       slDst.Add(slSrc[i]);
     end;
@@ -503,7 +505,7 @@ begin
     if (IsSmashedPatch(f)) then 
       continue;
     // skip ctIdenticalToMaster overrides
-    if (ConflictThisString(ovr) = 'ctIdenticalToMaster') then
+    if (ConflictThisForMainRecord(ovr) = ctIdenticalToMaster) then
       continue;
     
     // if master record is not assigned, copy winning override to smashed patch
@@ -616,8 +618,8 @@ begin
     sfrm.Caption := 'Create new Smash Setting';
     
     // make label and edit for name
-    lblName := cLabel(sfrm, sfrm, 16, 16, 0, 0, 'Name: ');
-    edName := cEdit(sfrm, sfrm, lblName.Top, lblName.Left + lblName.Width + 8, 0, 200, '');
+    lblName := cLabel(sfrm, sfrm, 16, 16, 0, 0, 'Name: ', '');
+    edName := cEdit(sfrm, sfrm, lblName.Top, lblName.Left + lblName.Width + 8, 0, 200, '', '');
     
     // make radio group and buttons for record mode
     rg1 := cRadioGroup(sfrm, sfrm, lblName.Top + lblName.Height + 32, lblName.Left, 65, 250, 'Record Mode');
@@ -630,17 +632,17 @@ begin
     rb4 := cRadioButton(rg2, rg2, rb3.Top, rb3.Left + rb3.Width + 30, 0, 100, 'Inclusion', false);
     
     // make label and memo for records to skip
-    lblRecords := cLabel(sfrm, sfrm, rg2.Top + rg2.Height + 16, lblName.Left, 0, 0, 'Records: ');
+    lblRecords := cLabel(sfrm, sfrm, rg2.Top + rg2.Height + 16, lblName.Left, 0, 0, 'Records: ', '');
     meRecords := cMemo(sfrm, sfrm, lblRecords.Top + lblRecords.Height + 8, lblRecords.Left, 
       80, 250, true, false, ssVertical, '');
     
     // make label and memo for subrecords to skip
-    lblSubrecords := cLabel(sfrm, sfrm, meRecords.Top + meRecords.Height + 16, lblRecords.Left, 0, 0, 'Subrecords: ');
+    lblSubrecords := cLabel(sfrm, sfrm, meRecords.Top + meRecords.Height + 16, lblRecords.Left, 0, 0, 'Subrecords: ', '');
     meSubrecords := cMemo(sfrm, sfrm, lblSubrecords.Top + lblSubrecords.Height + 8, lblSubrecords.Left,
       80, 250, true, false, ssVertical, '');
     
     // construct ok and cancel buttons
-    ConstructOkCancelButtons(sfrm, sfrm, meSubrecords.Top + meSubrecords.Height + 20);
+    cModal(sfrm, sfrm, meSubrecords.Top + meSubrecords.Height + 20);
     
     // if using template, load values from it for form
     if usingTemplate then begin
@@ -794,25 +796,25 @@ begin
     pfrm.Height := 600;
     pfrm.Position := poScreenCenter;
     
-    lbl := cLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:');
+    lbl := cLabel(pfrm, pfrm, 8, 8, 0, 150, 'Filename:', '');
     MakeBold(lbl);
-    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn);
-    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, fn, '');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Author:', '');
     MakeBold(lbl);
     lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, author);
-    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of records:', '');
     MakeBold(lbl);
     lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, records);
-    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Number of overrides:', '');
     MakeBold(lbl);
-    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides);
-    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:');
+    lbl := cLabel(pfrm, pfrm, lbl.Top, 160, 0, 200, overrides, '');
+    lbl := cLabel(pfrm, pfrm, lbl.Top + 22, 8, 0, 150, 'Description:', '');
     MakeBold(lbl);
     memo := cMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, desc);
-    lbl := cLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:');
+    lbl := cLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Masters:', '');
     MakeBold(lbl);
     memo := cMemo(pfrm, pfrm, lbl.Top + 22, 16, 100, 348, true, true, ssVertical, masters);
-    lbl := cLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:');
+    lbl := cLabel(pfrm, pfrm, memo.Top + memo.Height + 16, 8, 0, 150, 'Record groups:', '');
     MakeBold(lbl);
     memo := cMemo(pfrm, pfrm, lbl.Top + 22, 16, 150, 348, true, true, ssVertical, groups);
     
@@ -888,7 +890,7 @@ begin
       pnlArray[pnlCount].BevelInner := bvNone; // or bvLowered
       pnlArray[pnlCount].BorderStyle := bsNone; // or bsSingle
       
-      fnlbl := cLabel(pnlArray[pnlCount], pnlArray[pnlCount], 14, 24, 0, 0, '['+IntToHex(i - 1, 2)+'] '+fn);
+      fnlbl := cLabel(pnlArray[pnlCount], pnlArray[pnlCount], 14, 24, 0, 0, '['+IntToHex(i - 1, 2)+'] '+fn, '');
       fnlbl.OnClick := PluginForm;
       MakeBold(fnlbl);
       
@@ -909,7 +911,7 @@ begin
     
     // create global setting controls
     gslbl := cLabel(frm, holder, pnlArray[pnlCount - 1].Top + pnlArray[pnlCount - 1].Height + 16,
-      optionslbl.Left, 0, 70, 'Global setting: ');
+      optionslbl.Left, 0, 70, 'Global setting: ', '');
     gscb := TComboBox.Create(frm);
     gscb.Parent := holder;
     gscb.Top := gslbl.Top;
@@ -1049,7 +1051,7 @@ begin
       frm.Height := 150;
       
       // make progress label
-      lbl := cLabel(frm, frm, 20, 20, 30, 600, 'Initializing...');
+      lbl := cLabel(frm, frm, 20, 20, 30, 600, 'Initializing...', '');
       
       // make progress bar
       pb := TProgressBar.Create(frm);
@@ -1120,7 +1122,7 @@ begin
             continue;
           rn := Name(r);
           if (nbsOverrideCount(r) > 1) then
-            if (ConflictThisString(WinningOverride(r)) <> 'ctOverride') then
+            if (ConflictThisForMainRecord(WinningOverride(r)) <> ctOverride) then
               if slRecords.IndexOf(rn) = -1 then begin
                 slRecords.AddObject(rn, TObject(r));
               end;
@@ -1195,7 +1197,6 @@ begin
       diff := (Now - tStart) * 86400;
       LogMessage('Completed in ' + FormatFloat('0.###', diff) + ' seconds.');
       memo.Lines.SaveToFile(logFileName);
-
       application.processmessages;
       
       if (memo.Visible) then begin
