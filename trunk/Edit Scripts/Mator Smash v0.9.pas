@@ -870,7 +870,7 @@ begin
     end;
     
     optionslbl := cLabel(frm, holder, 8, 8, 0, 450, 
-      'Set the options you want to use for smashing the following plugins:');
+      'Set the options you want to use for smashing the following plugins:', '');
     
     pnlCount := 0;
     for i := 0 to FileCount - 1 do begin
