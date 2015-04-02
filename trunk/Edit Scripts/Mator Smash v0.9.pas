@@ -26,7 +26,8 @@ const
   verbose = false;
   disableStyles = false;
   // maximum records to be smashed
-  maxRecords = 10000;
+  maxRecords = 100000;
+  splitChar = '#13';
  
 var
   slRecords, slSettings, slOptions, slFiles: TStringList;
@@ -295,7 +296,7 @@ var
   subrecords, subrecordMode, subrecordPath: string;
 begin
   // load subrecord settings
-  subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
+  subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), splitChar, #13#10, [rfReplaceAll]);
   subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
   
   // path string
@@ -659,8 +660,8 @@ begin
       rb2.Checked := template.ReadBool('Setting', 'recordMode', true);
       rb3.Checked := not template.ReadBool('Setting', 'subrecordMode', true);
       rb4.Checked := template.ReadBool('Setting', 'subrecordMode', true);
-      meRecords.Lines.Text := StringReplace(template.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceAll]);
-      meSubrecords.Lines.Text := StringReplace(template.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceAll]);
+      meRecords.Lines.Text := StringReplace(template.ReadString('Setting', 'records', ''), splitChar, #13#10, [rfReplaceAll]);
+      meSubrecords.Lines.Text := StringReplace(template.ReadString('Setting', 'subrecords', ''), splitChar, #13#10, [rfReplaceAll]);
     end;
     
     // if user clicks ok, save to ini and update lists
@@ -669,8 +670,8 @@ begin
       ini.WriteString('Setting', 'Name', edName.Caption);
       ini.WriteBool('Setting', 'recordMode', rb2.Checked);
       ini.WriteBool('Setting', 'subrecordMode', rb4.Checked);
-      ini.WriteString('Setting', 'records', StringReplace(meRecords.Caption, #13#10, '#13', [rfReplaceAll]));
-      ini.WriteString('Setting', 'subrecords', StringReplace(meSubrecords.Caption, #13#10, '#13', [rfReplaceAll]));
+      ini.WriteString('Setting', 'records', StringReplace(meRecords.Caption, #13#10, splitChar, [rfReplaceAll]));
+      ini.WriteString('Setting', 'subrecords', StringReplace(meSubrecords.Caption, #13#10, splitChar, [rfReplaceAll]));
       ini.UpdateFile;
       if (slSettings.IndexOf(edName.Caption) = -1) then begin
         lstSettings.Add(ini);
@@ -1084,9 +1085,9 @@ begin
       
       // load global settings
       ini := TMemIniFile(lstSettings[slSettings.IndexOf(global_setting)]);
-      global_records := StringReplace(ini.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceall]);
+      global_records := StringReplace(ini.ReadString('Setting', 'records', ''), splitChar, #13#10, [rfReplaceall]);
       global_recordMode := ini.ReadString('Setting', 'recordMode', '0');
-      global_subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13#10, [rfReplaceall]);
+      global_subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), splitChar, #13#10, [rfReplaceall]);
       global_subrecordMode := ini.ReadString('Setting', 'subRecordMode', '0');
      
       // loop through all loaded files
@@ -1111,7 +1112,7 @@ begin
         application.processmessages;
         // load ini settings
         ini := TMemIniFile(lstSettings[slSettings.IndexOf(slOptions[k])]);
-        records := StringReplace(ini.ReadString('Setting', 'records', ''), '#13', #13#10, [rfReplaceAll]);
+        records := StringReplace(ini.ReadString('Setting', 'records', ''), splitChar, #13#10, [rfReplaceAll]);
         recordMode := ini.ReadString('Setting', 'recordMode', '0');
         
         // loop through records
