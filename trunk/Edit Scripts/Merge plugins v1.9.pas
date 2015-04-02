@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.9.3
+  Merge Plugins Script v1.9.4
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.9.3
+  v1.9.4
   - Fixed issue with GetDefinition with v = true not working properly because
     there's the letter "v" in the vs constant, but not in reports.
   - Fixed issue with CopyGeneralAssets skipping files that should be copied
@@ -14,6 +14,8 @@
     renumbering issues.
   - Never copying child groups.
   - Now compatible with latest version of mteFunctions.pas
+  - Renumber conflicting FormIDs less paranoid about override records.  May
+    break things.  If so, blame hishy.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -1628,7 +1630,8 @@ begin
       
       // skip override records 
       if IsOverrideRecord(e) then begin
-        UsedFormIDs[ndx] := 1;
+        // Hishy was here.
+        //UsedFormIDs[ndx] := 1;
         TStringList(OldForms[i]).Add(loadFormID);
         TStringList(NewForms[i]).Add(loadFormID);
         Continue;
