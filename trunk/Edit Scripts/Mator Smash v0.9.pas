@@ -1,5 +1,5 @@
 {
-  Mator Smash v0.9.3
+  Mator Smash v0.9.4
   created by matortheeternal
   
   * DESCRIPTION *
@@ -11,7 +11,7 @@ unit smash;
 uses mteFunctions;
 
 const
-  vs = 'v0.9.3';
+  vs = 'v0.9.4';
   settingsPath = scriptsPath + 'smash\settings\';
   dashes = '-----------------------------------------------------------';
   // these booleans control logging
@@ -30,7 +30,7 @@ const
   splitChar = '#13';
  
 var
-  slRecords, slSettings, slOptions, slFiles: TStringList;
+  slRecords, slSettings, slOptions, slFiles, slSubrecords, slGlobalSubrecords: TStringList;
   lstSettings: TList;
   userFile: IInterface;
   lbl: TLabel;
@@ -291,22 +291,49 @@ end;
 
 //======================================================================
 // SkipSubrecord: Check if a subrecord should be skipped
+function ListHasMatch(var sl: TStringList; input: string): boolean;
+var
+  i: integer;
+  ex: string;
+begin
+  Result := false;
+  for i := 0 to sl.Count - 1 do begin
+    ex := sl[i];
+    if (Pos('*', ex) > 0) then begin
+      SetChar(ex, Pos('*', ex), '');
+      if (Pos(ex, input) > 0) then begin
+        Result := true;
+        exit;
+      end;
+    end
+    else if (ex = input) then begin
+      Result := true;
+      exit;
+    end;
+  end;
+end;
+
+//======================================================================
+// SkipSubrecord: Check if a subrecord should be skipped
 function SkipSubrecord(subrecord: IInterface; ini: TMemIniFile): boolean;
 var
   subrecords, subrecordMode, subrecordPath: string;
+  match, globalMatch: boolean;
 begin
   // load subrecord settings
-  subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), splitChar, #13#10, [rfReplaceAll]);
+  slSubrecords.Text := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13, [rfReplaceAll]);
   subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
   
   // path string
-  subrecordPath := Path(subrecord)+#13;
+  subrecordPath := Path(subrecord);
   
   // result boolean
-  Result := ((subrecordMode = '0') and (Pos(subrecordPath, subrecords) > 0))
-    or ((subrecordMode = '1') and (Pos(subrecordPath, subrecords) = 0))
-    or ((global_subrecordMode = '0') and (Pos(subrecordPath, global_subrecords) > 0)) 
-    or ((global_subrecordMode = '1') and (Pos(subrecordPath, global_subrecords) = 0));
+  match := ListHasMatch(slSubrecords, subrecordPath);
+  globalMatch := ListHasMatch(slGlobalSubrecords, subrecordPath);
+  Result := ((subrecordMode = '0') and (match))
+    or ((subrecordMode = '1') and not (match))
+    or ((global_subrecordMode = '0') and (globalMatch)) 
+    or ((global_subrecordMode = '1') and not (globalMatch));
 end;
 
 //======================================================================
@@ -1029,6 +1056,8 @@ begin
   // stringlist creation
   slOptions := TStringList.Create;
   slFiles := TStringList.Create;
+  slSubrecords := TStringList.Create;
+  slGlobalSubrecords := TStringList.Create;
   
   // load gui elements
   gear := TPicture.Create;
@@ -1088,7 +1117,8 @@ begin
       global_records := StringReplace(ini.ReadString('Setting', 'records', ''), splitChar, #13#10, [rfReplaceall]);
       global_recordMode := ini.ReadString('Setting', 'recordMode', '0');
       global_subrecords := StringReplace(ini.ReadString('Setting', 'subrecords', ''), splitChar, #13#10, [rfReplaceall]);
-      global_subrecordMode := ini.ReadString('Setting', 'subRecordMode', '0');
+      global_subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
+      slGlobalSubrecords.Text := global_subrecords;
      
       // loop through all loaded files
       k := 0;
