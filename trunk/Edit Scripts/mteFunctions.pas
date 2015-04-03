@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 4/1/2015
+  edited 4/3/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -10,24 +10,6 @@
   functions will need to be changed to reflect this (just add an extra parameter
   to these function calls that's an empty string).  This also applies to the shortened
   versions of these functions (cLabel, cEdit, cCheckBox).
-  
-  This note will be removed 4/30/2015.
-  
-  **IMPORTANT NOTE!**
-  As of 3/2/2015 a few functions were changed to have parameters passed by reference
-  instead of returning a new variable of the same type.  These functions were all
-  added recently so it shouldn't affect your scripts.  The affected functions are
-  listed below:
-  - [BatchCopyDirectory]: the batch stringlist is now passed by reference. Is now a 
-    procedure.
-  - [AddMastersToList]: the lst stringlist is now passed by reference. Is now a 
-    procedure.
-  - [SetChar]: the input string is now passed by reference. Is now a procedure.
-  
-  Other functions (such as ReverseString, RemoveFromEnd, and SanitizeFileName) weren't
-  changed for clarity regarding string operations.
-  
-  This note will be removed 4/2/2015.
   
   **LIST OF INCLUDED FUNCTIONS**
   - [GetVersionString]: gets TES5Edit's version as a string.
@@ -912,7 +894,7 @@ function RecordByHexFormID(id: string): IInterface;
 var
   f: IInterface;
 begin
-  f := FileByIndex(StrToInt('$' + Copy(id, 1, 2)));
+  f := FileByLoadOrder(StrToInt('$' + Copy(id, 1, 2)));
   Result := RecordByFormID(f, StrToInt('$' + id), true);
 end;
 
