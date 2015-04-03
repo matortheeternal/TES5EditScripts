@@ -1,5 +1,5 @@
 {
-  GameToMod Importer v1.0
+  GameToMod Importer v1.0.2
   created by matortheeternal
   
   For use with GameToMod, by Jaxonz and matortheeternal.
@@ -10,7 +10,7 @@ unit gameToModImport;
 uses mteFunctions;
 
 const
-  vs = '1.0';
+  vs = '1.0.2';
   removeOnException = true;
   dashes = '---------------------------------------------------------------------------';
   allowedReferences = 'ACTI'#13'ADDN'#13'ALCH'#13'AMMO'#13'APPA'#13'ARMA'#13'ARMO'#13
@@ -233,6 +233,7 @@ begin
   // check reference record, skip if not an allowed type
   try
     refr := RecordByFormID(sourceMod, StrToInt('$' + loadForm), true);
+    //LogMessage('Found '+name(refr));
     if not ElementIsAllowed(refr) then 
       exit;
     if (objectID <> '00000000') and (Signature(refr) = 'NPC_') then
@@ -325,11 +326,14 @@ begin
   // copy it to userFile unless it's a new record, and
   // set values on it
   if valuesChanged then begin
+    oldFull := geev(refr, 'FULL');
+    if (LowerCase(oldFull) <> LowerCase(full)) then
+      LogMessage('    Name changed from '+oldFull+' to '+full);
     if (objectID <> '00000000') then begin
       Inc(recordsModified);
       if (HexFormID(LinksTo(ElementByPath(element, 'Cell'))) <> currentCellForm) then begin
         if logCrossCellMoves then
-          LogMessage('    Moved '+SmallName(element)+' to '+Name(currentCellForm));
+          LogMessage('    Moved '+SmallName(element)+' to '+currentCellForm);
         element := wbCopyElementToFile(element, userFile, (not crossCellMoves), true);
       end
       else
@@ -353,8 +357,8 @@ begin
       if (HexFormID(LinksTo(ElementByPath(element, 'Cell'))) <> currentCellForm) then
         seev(element, 'Cell', currentCellForm);
       // add GameToMod script
-      if papyrusHavok or (instanceRenaming = 2) then begin
-        if (Lowercase(full) <> Lowercase(geev(refr, 'FULL'))) then
+      if (papyrusHavok) or (instanceRenaming = 2) then begin
+        if (Lowercase(full) <> Lowercase(oldFull)) then
           AddGameToModScript(element, full, motionType)
         else if papyrusHavok then
           AddGameToModScript(element, '', motionType);
