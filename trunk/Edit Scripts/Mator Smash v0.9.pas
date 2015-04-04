@@ -20,7 +20,7 @@ const
   listOverrides = false;
   showChanges = false;
   showTraversal = false;
-  showSkips = true;
+  showSkips = false;
   showTypeStrings = false;
   showRecTimes = false;
   verbose = false;
@@ -45,6 +45,7 @@ var
   global_subrecordMode, global_setting: string;
   gear: TPicture;
   lst: TListBox;
+  makeNewLine: boolean;
 
 //======================================================================
 // LogMessage: Posts a message to the log stringlist
@@ -556,7 +557,8 @@ begin
     
     // recursively copy overriden elements
     try
-      LogMessage(#13#10'Smashing record '+Name(rec)+' from file: '+fn);
+      if makeNewLine then LogMessage('');
+      LogMessage('Smashing record '+Name(rec)+' from file: '+fn);
       rcore(ovr, rec, mr, mr, '    ', ini);
     except on x : Exception do
       LogMessage('    !! Exception smashing record '+Name(rec)+' : '+x.Message);
@@ -1060,6 +1062,8 @@ begin
   slFiles := TStringList.Create;
   slSubrecords := TStringList.Create;
   slGlobalSubrecords := TStringList.Create;
+  makeNewLine := showSkips or showTraversal or debugGetMaster or debugArrays 
+    or showChanges or showTypeStrings or showRecTimes;
   
   // load gui elements
   gear := TPicture.Create;
