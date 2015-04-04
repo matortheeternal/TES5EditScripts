@@ -371,6 +371,7 @@ var
   mv, sv, ets, dts, cts, cas, ctsrc, subrecords, subrecordMode: string;
   diff: TRecordDiff;
   slDst, slMst: TStringList;
+  skip: boolean;
 begin
   // initialize stringlists
   slDst := TStringList.Create; // list of destination elements
@@ -415,7 +416,8 @@ begin
       continue;
     end;
     // skip subrecordsToSkip
-    if SkipSubrecord(se, ini) then begin
+    skip := SkipSubrecord(se, ini);
+    if skip then begin
       if showSkips then LogMessage('    Skipping '+Path(se));
       Inc(i);
       Inc(j);
@@ -1120,6 +1122,42 @@ begin
       global_subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
       slGlobalSubrecords.Text := global_subrecords;
      
+      // see if a smashed patch is loaded
+      for i := 0 to FileCount - 1 do begin
+        f := FileByIndex(i);
+        // if smashed patch found, break
+        if (IsSmashedPatch(f)) then begin
+          useFile := f;
+          break;
+        end;
+      end;
+     
+      // make userFile if not found
+      lbl.Caption := 'Assigning smashed patch.';
+      application.processmessages;
+      if not Assigned(userFile) then
+        userFile := AddNewFile;
+      if not Assigned(userFile) then begin
+        LogMessage('Smashed patch not assigned, terminating script');
+        FreeMemory;
+        frm.Free;
+        Result := -1;
+        exit;
+      end;
+      
+      // set userFile author to Mator Smash
+      lbl.Caption := 'Adding masters to smashed patch.';
+      application.processmessages;
+      seev(ebi(userFile, 0), 'CNAM', 'Mator Smash '+vs);
+      // add masters to userFile
+      for i := 0 to FileCount - 3 do begin
+        f := FileByLoadOrder(i);
+        if (IsSmashedPatch(f)) then
+          break;
+        fn := GetFileName(f);
+        AddMasterIfMissing(userFile, fn);
+      end;
+     
       // loop through all loaded files
       k := 0;
       tRec := Now;
@@ -1130,11 +1168,9 @@ begin
         // skip bethesda files, we're not patching them
         if Pos(fn, bethesdaFiles) > 0 then
           continue;
-        // if smashed patch found, assign and break
-        if (IsSmashedPatch(f)) then begin
-          userFile := f;
+        // if smashed patch found, break
+        if (IsSmashedPatch(f)) then
           break;
-        end;
         
         // build list of records with multiple overrides
         lbl.Caption := 'Processing '+fn;
@@ -1148,6 +1184,8 @@ begin
         // loop through records
         for j := 0 to RecordCount(f) - 1 do begin
           r := MasterOrSelf(RecordByIndex(f, j));
+          if (OverrideCount(r) <= 1) then
+            continue;
           // skip records according to ini settings
           if SkipRecord(r, records, recordMode) then 
             continue;
@@ -1174,30 +1212,6 @@ begin
         end;
       end;
      
-      // make userFile if not found
-      lbl.Caption := 'Assigning smashed patch.';
-      application.processmessages;
-      if not Assigned(userFile) then
-        userFile := AddNewFile;
-      if not Assigned(userFile) then begin
-        LogMessage('Smashed patch not assigned, terminating script');
-        FreeMemory;
-        frm.Free;
-        Result := -1;
-        exit;
-      end;
-      
-      // set userFile author to Mator Smash
-      lbl.Caption := 'Adding masters to smashed patch.';
-      application.processmessages;
-      seev(ebi(userFile, 0), 'CNAM', 'Mator Smash '+vs);
-      // add masters to userFile
-      for i := 0 to FileCount - 3 do begin
-        f := FileByLoadOrder(i);
-        fn := GetFileName(f);
-        AddMasterIfMissing(userFile, fn);
-      end;
-     
       // smash records that have been overridden multiple times
       lbl.Caption := 'Smashing records (1/'+IntToStr(slRecords.Count)+')';
       application.processmessages;
@@ -1212,12 +1226,14 @@ begin
         // update label, print debug message to log after smashing record
         lbl.Caption := 'Smashing records ('+IntToStr(i + 2)+'/'+IntToStr(slRecords.Count)+')';
         pb.Position := pb.Position + 1;
-        diff := (Now - tRec) * 86400;
-        if showRecTimes then LogMessage('  '+FormatFloat('0.###', diff) + 's');
+        if showRecTimes then begin
+          diff := (Now - tRec) * 86400;
+          LogMessage('  '+FormatFloat('0.###', diff) + 's');
+        end;
         application.processmessages;
       end;
       
-      // clean and sort masters
+      // sort and clean masters
       SortMasters(userFile);
       CleanMasters(userFile);
       
