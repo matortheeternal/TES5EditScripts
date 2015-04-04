@@ -62,8 +62,8 @@ const
   closeSuffix = ' -'; // suffix on sub-categories for closing groups
   hl = '-----------------------------------------------------------------------------';
   fmoPath = ProgramPath + 'Edit Scripts\fmo\';
-  tesvPath = Copy(ProgramPath, 1, Pos('Skyrim\', ProgramPath) + 6);
-  scriptsPath = tesvPath + 'Data\scripts\';
+  tesvPath = Copy(DataPath, 1, rPos('\', DataPath));
+  scriptsPath = DataPath + 'scripts\';
   sourcePath = scriptsPath + 'source\';
 
 var
@@ -311,6 +311,7 @@ begin
     if clothing and ('ArmorClothing' = s) then Inc(n);
     if jewelry and ('ArmorJewelry' = s) then Inc(n);
     if overridekwda then Inc(n);
+    if (n > 0) then break;
   end;
     
   if n = 0 then begin
