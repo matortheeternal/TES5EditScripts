@@ -46,6 +46,8 @@ var
   gear: TPicture;
   lst: TListBox;
   makeNewLine: boolean;
+  sfrm: TForm;
+  meRecords, meSubrecords: TMemo;
 
 //======================================================================
 // LogMessage: Posts a message to the log stringlist
@@ -620,13 +622,19 @@ begin
 end;
 
 //======================================================================
+// SettingFormResize: Event to fire when the setting form is resized
+procedure SettingFormResize(Sender: TObject);
+begin
+  meRecords.Width := sfrm.Width - 50;
+  meSubrecords.Width := sfrm.Width - 50;
+end;
+
+//======================================================================
 // SettingForm: Used to create or edit setting presets
 procedure SettingForm(Sender: TObject);
 var
-  sfrm: TForm;
   lblName, lblRecords, lblSubrecords: TLabel;
   edName: TEdit;
-  meRecords, meSubrecords: TMemo;
   rg1, rg2: TRadioGroup;
   rb1, rb2, rb3, rb4: TRadioButton;
   ini, template: TMemIni;
@@ -645,7 +653,7 @@ begin
   try
     // set up form
     sfrm.Width := 300;
-    sfrm.Height := 515;
+    sfrm.Height := 555;
     sfrm.Position := poScreenCenter;
     sfrm.Caption := 'Create new Smash Setting';
     
@@ -666,12 +674,12 @@ begin
     // make label and memo for records to skip
     lblRecords := cLabel(sfrm, sfrm, rg2.Top + rg2.Height + 16, lblName.Left, 0, 0, 'Records: ', '');
     meRecords := cMemo(sfrm, sfrm, lblRecords.Top + lblRecords.Height + 8, lblRecords.Left, 
-      80, 250, true, false, ssVertical, '');
+      100, 250, true, false, ssVertical, '');
     
     // make label and memo for subrecords to skip
     lblSubrecords := cLabel(sfrm, sfrm, meRecords.Top + meRecords.Height + 16, lblRecords.Left, 0, 0, 'Subrecords: ', '');
     meSubrecords := cMemo(sfrm, sfrm, lblSubrecords.Top + lblSubrecords.Height + 8, lblSubrecords.Left,
-      80, 250, true, false, ssVertical, '');
+      100, 250, true, false, ssVertical, '');
     
     // construct ok and cancel buttons
     cModal(sfrm, sfrm, meSubrecords.Top + meSubrecords.Height + 20);
@@ -694,6 +702,9 @@ begin
       meRecords.Lines.Text := StringReplace(template.ReadString('Setting', 'records', ''), splitChar, #13#10, [rfReplaceAll]);
       meSubrecords.Lines.Text := StringReplace(template.ReadString('Setting', 'subrecords', ''), splitChar, #13#10, [rfReplaceAll]);
     end;
+    
+    // set onresize event
+    sfrm.OnResize := SettingFormResize;
     
     // if user clicks ok, save to ini and update lists
     if sfrm.ShowModal = mrOk then begin
