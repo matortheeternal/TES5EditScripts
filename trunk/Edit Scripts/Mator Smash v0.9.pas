@@ -1142,7 +1142,7 @@ begin
         f := FileByIndex(i);
         // if smashed patch found, break
         if (IsSmashedPatch(f)) then begin
-          useFile := f;
+          userFile := f;
           break;
         end;
       end;
