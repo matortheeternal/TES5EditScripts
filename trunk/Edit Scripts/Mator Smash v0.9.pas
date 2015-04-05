@@ -293,7 +293,7 @@ begin
 end;
 
 //======================================================================
-// SkipSubrecord: Check if a subrecord should be skipped
+// ListHasMatch: Check if a list has a matching subrecord
 function ListHasMatch(var sl: TStringList; input: string): boolean;
 var
   i: integer;
@@ -324,7 +324,6 @@ var
   match, globalMatch: boolean;
 begin
   // load subrecord settings
-  slSubrecords.Text := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13, [rfReplaceAll]);
   subrecordMode := ini.ReadString('Setting', 'subrecordMode', '0');
   
   // path string
@@ -561,6 +560,7 @@ begin
     try
       if makeNewLine then LogMessage('');
       LogMessage('Smashing record '+Name(rec)+' from file: '+fn);
+      slSubrecords.Text := StringReplace(ini.ReadString('Setting', 'subrecords', ''), '#13', #13, [rfReplaceAll]);
       rcore(ovr, rec, mr, mr, '    ', ini);
     except on x : Exception do
       LogMessage('    !! Exception smashing record '+Name(rec)+' : '+x.Message);
