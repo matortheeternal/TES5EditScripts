@@ -110,8 +110,7 @@ sRecordsInPlugin=Records in plugin: ;
 sRecordsInPluginHint=;
 sScriptVersion=Script version: ;
 sScriptVersionHint=The version of the Merge Plugins script you're using.;
-sReports=Reports: 
-;
+sReports=User reports: ;
 sReportsHint=;
 sNumRecords=Number of records: ;
 sAverageRating=Average rating: ;
@@ -126,7 +125,7 @@ choose create new file to create a new one.
 
 NOTE: merging into an existing file isn't a good
 idea, and can cause instability.;
-sMergeing=Mergeing...;
+sMerging=Merging...;
 sShowDetails=Show Details;
 sSomeRecordsFailed=Some records failed to copy, so your merged file is incomplete.  
 Please refer to the message log so you can address these records manually.  
