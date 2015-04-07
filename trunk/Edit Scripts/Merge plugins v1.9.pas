@@ -81,7 +81,7 @@ end;
   
 //=========================================================================
 // GetDefinitionHint: Generates a hint based on the definition
-function GetDefinitionHint(sl: TStringList): string;
+function GetDefinitionHint(sl: TStringList): UTF8String;
 var
   notes: String;
 begin
@@ -450,7 +450,7 @@ begin
     cb1.Parent := gb1;
     cb1.Left := 16;
     cb1.Top := 20;
-    cb1.Width := 150;
+    cb1.Width := 200;
     cb1.Caption := lang.Values['sUsingMO'];
     cb1.Checked := usingMO;
     cb1.OnClick := UsingModOrganizer;
@@ -672,7 +672,7 @@ begin
     cb3.Parent := gb2;
     cb3.Left := lbl2.Left;
     cb3.Top := lbl2.Top +lbl2.Height + 12;
-    cb3.Width := 120;
+    cb3.Width := 160;
     cb3.Caption := lang.Values['sDisableLabelColoring'];
     cb3.ShowHint := true;
     cb3.Hint := lang.Values['sDisableLabelColoringHint'];
@@ -903,8 +903,9 @@ var
   i, j, k, height, m: integer;
   holder: TObject;
   masters, e, f: IInterface;
-  s, definition, hint: string;
+  s, definition: string;
   slDefinition: TStringList;
+  hint: UTF8String;
 begin
   LoadSettings;
   mfrm := TForm.Create(nil);
