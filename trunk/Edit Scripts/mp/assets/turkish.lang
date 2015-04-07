@@ -1,0 +1,132 @@
+sHello=Selamlar, kullanici!;
+sNoReports=Bu eklenti için hiçbir kullanici raporlarini teslim edilmistir.;
+sAvgRating=Ortalama derecelendirme: ;
+sNumRatings=Yorumu sayisi: ;
+sUserNotes=Kullanici notlari: ;
+sSelectFile=Dosya Seç;
+sCreateNewFile=- YENI DOSYA CREATE -;
+sCouldntFindFile=Komut girdiginiz dosyayi bulamadi.;
+sInvalidMO=Sizin Mod Organizatör yol geçersiz. Ya geçerli bir yol girin ya da "Ben Mod Organizatör kullaniyorum" isaretini kaldirin.;
+sInvalidAssetPath=Sizin varlik hedef dizin geçersiz. Geçerli bir yol girin.;
+sSelectDir=Bir dizin seçin;
+sSearching=Arama;
+sDetectMOFail=otomatik Mod Organizatör dosya yolunu tespit edilemedi. Bunu elle girin.;
+sFirstTime=Bu komut dosyasini çalistirdiginiz ilk kez görünüyor. Gelecekteki birlestirmelerinin için gelismis seçenekler kurun. penceresi otomatik olarak gelecektir, ve komut dosyasi penceresinin sag alt kösesindeki disli tiklayarak istediginiz zaman geri alabilirsiniz.;
+sAdvancedOptions=Gelismis Seçenekler;
+sMOOptions=Mod Organizatör seçenekleri;
+sUsingMO=Ben Mod Organizatör kullaniyorum;
+sUsingMOHint=Sen eger düzgün çalismasi için varlik kopyalama için bu kontrol etmelisiniz
+Mod Organizatör kullanarak. Kullanmadiginiz eger bu kontrol edilmemelidir
+Mod Organizatör.;
+sMODir=Mod Organizatör dizin;
+sMODirHint=ModOrganizer.exe içeren klasörün yolunu. Bu yol, girilmelidir
+Eger "Ben Mod Organizatör kullaniyorum" onay kutusunu isaretli ise.;
+sBrowseForMOHint=Arastir Mod Organizer için;
+sDetect=Algilama;
+sDetectHint=Arayarak sabit diskinizde Mod Organizer bulmak için komut girisimi var
+genellikle yüklü yerleri. MO bulunursa, dizinleri olacak
+otomatik olarak güncellenir.;
+sCopyGeneral=Genel varliklari kopyalayin;
+sCopyGeneralHint=Senaryoyu var iliskili Mod Organizatör mod klasörlerden genel varliklari kopyalamak
+ESP ile size birlestirme ediyoruz. Eger hiçbir dosya kopyalama yapmak zorunda bu bunu yapmak olacak
+Mod Organizer sonra birlestirme. Bu seçenek sadece Mod Organizer ile çalisir!;
+sRenumberingOptions=Numaralandirma seçenekleri;
+sDontRenumber=FormIDs yeniden numaralandirmak etmeyin;
+sDontRenumberHint=UYARI! Eger you 'ne yaptigini biliyor sürece bu seçenegi kullanmayin! Eger bu kullanirsaniz
+seçenegi ve you 'ayni yerel FormIDs sahip birlestirme dosyalari herhangi bir kayit, onlar
+çakisabilir ve!  Birlestirilmis eklenti islevsel olmayan yapacak; 
+sRenumberConflicting=Çliskili FormIDs Yeniden Numarala-;
+sRenumberConflictingHint=Bu Kullanmak için en iyi seçenektir. Çatisma yeniden numaralandirilir Sadece FormIDs
+Bu seçenegi kullandiginizda.;
+sRenumberAll=Tüm FormIDs Yeniden Numarala-;
+sRenumberAllHint=Tüm numaralandirilmadan herhangi FormIDs hiçbir çakisma emin bu yapacak
+onlar. Degil çelisen FormIDs Yeniden Numarala- kullanarak yalnizca bu seçenege basvurmak
+Bir isleyisini olusturma eklentisi birlesti.;
+sCopyingOptions=Kopyalama seçenekleri;
+sCopyRecords=Kopya kayitlari;
+sCopyRecordsHint=ESKI SEÇENEK: Bu seçenek, dosyalari her kayit kopyalar için birlestirilecek
+Birlestirilen dosya. Bazi kayitlar aslinda diger kayitlari (örnegin Hücreleri), bu tutun çünkü
+Ayni kayitlar kez kopyalanan yol açabilir. Bu belli sorunlari neden olabilir
+Son derece özel kosullar.;
+sCopyIntelligently=Kopyala akillica;
+sCopyIntelligentlyHint=Ardisik dosyalari kayit gruplarini çapraz Bu seçenek birlestirilecek,
+kopyalama Birlestirilen dosya kayitlari bulundu. yineleme kayitlarina duracak
+diger kayitlari (örn Hücreler) tutun, böylece hiçbir kayit iki kez kopyalanmis olacak.;
+sCopyGroups=Gruplari kopyalayin;
+sCopyGroupsHint=ESKI SEÇENEK: dosyalari kayit gruplarini kopyalamak Bu seçenek için birlestirilecek
+Birlestirilen dosya. sey yanlis kopyalama herhangi giderse bu seçenegi konudur
+Bir grup rekor, tüm kayit grubu kopyalamak için basarisiz olur ve sorun olacak
+basarisizlik sorumlu rekoru bulma.;
+sSecondPassOptions=Ikinci geçis kopyalama seçenekleri;
+sNoSecondPass=Yok ikinci geçmek;
+sNoSecondPassHint=Ikinci geçis kopyalama isleyisi ile eklentileri birlesti olusturmak için gerekli kullanilan
+Bazi kayitlar. Son XEDIT güncellemeler gereksiz yaptik, ama burada kalir
+sadece durumda eski seçenek olarak.;
+sSecondPassSame=Ikinci Ilk olarak ayni geçmek;
+sSecondPassSameHint=ESKI SEÇENEK: Bu ikinci geçis yöntemi ayni kopyalama yöntemi kullanir sen
+Yukarida seçildi. Ama, hayir ikinci geçisi kullanmanizi öneririz.;
+sSecondPassCopyByGroups=Gruplar tarafindan ikinci geçis kopyasi;
+sSecondPassCopyByGroupsHint=ESKI SEÇENEK: Orijinal ikinci geçis kopyalama rutin. Bu ana düsüsünü bulunuyor
+Bir rekor grubundaki tek bir kayit kopyalamak için basarisiz olursa, tüm kayit grubu,
+kopyalamak için basarisiz olur.;
+sOtherOptions=Diger seçenekler;
+sAssetDestination=Varlik hedef dizin: ;
+sAssetDestinationHint=Komut dosyasi tarafindan kopyalanan varliklar için Hedef klasörü. Eger kullaniyorsaniz
+Mod Organizatör bu Mod Organizatör üzerine yazma klasör olmalidir
+dizin. Eger Mod Organizatör kullanarak degilseniz bu sizin Skyrim olmali
+Veri klasör veya you 'varlik tutmak için karar baska bir yere.;
+sAssetDestinationBrowseHint=Gözat varlik hedef dizine için;
+sDisableLabelColoring=Devre disi birakin etiket boyama;
+sDisableLabelColoringHint=Bu seçenegi degistirmek etkiyi almak için komut dosyasi yeniden baslatma gerektirir.
+Ana birlestirme penceresinde dosya adlari herhangi göremiyorum eger bu kontrol ediniz.
+NOT: Bu soruna yönelik bir baska düzeltme pencerelerde, Windows Aero etkinlestirmek için
+kisisellestirme ayarlari.;
+sExtractBSAs=BSAs Özü;
+sExtractBSAsHint=Bu seçilirse, komut dosyasi ile ilgili tüm BSAs çikartacaktir 
+eklentileri varlik hedef dizine birlestirilen. Ihtiyacin yok
+Eger Mod Organizatör kullaniyorsaniz bu seçenegi kullanmak için, 
+ama eger bunu kullanmalisiniz Nexus Mod Manager ile konum.;
+sBatchCopy=Toplu kopya varliklar;
+sBatchCopyHint=Bu seçili ise varliklar XEDIT sonra bir toplu komut dosyasi araciligiyla kopyalanir
+eklentileri birlestirme yapilir. Sen you 'eklentileri birlestirilmesi durumunda bu kullanmak istiyorum
+hangi varliklarin bir sürü var. Örnegin tam takipçileri dile getirdi. Bunu olmalidir
+senin birlestirmelerinin tümü için etkin, güvenli olmasi için.;
+sSave=Kaydet;
+sSaveHint=Bu birlestirme için bu seçenekleri ve gelecekteki tüm birlestirir kaydetmek için tiklayin.;
+sDiscard=Sil;
+sDiscardHint=Seçenekleri degisiklikleri atmak için tiklayin.;
+sDataDirectoryContinue=Bu komut ile kopyalanan varliklar için hedef dizin olarak Skyrim veri dizinini kullaniyoruz. Bu zaman içinde veri dizini çok daginik hale getirecek ve tavsiye edilmez. Devam etmek istediginizden emin misiniz?;
+sHelper=Varlik Hedef Yardimcisi;
+sNotEmpty=Sizin varlik hedef dizin bos degil. Devam etmeden önce onu temizlemek gerekir.;
+sProceed=Devam;
+sProceedHint=Birlestirme ile devam;
+sExplore=Kesfedin;
+sExploreHint=Windows Explorer varlik hedef dizini açar.;
+sCancel=Iptal;
+sCancelHint=Birlestirme Iptal;
+sFileName=Dosya adi: ;
+sFilenameHint=;
+eklenti sRecordsInPlugin=Kayit: ;
+sRecordsInPluginHint=;
+sScriptVersion=Senaryo sürümü: ;
+sScriptVersionHint Eger.; kullandiginiz Birlestirme Eklentiler komut sürümünü=
+sReports=Kullanici raporlari: ;
+sReportsHint=;
+sNumRecords=Kayit sayisi: ;
+sAverageRating=Ortalama derecelendirme: ;
+sNumReports=Raporlarin sayisi: ;
+sNotes=Notlar: ;
+sMergePlugins=Eklentileri Birlestirme;
+sSelectPlugins=Birlestirmek istediginiz eklentileri seçin.;
+sImgOptionsHint=Gelismis Seçenekler;
+sOK=Tamam;
+sFileSelectText=asagidaki birlestirmek istediginiz dosyayi seçin, ya da
+Yeni bir tane olusturmak için yeni bir dosya olusturun seçin.
+
+NOT: Varolan bir dosya içine birlestirme iyi degil
+Fikir ve kararsizliga neden olabilir.;
+sMerging=Birlestirme...;
+sShowDetails=Detaylari Göster;
+sSomeRecordsFailed=Bazi kayitlar kopyalamak için basarisiz, böylece birlestirilmis dosya eksik.
+Eger bu kayitlari elle ele böylece mesaj günlügüne bakin.
+(Birlestirilmis dosya büyük olasilikla bu kayitlar olmadan çalismaz!);

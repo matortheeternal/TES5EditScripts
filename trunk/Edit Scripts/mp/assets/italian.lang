@@ -1,0 +1,132 @@
+sHello=Saluti, utente!;
+sNoReports=non sono state presentate relazioni utente per questo plugin.;
+sAvgRating=Valutazione media: ;
+sNumRatings=Numero di voti: ;
+sUserNotes=Utente note: ;
+sSelectFile=Seleziona file;
+sCreateNewFile=- CREA NUOVO FILE -;
+sCouldntFindFile=Lo script non riusciva a trovare il file immesso.;
+sInvalidMO=Il percorso Mod Organizer è valido. Immettere un percorso valido o deselezionare "Sto usando Mod Organizer".;
+sInvalidAssetPath=La directory di destinazione del risparmio non è valida. Inserisci un percorso valido.;
+sSelectDir=Seleziona una cartella;
+sSearching=Ricerca;
+sDetectMOFail=Impossibile rilevare automaticamente il percorso del file di Mod Organizer. Inserisci manualmente.;
+sFirstTime=Sembra che questa è la prima volta che si sta eseguendo lo script. Si prega di impostare le opzioni avanzate per unioni future. La finestra verrà automaticamente, e si può tornare ad esso in qualsiasi momento facendo clic sul ingranaggio nell'angolo in basso a destra della finestra dello script.;
+sAdvancedOptions=Opzioni avanzate;
+sMOOptions=Mod Organizzatore Opzioni;
+sUsingMO=Sto utilizzando Mod Organizzatore;
+sUsingMOHint=È necessario controllare questo per la copia risorsa per funzionare correttamente se sei
+utilizzando Mod Organizer. Questo non deve essere selezionata se non si sta usando
+Mod Organizer.;
+sMODir=Mod Organizzatore directory;
+sMODirHint=Il percorso della cartella contenente ModOrganizer.exe. Questo percorso deve essere inserito
+se è stata selezionata la casella di controllo "Sto usando Mod Organizer".;
+sBrowseForMOHint=Sfoglia per Mod Organizzatore;
+sDetect=Rileva;
+sDetectHint=Avere il tentativo di script per trovare Mod Organizer sul disco rigido per la ricerca
+luoghi in cui di solito è installato. Se MO viene trovato, le directory saranno
+aggiornato automaticamente.;
+sCopyGeneral=Copia patrimonio generale;
+sCopyGeneralHint=Avere lo script copia patrimonio generale dalle cartelle mod Mod Organizzatore associati
+con le ESP si sta fondendo. In questo modo sarà quindi bisogna fare alcun file di copia
+in Mod Organizer dopo la fusione. Questa opzione funziona solo con Mod Organizer!;
+sRenumberingOptions=Opzioni numerare;
+sDontRenumber=Non rinumerare FormIDs;
+sDontRenumberHint=ATTENZIONE! Non utilizzare questa opzione se non sai cosa you''re facendo! Se si utilizza questo
+opzione e tutti i record nei file you''re di fusione hanno le stesse FormIDs per loro, che
+in conflitto e fare il plugin dalla fusione non funzionale!;
+sRenumberConflicting=Rinumerare FormIDs contrastanti;
+sRenumberConflictingHint=Questa è l'opzione migliore per voi da usare. Solo FormIDs quel conflitto sono nuova numerazione
+Quando si utilizza questa opzione.;
+sRenumberAll=Rinumera tutti FormIDs;
+sRenumberAllHint=Questo farà in modo che non vi siano conflitti in qualsiasi FormIDs di rinumerazione tutti
+il loro. Ricorrere a questa opzione solo se si utilizza Rinumerare FormIDs conflitto non è
+creando un funzionamento fuse plug.;
+sCopyingOptions=Opzioni di copia;
+sCopyRecords=Record di copia;
+sCopyRecordsHint=LEGACY OPZIONE: Questa opzione copia tutti i record nei file da unire al
+file unito. Poiché alcuni record in realtà tengono altri record (ad esempio Cells), questo
+può portare gli stessi dischi copiati due volte. Ciò potrebbe causare problemi in alcuni
+circostanze estremamente specifiche.;
+sCopyIntelligently=Copia intelligente;
+sCopyIntelligentlyHint=Questa opzione ricorsivamente percorrere i gruppi di record nei file da unire,
+copia trovato record al file unito. La ricorsione si fermerà al record
+tenere altri record (ad esempio Cells), in modo che nessun record sarà copiato due volte.;
+sCopyGroups=Copia gruppi;
+sCopyGroupsHint=LEGACY OPZIONE: questa opzione copierà i gruppi di record dai file da unire a
+il file unito. Il problema con questa opzione è che se qualcosa va storto qualsiasi copia
+record di un gruppo, l'intero gruppo di record non riuscirà a copiare e avrete difficoltà
+trovando il record responsabile del fallimento.;
+sSecondPassOptions=Second passaggio di copia;
+sNoSecondPass=No secondo passaggio;
+sNoSecondPassHint=Secondo passaggio copia usato essere necessario creare funzionamento fusa plugins con
+alcuni record. Aggiornamenti recenti XEDIT hanno reso inutile, ma resta qui
+come opzione di eredità, nel caso in cui.;
+sSecondPassSame=Secondo passaggio stesso di prima;
+sSecondPassSameHint=LEGACY OPZIONE: Questo secondo metodo passaggio utilizzerà lo stesso metodo di copia che
+selezionato sopra. Mi consiglia di utilizzare una seconda passata, anche se.;
+sSecondPassCopyByGroups=Seconda copia passaggio da gruppi;
+sSecondPassCopyByGroupsHint=LEGACY OPZIONE: La seconda routine di passaggio la copia originale. E 'caduta principale
+è se un singolo record in un gruppo di record non riesce a copiare, l'intero gruppo di record
+non riuscirà a copiare.;
+sOtherOptions=Altre opzioni;
+sAssetDestination=Asset directory di destinazione: ;
+sAssetDestinationHint=Cartella di destinazione per le attività che vengono copiati dallo script. Se stai usando
+Mod Organizer questa dovrebbe essere la cartella di sovrascrittura in Mod Organizer di
+directory. Se non si sta utilizzando Mod Organizer questo dovrebbe essere il vostro Skyrim
+cartella di dati o un'altra posizione you''ve decise per lo svolgimento di attività.;
+sAssetDestinationBrowseHint=Sfoglia per la directory di destinazione del risparmio;
+sDisableLabelColoring=Disabilita coloranti etichetta;
+sDisableLabelColoringHint=La modifica di questa opzione richiede il riavvio dello script per avere effetto.
+Controllare questo se non è possibile vedere uno dei nomi di file nella finestra di unione principale.
+NOTA: Un'altra correzione di questo problema è quello di consentire di Windows Aero in Windows
+impostazioni di personalizzazione.;
+sExtractBSAs=Estratto BSA;
+sExtractBSAsHint=Se questa è selezionata, lo script estrarrà tutti BSA associati al
+plugins essere fusa nella directory di destinazione del risparmio. Non hai bisogno
+Per utilizzare questa opzione se si sta utilizzando Mod Organizer, ma dovrebbe usare se
+si sta utilizzando Nexus Mod Gestione.;
+sBatchCopy=Copia batch le attività ;
+sBatchCopyHint=Se selezionato, le attività verrà copiato tramite uno script batch dopo XEDIT
+avviene la fusione dei plugin. Si desidera utilizzare questo se you''re fusione plugin
+che hanno un sacco di attività. Per Esempio. pienamente espresso seguaci. Si dovrebbe avere questo
+abilitato per tutti i vostri fusioni, di essere al sicuro.;
+sSave=Salva;
+sSaveHint=Clicca per salvare queste opzioni per questa unione e tutte le unioni future.;
+sDiscard=Disfarsi;
+sDiscardHint=Fare clic per ignorare le modifiche alle opzioni.;
+sDataDirectoryContinue=Stai usando directory dei dati di Skyrim come directory di destinazione per le attività copiate dallo script. Questo renderà il vostro elenco di dati molto disordinato nel corso del tempo, e non è raccomandato. Sei sicuro di voler continuare?;
+sHelper=Asset Destinazione Helper;
+sNotEmpty=Il directory di destinazione del risparmio non è vuota. Meglio cancellare prima di procedere.;
+sProceed=Procedere;
+sProceedHint=Procedere con la stampa;
+sExplore=Esplora;
+sExploreHint=Apre la directory di destinazione del risparmio in Esplora risorse.;
+sCancel=Annulla;
+sCancelHint=Annulla l'unione;
+sFileName=Nome del file: ;
+sFilenameHint=;
+sRecordsInPlugin=Records a plugin: ;
+sRecordsInPluginHint=;
+sScriptVersion=Script versione: ;
+sScriptVersionHint=La versione del Merge script di plugin che si sta utilizzando.;
+sReports=Rapporti utente: ;
+sReportsHint=;
+sNumRecords=Numero di record: ;
+sAverageRating=Valutazione media: ;
+sNumReports=Numero di rapporti: ;
+sNotes=Note: ;
+sMergePlugins=Unisci Plugin;
+sSelectPlugins=Seleziona i plugin che si desidera unire.;
+sImgOptionsHint=Opzioni avanzate;
+Sok=OK;
+sFileSelectText=Scegli il file che si desidera unire in seguito, o
+scegliere Crea nuovo file per creare uno nuovo.
+
+NOTA: la fusione in un file esistente non è una buona
+idea, e può causare instabilità.;
+sMerging=Unione di...;
+sShowDetails=Mostra Dettagli;
+sSomeRecordsFailed=Alcuni record non è riuscito a copiare, in modo che il file unito è incompleto.
+Consultare il log dei messaggi in modo da poter affrontare questi record manualmente.
+(Il file unito probabilmente non funzionerà senza questi record!);

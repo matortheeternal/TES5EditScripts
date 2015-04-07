@@ -1,0 +1,132 @@
+sHello=Saudações, usuário!;
+sNoReports=Não há relatos de usuários para este plugin foram apresentados.;
+sAvgRating=Média: ;
+sNumRatings=Número de avaliações: ;
+sUserNotes=Usuário notas: ;
+sSelectFile=Selecione Arquivo;
+sCreateNewFile=- CRIAR NOVO FILE -;
+sCouldntFindFile=O script não pôde localizar o arquivo que você inseriu.;
+sInvalidMO=Seu caminho Mod Organizer é inválido. Tanto pode indicar um caminho válido ou desmarque a opção "Eu estou usando Mod Organizer".;
+sInvalidAssetPath=O seu diretório de destino activo é inválido. Por favor insira um caminho válido.;
+sSelectDir=Escolha um diretório;
+sSearching=Searching;
+sDetectMOFail=Não foi possível detectar automaticamente o caminho do arquivo do Mod Organizer. Por favor, indique-lo manualmente.;
+sFirstTime=Parece que esta é a primeira vez que está a executar o script. Por favor configurar suas opções avançadas para fusões futuras. A janela vai aparecer automaticamente, e você pode voltar a ele a qualquer momento, clicando na engrenagem no canto inferior direito da janela do roteiro.;
+sAdvancedOptions=Opções Avançadas;
+sMOOptions=Mod Organizador opções;
+sUsingMO=Estou usando Mod Organizer;
+sUsingMOHint=Você deve verificar isso para cópia ativo para funcionar corretamente se você estiver
+usando Mod Organizer. Isso não deve ser marcada se você não estiver usando
+Mod Organizer.;
+sMODir=Mod Organizer diretório;
+sMODirHint=O caminho para a pasta que contém ModOrganizer.exe. Esse caminho deve ser digitado
+Se você marcou a caixa de seleção "Eu estou usando Mod Organizer".;
+sBrowseForMOHint=Procure Mod Organizer;
+sDetect=Detectar;
+sDetectHint=Já a tentativa de roteiro para encontrar Mod Organizer no seu disco rígido através de pesquisa
+locais onde normalmente é instalado. Se MO é encontrado, os diretórios serão
+atualizados automaticamente.;
+sCopyGeneral=Copie ativos gerais;
+sCopyGeneralHint=Já o script copiar ativos gerais das pastas mod Mod Organizador associados
+com as ESPs você está fundindo. Isso fará com que você tem que fazer nenhuma cópia de arquivo
+no Mod Organizer após a fusão. Esta opção só funciona com Mod Organizer!;
+sRenumberingOptions=Opções Renumbering;
+sDontRenumber=Não renumerar FormIDs;
+sDontRenumberHint=ATENÇÃO! Não utilize esta opção se você não sabe o que you''re fazendo! Se você usar esta
+opção e todos os registros nos arquivos you''re fusão têm as mesmas FormIDs locais,
+entrarão em conflito e fazer o plugin mesclada não funcional!;
+sRenumberConflicting=Renumerar FormIDs conflitantes;
+sRenumberConflictingHint=Esta é a melhor opção para você usar. Somente FormIDs que o conflito são renumerados
+quando você usar esta opção.;
+sRenumberAll=renumerar todos FormIDs;
+sRenumberAllHint=Isto irá certificar-se de que não existem conflitos em qualquer FormIDs por renumeração todos
+eles. Recorrer a esta opção apenas se utilizando renumerar FormIDs conflito não é
+a criação de um funcionamento fundiu o plugin.;
+sCopyingOptions=Cópia opções;
+sCopyRecords=Copiar registros;
+sCopyRecordsHint=LEGACY OPÇÃO: Esta opção irá copiar todos os registros nos arquivos a serem incorporadas ao
+arquivo mesclado. Porque alguns registros realmente manter outros registros (por exemplo, células), essa
+pode conduzir aos mesmos registros que estão sendo copiados duas vezes. Isso pode causar problemas em alguns
+circunstâncias extremamente específicas.;
+sCopyIntelligently=Copiar inteligente;
+sCopyIntelligentlyHint=Esta opção irá recursivamente atravessar os grupos de registro nos arquivos a ser incorporada,
+cópia encontrados registros para o arquivo resultante da fusão. A recursividade vai parar em registros que
+realizar outros registros (por exemplo, células), de forma que nenhum registro será copiado duas vezes.;
+sCopyGroups=Copie grupos;
+sCopyGroupsHint=LEGACY OPÇÃO: Esta opção irá copiar os grupos de documentos dos arquivos a serem incorporadas ao
+o arquivo mesclado. O problema com esta opção é se algo der errado copiar qualquer
+registro em um grupo, o grupo todo registro vai deixar de copiar e você terá problemas
+encontrar o registro responsável pelo fracasso.;
+sSecondPassOptions=Segundo opções de passe de cópia;
+sNoSecondPass=No segundo passar;
+sNoSecondPassHint=Segundo a cópia passe costumava ser necessária a criação de funcionamento fundiu com plugins
+certos registros. Atualizações recentes Xedit tornaram desnecessária, mas permanece aqui
+como uma opção de legado, apenas no caso.;
+sSecondPassSame=Segundo passar mesmo que em primeiro lugar;
+sSecondPassSameHint=LEGACY OPÇÃO: Este segundo método de passagem irá utilizar o mesmo método de cópia você
+selecionado acima. Eu recomendo usar nenhum segunda passagem, embora.;
+sSecondPassCopyByGroups=Segundo cópia passe por grupos;
+sSecondPassCopyByGroupsHint=LEGACY OPÇÃO: O número original segunda passagem cópia. É a queda principal
+é se um único registro em um grupo de registro falha ao copiar, todo o grupo recorde
+vai deixar de copiar.;
+sOtherOptions=Outras opções;
+sAssetDestination=Ativos diretório de destino: ;
+sAssetDestinationHint=pasta de destino para os bens que são copiados pelo script. Se você estiver usando
+Mod Organizer esta deve ser a pasta de sobrescrever em Mod Organizador de
+diretório. Se você não estiver usando Mod Organizer este deve ser seu Skyrim
+pasta de dados ou em outro local you''ve decidida para a realização de ativos.;
+sAssetDestinationBrowseHint=Procurar diretório de destino dos ativos;
+sDisableLabelColoring=Disable corantes rótulo;
+sDisableLabelColoringHint=A alteração desta opção será necessária uma reinicialização do script para fazer efeito.
+Marque esta opção se você não pode ver qualquer um dos nomes de arquivos na janela de mesclagem principal.
+NOTA: Outra correção para esse problema é para ativar o Windows Aero no Windows
+configurações de personalização.;
+sExtractBSAs=Extraia BSA;
+sExtractBSAsHint=Se esta opção estiver marcada, o script irá extrair todos os BSA associados ao
+plugins sendo incorporado ao diretório de destino de ativos. Você não precisa
+para usar esta opção se você estiver usando Mod Organizer, mas deve usá-lo se
+você está usando o Gerenciador de Nexus Mod.;
+sBatchCopy=Cópia do lote ativos;
+sBatchCopyHint=Se esta opção estiver marcada, os ativos serão copiados através de um script lote após Xedit
+é feita a fusão dos plugins. Você quer usar isso se you''re fusão plugins
+que tem um monte de ativos. Por exemplo totalmente dublado seguidores. Você deve ter este
+habilitado para todas as suas fusões, para ser seguro.;
+sSave=Salvar;
+sSaveHint=Clique para salvar estas opções para este merge e todas as integrações futuras,.;
+sDiscard=Desfazer;
+sDiscardHint=Clique para descartar as alterações às opções.;
+sDataDirectoryContinue=Você está usando o diretório de dados do Skyrim como o diretório de destino para os bens copiados pelo script. Isso fará com que seu diretório de dados muito confuso ao longo do tempo, e não é recomendado. Tem certeza de que quer continuar?;
+sHelper=Ajudante de Ativos Destino;
+sNotEmpty=O seu diretório de destino ativo não está vazio. Você deve limpá-la antes de prosseguir.;
+sProceed=Continuar;
+sProceedHint=Prosseguir com a fusão;
+sExplore=Explorar;
+sExploreHint=Abre o diretório de destino ativo no Windows Explorer.;
+sCancel=Cancelar;
+sCancelHint=Cancelar a fusão;
+sFileName=Matrícula: ;
+sFilenameHint=;
+sRecordsInPlugin=Grava no plug-in: ;
+sRecordsInPluginHint=;
+sScriptVersion=Script versão: ;
+sScriptVersionHint=A versão do roteiro de mesclagem Plugins você estiver usando.;
+sReports=relatórios de usuário: ;
+sReportsHint=;
+sNumRecords=Número de registros: ;
+sAverageRating=Média: ;
+sNumReports=Número de relatórios: ;
+sNotes=Notas: ;
+sMergePlugins=Mesclar Plugins;
+sSelectPlugins=Selecione os plugins que você deseja mesclar.;
+sImgOptionsHint=Opções Avançadas;
+sOK=OK;
+sFileSelectText=Escolha o arquivo que você deseja mesclar abaixo ou
+escolher criar novo arquivo para criar um novo.
+
+NOTA: se fundindo em um arquivo existente não é uma boa
+ideia, e pode causar instabilidade.;
+sMerging=Mesclando...;
+sShowDetails=Show Details;
+sSomeRecordsFailed=Alguns registros não conseguiu copiar, para que o seu arquivo mesclado está incompleta.
+Por favor, consulte o log de mensagens para que você possa resolver esses registros manualmente.
+(O arquivo mesclado provavelmente não irá funcionar sem esses registros!);

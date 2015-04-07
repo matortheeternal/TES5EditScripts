@@ -1,0 +1,132 @@
+sHello=Pozdrowienia, uzytkownik!;
+sNoReports=Brak raportów uzytkowników na tej wtyczki zostaly zlozone.;
+sAvgRating=Srednia ocena: ;
+sNumRatings=Liczba ocen: ;
+sUserNotes=Uzytkowników notatki: ;
+sSelectFile=Wybierz plik;
+sCreateNewFile=- Tworzenie nowego pliku, -;
+sCouldntFindFile=Skrypt nie moze odnalezc pliku wprowadzona.;
+sInvalidMO=Twoja sciezka Mod Organizator jest nieprawidlowy. Albo wprowadzic prawidlowa sciezke lub odznacz "Uzywam Mod Organizator".;
+sInvalidAssetPath=Twój katalog docelowy atutem jest nieprawidlowy. Prosze podac poprawna sciezke.;
+sSelectDir=Wybierz katalog;
+sSearching=Wyszukany;
+sDetectMOFail=Nie mozna automatycznie wykryc sciezke Mod Organizatora. Prosze wpisac go recznie.;
+sFirstTime=Wydaje sie to po raz pierwszy uzywasz skryptu. Prosze skonfigurowac zaawansowane opcje dla przyszlych scalen. W oknie pojawi sie automatycznie i mozna wrócic do niej w dowolnym momencie, klikajac narzedzi w prawym dolnym rogu okna skryptu.;
+sAdvancedOptions=Opcje zaawansowane;
+sMOOptions=Mod Organizator Opcje;
+sUsingMO=Uzywam Mod Organizatora;
+sUsingMOHint=Musisz to sprawdzic kopiowania aktywów dziala poprawnie, jesli jestes
+za pomoca Mod Organizatora. To nie musi byc zaznaczone, jesli nie uzywasz
+Mod Organizator.;
+sMODir=Mod Organizator Katalog;
+sMODirHint=Sciezka do folderu zawierajacego ModOrganizer.exe. Ta sciezka musi byc wprowadzony
+jesli zaznaczone pole wyboru "Uzywam Mod Organizator".;
+sBrowseForMOHint=Przegladaj w Mod Organizatora;
+sDetect=Wykrywanie;
+sDetectHint=Masz próbe skrypt, aby znalezc Mod Organizer na dysku twardym przez wyszukiwanie
+miejsca, gdzie zwykle jest zainstalowane. Jesli MO znajduje, katalogi beda
+automatycznie aktualizowane.;
+sCopyGeneral=Skopiuj ogólne aktywów;
+sCopyGeneralHint=Czy skrypt skopiowac ogólne aktywów z Mod Organizator mod folderów zwiazanych
+z ESP masz polaczenie. Spowoduje to, ze to tak trzeba zrobic, nie kopiowanie plików
+w Mod Organizatora po polaczeniu. Ta opcja dziala tylko z Mod Organizatora!;
+sRenumberingOptions=Opcje Zmiana numerów;
+sDontRenumber=Nie przenumeruje FormIDs;
+sDontRenumberHint=UWAGA! Nie nalezy uzywac tej opcji, chyba ze wiesz co you''re robi! Jesli uzywasz tego
+oraz jego wszystkie rekordy w plikach you''re laczacych te same lokalne FormIDs, ze
+bedzie w konflikcie i zrobic plugin Polaczona niefunkcjonalne!;
+sRenumberConflicting=Przenumeruj sprzeczne FormIDs;
+sRenumberConflictingHint=To jest najlepsza opcja do uzycia. Tylko FormIDs, ze konflikt jest numeracja
+w przypadku korzystania z tej opcji.;
+sRenumberAll=Przenumeruj wszystkie FormIDs;
+sRenumberAllHint=Pozwoli to upewnic sie, ze nie ma zadnych konfliktów w zadnej FormIDs wedlug numeracji wszystkich
+im. Uciekania sie do tej opcji tylko w przypadku korzystania Przenumeruj nie jest sprzeczne FormIDs
+tworzenia funkcjonowanie polaczone plugin.;
+sCopyingOptions=Kopiowanie Opcje;
+sCopyRecords=Zapisy kopiowania;
+sCopyRecordsHint=LEGACY OPCJA: Ta opcja skopiowac kazdy rekord w plikach byc polaczone z
+Polaczony plik. Poniewaz niektóre zapisy rzeczywiscie trzymac innych dokumentów (np komórki), to
+moze prowadzic do tych samych zapisów kopiowane dwukrotnie. Moze to powodowac problemy w niektórych
+bardzo szczególne okolicznosci.;
+sCopyIntelligently=Kopiuj inteligentnie;
+sCopyIntelligentlyHint=Ta opcja rekurencyjnie przemierzac grupy rekordów w plikach do polaczenia,
+kopiowanie znalezionych rekordów do pliku scalonego. Rekurencja zatrzyma sie rekordów
+posiadania innych dokumentów (np komórki), wiec nie ma rekord zostanie skopiowany dwa razy.;
+sCopyGroups=Kopiowanie grupy;
+sCopyGroupsHint=LEGACY OPCJA: Ta opcja kopiowania grupy rekord z plików do scalenia sie
+Plik scalony. Problem z tej opcji jest to, jesli cos pójdzie nie tak kopiowanie dowolnego
+Rekord w grupie, cala grupa rekord nie do skopiowania i bedziesz mial klopoty
+znalezienie rekordu odpowiedzialnego za awarie.;
+sSecondPassOptions=Drugie opcje kopiowania wprost;
+sNoSecondPass=Nie drugim przechodza;
+sNoSecondPassHint=drugie przejscie kopiowanie kiedys niezbedne do tworzenia wtyczek z funkcjonowania polaczone
+niektóre zapisy. Ostatnie aktualizacje XEDIT zrobily to niepotrzebne, ale pozostaje tutaj
+jako opcja starszych, tylko w przypadku.;
+sSecondPassSame=drugie przechodza same jak pierwsza;
+sSecondPassSameHint=LEGACY OPCJA: Druga metoda przejscia beda uzywac tej samej metody kopiowania mozna
+wybrane powyzej. Polecam uzywanie nie drugie przejscie, choc.;
+sSecondPassCopyByGroups=drugie przejscie z oryginalem przez grupy;
+sSecondPassCopyByGroupsHint=OPCJA DZIEDZICTWO: Oryginalny drugi rutynowe kopiowanie przebieg. Jego glównym minusem
+jest, jesli jeden rekord w grupie rekordu nie kopiowac, cala grupa rekord
+nie bedzie w stanie skopiowac.;
+sOtherOptions=Inne opcje;
+sAssetDestination=Aktywów katalog docelowy: ;
+sAssetDestinationHint=folder docelowy do aktywów, które sa kopiowane przez skrypt. Jesli uzywasz
+Mod Organizator powinno to byc folder nadpisywania Mod Organizatora
+katalog. Jesli nie uzywasz Mod Organizator powinien to byc Twój Skyrim
+Folder danych lub inna lokalizacja you''ve zdecydowal sie na celu utrzymywania aktywów.;
+sAssetDestinationBrowseHint=Przegladaj w katalogu docelowym aktywów;
+sDisableLabelColoring=Wylacz etykiety barwiacych;
+sDisableLabelColoringHint=Zmiana tej opcji wymaga ponownego uruchomienia skryptu w zycie.
+Sprawdz to, jesli nie mozna znalezc zadnego z nazwami plików w oknie glównym korespondencji seryjnej.
+UWAGA: Kolejne Poprawke dotyczaca tego problemu jest umozliwienie Windows Aero w systemie Windows
+Ustawienia personalizacji.;
+sExtractBSAs=Wyciag bsas;
+sExtractBSAsHint=Jesli ta opcja jest wlaczona, skrypt wyodrebnic wszystkie bsas zwiazane z
+Wtyczki sa polaczone w katalogu docelowym aktywów. Nie musisz
+aby skorzystac z tej opcji, jesli uzywasz Mod Organizer, ale nalezy go uzywac, jesli
+uzywasz Nexus Mod Manager,.;
+Aktywa sBatchCopy=Partia kopii;
+sBatchCopyHint=Jesli ta opcja jest wlaczona, wartosci zostana skopiowane za pomoca skryptu wsadowego po XEDIT
+Odbywa sie to polaczenie wtyczek. Chcesz korzystac, jezeli you''re polaczenia wtyczek
+które maja duzo aktywów. Na Przyklad. pelni dzwieczne obserwuje. Nalezy miec to
+wlaczona dla wszystkich scalen, aby byc bezpieczne.;
+sSave=Zapisz;
+sSaveHint=Kliknij, aby zapisac te opcje dla scalenia i wszystkie przyszle scala.;
+sDiscard=Odrzuc;
+sDiscardHint=Kliknij, aby odrzucic zmiany opcji.;
+sDataDirectoryContinue=Uzywasz katalog danych Skyrim jako katalogu docelowego dla aktywów skopiowanych przez skrypt. Uczyni to katalog danych bardzo brudny w czasie, i nie jest zalecane. Czy na pewno chcesz kontynuowac?;
+sHelper=Aktywów docelowy Helper;
+sNotEmpty=Twój atut katalog docelowy nie jest pusty. Nalezy usunac ja przed przystapieniem.;
+sProceed=Postepowac;
+sProceedHint=Kontynuuj seryjnej;
+sExplore=Przegladaj;
+sExploreHint=Otwiera katalog docelowy aktywów w Eksploratorze Windows.;
+sCancel=Anuluj;
+sCancelHint=Anuluj seryjnej;
+sFilename=Nazwa pliku: ;
+sFilenameHint=;
+sRecordsInPlugin=Nagrywanie w plugin: ;
+sRecordsInPluginHint=;
+Wersja sScriptVersion=Scenariusz: ;
+sScriptVersionHint=The wersji seryjnej Plugins skrypt uzywasz.;
+sReports=Raporty uzytkownika: ;
+sReportsHint=;
+sNumRecords=Ilosc rekordów: ;
+sAverageRating=Srednia ocena: ;
+sNumReports=Liczba raportów: ;
+sNotes=Uwagi: ;
+sMergePlugins=Scalanie wtyczek;
+sSelectPlugins=Wybierz wtyczki, które chcesz scalic.;
+sImgOptionsHint=Opcje zaawansowane;
+sOK=OK;
+sFileSelectText=Wybierz plik, który chcesz polaczyc sie ponizej lub
+wybierz stworzyc nowy plik, aby utworzyc nowa.
+
+UWAGA: polaczenia do istniejacego pliku nie jest dobra
+pomysl i moze spowodowac niestabilnosc.;
+sMerging=Laczenie...;
+sShowDetails=Pokaz szczególy;
+sSomeRecordsFailed=Niektóre rekordy nie udalo sie skopiowac, wiec plik Polaczona jest niekompletna.
+Prosze odniesc sie do logu, dzieki czemu mozna rozwiazac te rekordy recznie.
+(Plik prawdopodobnie powstaly w wyniku polaczenia nie bedzie dzialac bez tych zapisów!);
