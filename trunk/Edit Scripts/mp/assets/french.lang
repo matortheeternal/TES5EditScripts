@@ -1,0 +1,132 @@
+sHello=Salutations, l'utilisateur!;
+sNoReports=Aucun rapport de l'utilisateur pour ce plugin ont été soumis.;
+sAvgRating=Note moyenne: ;
+sNumRatings=Nombre d'évaluations: ;
+sUserNotes=Utilisateur notes: ;
+sSelectFile=Sélectionnez Fichier;
+sCreateNewFile=- Créer un nouveau fichier -;
+sCouldntFindFile=Le script n'a pas pu trouver le fichier que vous avez entré.;
+sInvalidMO=Votre chemin Mod Organisateur ne est pas valide. Soit entrer un chemin valide ou décochez "Je utilise Mod Organisateur».;
+sInvalidAssetPath=Votre répertoire de destination des actifs ne est pas valide. Se il vous plaît entrer un chemin d'accès valide.;
+sSelectDir=Sélectionnez un répertoire;
+sSearching=Recherche;
+sDetectMOFail=Impossible de détecter automatiquement le chemin du fichier de Mod Organisateur. Se il vous plaît entrer manuellement.;
+sFirstTime=Il semble que ce est la première fois que vous exécutez le script. Se il vous plaît configurer vos options avancées pour les fusions futures. La fenêtre viendra automatiquement, et vous pouvez y revenir à tout moment en cliquant sur l'engrenage dans le coin inférieur droit de la fenêtre de script.;
+sAdvancedOptions=Options avancées;
+sMOOptions=Mod organisateur Options;
+sUsingMO=Je utilise Mod Organisateur;
+sUsingMOHint=Vous devez vérifier ce pour la copie d'actifs pour fonctionner correctement si vous êtes
+utilisant Mod Organisateur. Cela ne doit pas être cochée si vous ne utilisez pas
+Mod Organisateur.;
+sMODir=Mod Organisateur répertoire: ;
+sMODirHint=Le chemin d'accès au dossier contenant ModOrganizer.exe. Ce chemin doit être saisi
+si vous avez coché la case «Je utilise Mod Organisateur».;
+sBrowseForMOHint=Rechercher des Mod Organisateur;
+sDetect=Détecter;
+sDetectHint=Avoir la tentative de script pour trouver Mod Organizer sur votre disque dur en recherchant
+des endroits où il est habituellement installé. Si MO est trouvé, les répertoires seront
+mis à jour automatiquement.;
+sCopyGeneral=Copier actifs généraux;
+sCopyGeneralHint=Avez le script copier actifs généraux des dossiers MOD Organiseur associés
+avec les ESP vous fusionner. Cela fera en sorte que vous avez à faire aucune copie de fichier
+dans Mod Organisateur après la fusion. Cette option fonctionne uniquement avec Mod Organisateur!;
+sRenumberingOptions=Options de numérotation;
+sDontRenumber=Ne pas renuméroter FormIDs;
+sDontRenumberHint=ATTENTION! Ne pas utiliser cette option que si vous savez ce que you''re faire! Si vous utilisez ce
+option et les enregistrements dans les fichiers you''re fusionnent ont les mêmes FormIDs locales, ils
+sera en conflit et de faire le plugin fusionnée non fonctionnel!;
+sRenumberConflicting=Renuméroter FormIDs contradictoires;
+sRenumberConflictingHint=Ce est la meilleure option pour vous d'utiliser. Seuls FormIDs ce conflit sont renumérotés
+lorsque vous utilisez cette option.;
+sRenumberAll=Renuméroter tous FormIDs;
+sRenumberAllHint=Cela se assurer qu'il n'y a pas de conflits dans toute FormIDs par la renumérotation de tous
+eux. Le recours à cette option uniquement si vous utilisez Renuméroter FormIDs contradictoires ne est pas
+la création d'un fonctionnement fusionné le plugin.;
+sCopyingOptions=Copie Options ;
+sCopyRecords=Copie dossiers;
+sCopyRecordsHint=HÉRITAGE OPTION: Cette option permet de copier tous les records dans les fichiers à fusionner à la
+fichier fusionné. Parce que certains dossiers détiennent effectivement d'autres dossiers (par exemple des cellules), ce
+peut conduire aux mêmes dossiers copiés deux fois. Cela peut causer des problèmes dans certains
+des circonstances extrêmement spécifiques.;
+sCopyIntelligently=Copier intelligemment;
+sCopyIntelligentlyHint=Cette option récursive parcourir les groupes de disques dans les fichiers à fusionner,
+copie trouvé dossiers pour le fichier fusionné. La récursivité se arrête à enregistrements
+détenir d'autres dossiers (par exemple des cellules), donc pas de record sera copié deux fois.;
+sCopyGroups=Copier les groupes;
+sCopyGroupsHint=HÉRITAGE OPTION: Cette option permet de copier les groupes de documents à partir des fichiers à fusionner à
+le fichier fusionné. Le problème avec cette option est que si quelque chose va mal copie tout
+enregistrement dans un groupe, le groupe complet de la notice ne parviendra pas à copier et vous aurez du mal
+trouver le record responsable de l'échec.;
+sSecondPassOptions=Deuxième pass options de copie;
+sNoSecondPass=Pas de deuxième passage;
+sNoSecondPassHint=Deuxième copie de passe utilisé pour être nécessaire de créer fonctionnement fusionné avec plugins
+certains documents. Mises à jour de XEDIT récentes ont rendu inutile, mais il reste ici
+comme une option de l'héritage, juste au cas où.;
+sSecondPassSame=Seconde passe même comme premier;
+sSecondPassSameHint=HÉRITAGE OPTION: Cette seconde méthode passe utilisera la même méthode de copie vous
+choisi ci-dessus. Je recommande d'utiliser aucune seconde passe, si.;
+sSecondPassCopyByGroups=Second exemplaire passe par des groupes;
+sSecondPassCopyByGroupsHint=HÉRITAGE OPTION: La deuxième routine originale passe de copie. Ce est la chute principale
+est si un seul enregistrement dans un groupe de dossier ne copier, le groupe complet de la notice
+ne parviendra pas à copier.;
+sOtherOptions=Autres options;
+sAssetDestination=Asset répertoire de destination: ;
+sAssetDestinationHint=Dossier de destination pour les actifs qui sont copiés par le script. Si vous utilisez
+Mod Organisateur cela devrait être le dossier écrasement dans Mod Organisateur de
+répertoire. Si vous ne utilisez pas Mod Organisateur cela devrait être votre Skyrim
+dossier de données ou un autre emplacement you''ve décidée pour la détention d'actifs.;
+sAssetDestinationBrowseHint=Parcourir pour le répertoire de destination de l'actif;
+sDisableLabelColoring=Désactiver l'étiquette coloration;
+sDisableLabelColoringHint=Modification de cette option nécessitera un redémarrage du script pour prendre effet.
+Cochez cette case si vous ne pouvez pas voir l'un des noms de fichiers dans la fenêtre de fusion principale.
+REMARQUE: Un autre correctif pour ce problème est de permettre à Windows Aero dans Windows
+paramètres de personnalisation.;
+sExtractBSAs=Extrait BSA;
+sExtractBSAsHint=Si cette option est cochée, le script va extraire tous les BSA liés à la
+plugins étant fusionné dans le répertoire de destination des actifs. Tu n'as pas besoin
+Pour utiliser cette option si vous utilisez Mod Organisateur, mais devrait l'utiliser si
+vous utilisez Gestionnaire Nexus Mod.;
+sBatchCopy=Copie de lot actifs ;
+sBatchCopyHint=Si cette option est cochée, les actifs sera copié via un script de lot après XEDIT
+est fait fusionner les plugins. Vous souhaitez utiliser cette fusion si you''re plugins
+qui ont beaucoup d'actifs. Par exemple adeptes pleinement exprimé. Vous devriez avoir cette
+permis pour tous vos fusions, pour être sûr.;
+sSave=Enregistrer;
+sSaveHint=Cliquez pour enregistrer ces options pour cette fusion et toutes les fusions futures.;
+sDiscard=Supprimer;
+sDiscardHint=Cliquez pour ignorer les modifications aux options.;
+sDataDirectoryContinue=vous utilisez le répertoire de données de Skyrim que le répertoire de destination pour les actifs copiés par le script. Cela rendra votre répertoire de données très salissant au fil du temps, et ne est pas recommandée. Etes-vous sûr que vous voulez continuer?;
+sHelper=Asset Destinations Helper;
+sNotEmpty=Votre répertoire de destination des actifs ne est pas vide. Vous devez effacer avant de procéder.;
+sProceed=Procéder;
+sProceedHint=Procéder à la fusion;
+Sexplore=Explore;
+sExploreHint=Ouvre le répertoire de destination des actifs dans l'Explorateur Windows.;
+sCancel=Annuler;
+sCancelHint=Annuler la fusion;
+sFilename=Nom du fichier: ;
+sFilenameHint=;
+sRecordsInPlugin=Enregistrements plugin: ;
+sRecordsInPluginHint=;
+sScriptVersion=Script Version: ;
+sScriptVersionHint=La version du script Plugins de fusion vous utilisez.;
+sReports=Rapports de l'utilisateur: ;
+sReportsHint=;
+sNumRecords=Nombre d'enregistrements: ;
+sAverageRating=Note moyenne: ;
+sNumReports=Nombre de rapports: ;
+sNotes=Notes: ;
+sMergePlugins=Fusionner Plugins;
+sSelectPlugins=Sélectionnez les plugins que vous souhaitez fusionner.;
+sImgOptionsHint=Options avancées;
+sOK=OK;
+sFileSelectText=Choisissez le fichier que vous souhaitez fusionner dans ci-dessous, ou
+choisissez Créer un nouveau fichier pour créer un nouveau.
+
+REMARQUE: la fusion dans un fichier existant ne est pas une bonne
+idée, et peut entraîner une instabilité.;
+sMerging=Fusion...;
+sShowDetails=Afficher les détails;
+sSomeRecordsFailed=Certains documents ne ont pas de copier, de sorte que votre fichier fusionné est incomplète.
+Se il vous plaît se référer au journal de message afin que vous puissiez répondre à ces dossiers manuellement.
+(Le fichier fusionné probablement ne fonctionnera pas sans ces enregistrements!);
