@@ -106,10 +106,10 @@ sCancel=取消;
 sCancelHint=取消合并;
 sFilename=文件名：;
 sFilenameHint=;
-在插件sRecordsInPlugin=记录：;
+sRecordsInPlugin=记录在插件：;
 sRecordsInPluginHint=;
 sScriptVersion=脚本版本：;
-sScriptVersionHint=您正在使用;合并插件脚本的版本
+sScriptVersionHint=您正在使用合并插件脚本的版本;
 sReports=用户报告：;
 sReportsHint=;
 sNumRecords=记录数：;
@@ -119,7 +119,7 @@ sNotes=注：;
 sMergePlugins=合并插件;
 sSelectPlugins=选择要合并的插件;
 sImgOptionsHint=高级选项;
-SOK= OK;
+sOK= OK;
 sFileSelectText=选择要合并到下面的文件，或者
 选择创建新的文件来创建一个新的。
 
