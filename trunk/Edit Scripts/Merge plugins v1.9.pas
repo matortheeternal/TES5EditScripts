@@ -1,10 +1,10 @@
 {
-  Merge Plugins Script v1.9.4
+  Merge Plugins Script v1.9.5
   Created by matortheeternal
   http://skyrim.nexusmods.com/mod/37981
   
   *CHANGES*
-  v1.9.4
+  v1.9.5
   - Fixed issue with GetDefinition with v = true not working properly because
     there's the letter "v" in the vs constant, but not in reports.
   - Fixed issue with CopyGeneralAssets skipping files that should be copied
@@ -16,6 +16,7 @@
   - Now compatible with latest version of mteFunctions.pas
   - Renumber conflicting FormIDs less paranoid about override records.  May
     break things.  If so, blame hishy.
+  - Added language file support.
   
   *DESCRIPTION*
   This script will allow you to merge ESP files.  This won't work on files with 
@@ -38,10 +39,11 @@ const
   useRobocopy = false;
   deleteTemp = true;
   pFlag = 'Record Header\Record Flags\PersistentReference QuestItem DisplaysInMainMenu';
+  language = 'english.lang';
 
 var
   slMerge, slMasters, slFails, slSelectedFiles, slMgfMasters, slDictionary, 
-  slTranslations, slCopiedFrom, batch: TStringList;
+  slTranslations, slCopiedFrom, batch, lang: TStringList;
   OldForms, NewForms: TList;
   rn, mm, sp, rCount: integer;
   moPath, astPath, bsaName, temp, fdt: string;
@@ -84,10 +86,10 @@ var
   notes: String;
 begin
   if sl.Count < 6 then
-    Result := 'No user reports for this plugin have been submitted.'
+    Result := lang.Values['sNoReports']
   else begin
     notes := Trim(StringReplace(sl[5], '@13', #13, [rfReplaceAll]));
-    Result := 'Average rating: '+sl[3]+#13+'Number of ratings: '+sl[4]+#13+'User notes: '+#13+notes;
+    Result := lang.Values['sAvgRating']+sl[3]+#13+lang.Values['sNumRatings']+sl[4]+#13+lang.Values['sUserNotes']+#13+notes;
   end;
 end;
   
@@ -171,7 +173,7 @@ var
 begin
   frm := TForm.Create(frm);
   try
-    frm.Caption := 'Select File';
+    frm.Caption := lang.Values['sSelectFile'];
     frm.Width := 290;
     frm.Height := 230;
     frm.Position := poScreenCenter;
@@ -188,7 +190,7 @@ begin
     
     cmbFiles := TComboBox.Create(frm);
     cmbFiles.Parent := frm;
-    cmbFiles.Items.Add('-- CREATE NEW FILE --');
+    cmbFiles.Items.Add(lang.Values['sCreateNewFile']);
     cmbFiles.Style := csDropDownList;
     cmbFiles.Top := 33 + lbl01.Height;
     cmbFiles.Left := 8;
@@ -210,7 +212,7 @@ begin
     cModal(frm, frm, cmbFiles.Top + 50);
     
     if frm.ShowModal = mrOk then begin
-      if (cmbFiles.Items[cmbFiles.ItemIndex] = '-- CREATE NEW FILE --') then begin
+      if (cmbFiles.Items[cmbFiles.ItemIndex] = lang.Values['sCreateNewFile']) then begin
         f := AddNewFile;
         Result := f;
       end
@@ -252,8 +254,7 @@ begin
   moValid := DirectoryExists(ed1.Caption);
   if not moValid then begin
     // tell user their mod organizer path is invalid
-    MessageDlg('Your Mod Organizer path is invalid. Either enter a valid '
-      'path or uncheck "I''m using Mod Organizer".', mtConfirmation, [mbOk], 0);
+    MessageDlg(lang.Values['sInvalidMO'], mtConfirmation, [mbOk], 0);
   end;
 end;
 
@@ -266,8 +267,7 @@ begin
   astValid := DirectoryExists(ed2.Caption);
   if not astValid then begin
     // tell user their asset is invalid
-    MessageDlg('Your asset destination directory is invalid. Please enter '
-      'a valid path.', mtConfirmation, [mbOk], 0);
+    MessageDlg(lang.Values['sInvalidAssetPath'], mtConfirmation, [mbOk], 0);
   end;
 end;
 
@@ -278,11 +278,11 @@ var
   s: string;
 begin
   if DirectoryExists(ed2.Caption) then
-    s := SelectDirectory('Select a directory', '', ed2.Text, '')
+    s := SelectDirectory(lang.Values['sSelectDir'], '', ed2.Text, '')
   else if cb1.Checked and DirectoryExists(ed1.Caption) then
-    s := SelectDirectory('Select a directory', '', ed1.Text, '')
+    s := SelectDirectory(lang.Values['sSelectDir'], '', ed1.Text, '')
   else
-    s := SelectDirectory('Select a directory', '', DataPath, '');
+    s := SelectDirectory(lang.Values['sSelectDir'], '', DataPath, '');
   if s <> '' then begin
     ed2.Text := s + '\';
   end;
@@ -294,7 +294,7 @@ procedure ofrm.MoPathBrowse;
 var
   s: string;
 begin
-  s := SelectDirectory('Select a directory', '', ed1.Text, '');
+  s := SelectDirectory(lang.Values['sSelectDir'], '', ed1.Text, '');
   if s <> '' then begin
     ed1.Text := s + '\';
   end;
@@ -401,10 +401,7 @@ var
 begin
   cfgPath := FileSearch('mp\config.ini', ScriptsPath);
   if (cfgPath = '') then begin
-    MessageDlg('It seems this is the first time you''re running the script.  Please set up your '
-      'advanced options for future merges.  The window will come up automatically, and you can '
-      'get back to it at any time by clicking the gear in the bottom right corner of the script '
-      'window.', mtConfirmation, [mbOk], 0);
+    MessageDlg(lang.Values['sFirstTime'], mtConfirmation, [mbOk], 0);
     firstRun := true;
   end;
   ini := TMemIniFile.Create(ScriptsPath + 'mp\config.ini');
@@ -434,7 +431,7 @@ var
 begin
   ofrm := TForm.Create(nil);
   try
-    ofrm.Caption := 'Advanced Options';
+    ofrm.Caption := lang.Values['sAdvancedOptions'];
     ofrm.Width := 610;
     ofrm.Position := poScreenCenter;
     ofrm.Height := 550;
@@ -445,7 +442,7 @@ begin
     gb1.Height := 120;
     gb1.Top := 16;
     gb1.Width := 560;
-    gb1.Caption := 'Mod Organizer options';
+    gb1.Caption := lang.Values['sMOOptions'];
     gb1.ClientHeight := 105;
     gb1.ClientWidth := 556;
     
@@ -454,13 +451,10 @@ begin
     cb1.Left := 16;
     cb1.Top := 20;
     cb1.Width := 150;
-    cb1.Caption := ' I''m using Mod Organizer';
+    cb1.Caption := lang.Values['sUsingMO'];
     cb1.Checked := usingMO;
     cb1.OnClick := UsingModOrganizer;
-    cb1.Hint := 
-      'You must check this for asset copying to work correctly if you''re'#13
-      'using Mod Organizer.  This must not be checked if you''re not using'#13
-      'Mod Organizer.';
+    cb1.Hint := lang.Values['sUsingMOHint'];
     cb1.ShowHint := true;
     
     lbl1 := TLabel.Create(gb1);
@@ -468,7 +462,7 @@ begin
     lbl1.Left := 16;
     lbl1.Top := cb1.Top + cb1.Height + 12;
     lbl1.Width := 90;
-    lbl1.Caption := 'Mod Organizer directory: ';
+    lbl1.Caption := lang.Values['sMODir'];
     
     ed1 := TEdit.Create(gb1);
     ed1.Parent := gb1;
@@ -477,9 +471,7 @@ begin
     ed1.Width := 250;
     ed1.Caption := moPath;
     ed1.Enabled := usingMO;
-    ed1.Hint := 
-      'The path to the folder containing ModOrganizer.exe.  This path must be entered'#13
-      'if you checked the "I''m using Mod Organizer" checkbox.';
+    ed1.Hint := lang.Values['sMODirHint'];
     ed1.ShowHint := true;
     ed1.OnChange := CheckDirectories;
     ed1.OnExit := MoPathHelper;
@@ -490,7 +482,7 @@ begin
     imgBrowse1.Width := 18;
     imgBrowse1.Height := 18;
     imgBrowse1.ShowHint := true;
-    imgBrowse1.Hint := 'Browse for Mod Organizer';
+    imgBrowse1.Hint := lang.Values['sBrowseForMOHint'];
     imgBrowse1.Enabled := usingMO;
     imgBrowse1.OnClick := MoPathBrowse;
     imgBrowse1.Left := ed1.Left + ed1.Width + 8;
@@ -498,12 +490,9 @@ begin
     
     btnFind := TButton.Create(gb1);
     btnFind.Parent := ofrm;
-    btnFind.Caption := 'Detect';
+    btnFind.Caption :=  lang.Values['sDetect'];
     btnFind.ShowHint := true;
-    btnFind.Hint :=
-      'Have the script attempt to find Mod Organizer on your hard drive by searching'#13
-      'locations where it is usually installed.  If MO is found, directories will be'#13
-      'automatically updated.';
+    btnFind.Hint := lang.Values['sDetectHint'];
     btnFind.Left := imgBrowse1.Left + imgBrowse1.Width + 24;
     btnFind.Top := lbl1.Top + btnFind.Height div 2;
     btnFind.OnClick := DetectModOrganizer;
@@ -514,13 +503,10 @@ begin
     cb2.Left := 16;
     cb2.Top := lbl1.Top + lbl1.Height + 12;
     cb2.Width := 140;
-    cb2.Caption := ' Copy general assets';
+    cb2.Caption := lang.Values['sCopyGeneral'];
     cb2.Checked := copyAll;
     cb2.Enabled := usingMO;
-    cb2.Hint := 
-      'Have the script copy general assets from the Mod Organizer mod folders associated'#13
-      'with the ESPs you''re merging.  This will make it so you have to do no file copying'#13
-      'in Mod Organizer after merging.  This option only works with Mod Organizer!';
+    cb2.Hint := lang.Values['sCopyGeneralHint'];
     cb2.ShowHint := true;
     
     rg1 := TRadioGroup.Create(ofrm);
@@ -529,7 +515,7 @@ begin
     rg1.Height := 60;
     rg1.Top := gb1.Top + gb1.Height + 12;
     rg1.Width := 560;
-    rg1.Caption := 'Renumbering options';
+    rg1.Caption := lang.Values['sRenumberingOptions'];
     rg1.ClientHeight := 45;
     rg1.ClientWidth := 556;
     
@@ -537,12 +523,9 @@ begin
     rb1.Parent := rg1;
     rb1.Left := 26;
     rb1.Top := 18;
-    rb1.Caption := 'Don''t renumber FormIDs';
+    rb1.Caption := lang.Values['sDontRenumber'];
     rb1.ShowHint := true;
-    rb1.Hint := 
-      'WARNING! Do not use this option unless you know what you''re doing!  If you use this'#13
-      'option and any records in the files you''re merging have the same local FormIDs, they'#13
-      'will conflict and make the merged plugin non-functional!';
+    rb1.Hint := lang.Values['sDontRenumberHint'];
     rb1.Width := 160;
     rb1.Checked := (rn = 0);
     
@@ -550,11 +533,9 @@ begin
     rb2.Parent := rg1;
     rb2.Left := rb1.Left + rb1.Width + 16;
     rb2.Top := rb1.Top;
-    rb2.Caption := 'Renumber conflicting FormIDs';
+    rb2.Caption := lang.Values['sRenumberConflicting'];
     rb2.ShowHint := true;
-    rb2.Hint :=
-      'This is the best option for you to use.  Only FormIDs that conflict are renumbered'#13
-      'when you use this option.';
+    rb2.Hint := lang.Values['sRenumberConflictingHint'];
     rb2.Width := 160;
     rb2.Checked := (rn = 1);
     
@@ -562,12 +543,9 @@ begin
     rb3.Parent := rg1;
     rb3.Left := rb2.Left + rb2.Width + 16;
     rb3.Top := rb1.Top;
-    rb3.Caption := 'Renumber all FormIDs';
+    rb3.Caption := lang.Values['sRenumberAll'];
     rb3.ShowHint := true;
-    rb3.Hint :=
-      'This will make sure there are no conflicts in any FormIDs by renumbering all of'#13
-      'them.  Resort to this option only if using Renumber conflicting FormIDs isn''t'#13
-      'creating a functioning merged plugin.';
+    rb3.Hint := lang.Values['sRenumberAllHint'];
     rb3.Width := 160;
     rb3.Checked := (rn = 2);
     
@@ -577,7 +555,7 @@ begin
     rg2.Height := rg1.Height;
     rg2.Top := rg1.Top + rg1.Height + 16;
     rg2.Width := rg1.Width;
-    rg2.Caption := 'Copying options';
+    rg2.Caption := lang.Values['sCopyingOptions'];
     rg2.ClientHeight := rg1.ClientHeight;
     rg2.ClientWidth := rg1.ClientWidth;
     
@@ -585,13 +563,9 @@ begin
     rb4.Parent := rg2;
     rb4.Left := 26;
     rb4.Top := 18;
-    rb4.Caption := 'Copy records';
+    rb4.Caption := lang.Values['sCopyRecords'];
     rb4.ShowHint := true;
-    rb4.Hint :=
-      'LEGACY OPTION: This option will copy every record in the files to be merged to the'#13
-      'merged file.  Because some records actually hold other records (e.g. Cells), this'#13
-      'can lead to the same records being copied twice.  This might cause issues in certain'#13
-      'extremely specific circumstances.';
+    rb4.Hint := lang.Values['sCopyRecordsHint'];
     rb4.Width := 160;
     rb4.Checked := (mm = 0);
     
@@ -599,12 +573,9 @@ begin
     rb5.Parent := rg2;
     rb5.Left := rb4.Left + rb4.Width + 16;
     rb5.Top := rb4.Top;
-    rb5.Caption := 'Copy intelligently';
+    rb5.Caption := lang.Values['sCopyIntelligently'];
     rb5.ShowHint := true;
-    rb5.Hint :=
-      'This option will recursively traverse the record groups in the files to be merged,'#13
-      'copying found records to the merged file.  The recursion will stop at records that'#13
-      'hold other records (e.g. Cells), so no record will be copied twice.';
+    rb5.Hint := lang.Values['sCopyIntelligentlyHint'];
     rb5.Width := 160;
     rb5.Checked := (mm = 1);
     
@@ -612,13 +583,9 @@ begin
     rb6.Parent := rg2;
     rb6.Left := rb5.Left + rb5.Width + 16;
     rb6.Top := rb4.Top;
-    rb6.Caption := 'Copy groups';
+    rb6.Caption := lang.Values['sCopyGroups'];
     rb6.ShowHint := true;
-    rb6.Hint :=
-      'LEGACY OPTION: This option will copy the record groups from the files to be merged to'#13
-      'the merged file.  The issue with this option is if something goes wrong copying any'#13
-      'record in a group, the entire record group will fail to copy and you will have trouble'#13
-      'finding the record responsible for the failure.';
+    rb6.Hint := lang.Values['sCopyGroupsHint'];
     rb6.Width := 160;
     rb6.Checked := (mm = 2);
     
@@ -628,7 +595,7 @@ begin
     rg3.Height := rg1.Height;
     rg3.Top := rg2.Top + rg2.Height + 16;
     rg3.Width := rg1.Width;
-    rg3.Caption := 'Second pass copying options';
+    rg3.Caption := lang.Values['sSecondPassOptions'];
     rg3.ClientHeight := rg1.ClientHeight;
     rg3.ClientWidth := rg1.ClientWidth;
     
@@ -636,12 +603,9 @@ begin
     rb7.Parent := rg3;
     rb7.Left := 26;
     rb7.Top := 18;
-    rb7.Caption := 'No second pass';
+    rb7.Caption := lang.Values['sNoSecondPass'];
     rb7.ShowHint := true;
-    rb7.Hint :=
-      'Second pass copying used to be necessary to create functioning merged plugins with'#13
-      'certain records.  Recent xEdit updates have made it unnecessary, but it remains here'#13
-      'as a legacy option, just in case.';
+    rb7.Hint := lang.Values['sNoSecondPassHint'];
     rb7.Width := 160;
     rb7.Checked := (sp = 0);
     
@@ -649,11 +613,9 @@ begin
     rb8.Parent := rg3;
     rb8.Left := rb7.Left + rb7.Width + 16;
     rb8.Top := rb7.Top;
-    rb8.Caption := 'Second pass same as first';
+    rb8.Caption := lang.Values['sSecondPassSame'];
     rb8.ShowHint := true;
-    rb8.Hint :=
-      'LEGACY OPTION: This second pass method will use the same copying method you'#13
-      'selected above.  I recommend using no second pass, though.';
+    rb8.Hint := lang.Values['sSecondPassSameHint'];
     rb8.Width := 160;
     rb8.Checked := (sp = 1);
     
@@ -661,12 +623,9 @@ begin
     rb9.Parent := rg3;
     rb9.Left := rb8.Left + rb8.Width + 16;
     rb9.Top := rb7.Top;
-    rb9.Caption := 'Second pass copy by groups';
+    rb9.Caption := lang.Values['sSecondPassCopyByGroups'];
     rb9.ShowHint := true;
-    rb9.Hint :=
-      'LEGACY OPTION: The original second pass copying routine.  It''s main downfall'#13
-      'is if a single record in a record group fails to copy, the entire record group'#13
-      'will fail to copy.';
+    rb9.Hint := lang.Values['sSecondPassCopyByGroupsHint'];
     rb9.Width := 160;
     rb9.Checked := (sp = 2);
     
@@ -676,7 +635,7 @@ begin
     gb2.Height := 150;
     gb2.Top := rg3.Top + rg3.Height + 16;
     gb2.Width := 560;
-    gb2.Caption := 'Other options';
+    gb2.Caption := lang.Values['sOtherOptions'];
     gb2.ClientHeight := 135;
     gb2.ClientWidth := 556;
     
@@ -685,7 +644,7 @@ begin
     lbl2.Left := 16;
     lbl2.Top := 25;
     lbl2.Width := 90;
-    lbl2.Caption := 'Asset destination directory: ';
+    lbl2.Caption := lang.Values['sAssetDestination'];
     
     ed2 := TEdit.Create(gb2);
     ed2.Parent := gb2;
@@ -693,11 +652,7 @@ begin
     ed2.Top := lbl2.Top;
     ed2.Width := 350;
     ed2.Caption := astPath;
-    ed2.Hint := 
-      'Destination folder for assets that are copied by the script.  If you''re using'#13
-      'Mod Organizer this should be the overwrite folder in Mod Organizer''s'#13
-      'directory.  If you''re not using Mod Organizer this should be your Skyrim'#13
-      'data folder or another location you''ve decided on for holding assets.';
+    ed2.Hint := lang.Values['sAssetDestinationHint'];
     ed2.ShowHint := true;
     ed2.OnChange := CheckDirectories;
     ed2.OnExit := AssetPathHelper;
@@ -708,7 +663,7 @@ begin
     imgBrowse2.Width := 18;
     imgBrowse2.Height := 18;
     imgBrowse2.ShowHint := true;
-    imgBrowse2.Hint := 'Browse for asset destination directory';
+    imgBrowse2.Hint := lang.Values['sAssetDestinationBrowseHint'];
     imgBrowse2.OnClick := AssetPathBrowse;
     imgBrowse2.Left := ed2.Left + ed2.Width + 8;
     imgBrowse2.Top := ed2.Top;
@@ -718,13 +673,9 @@ begin
     cb3.Left := lbl2.Left;
     cb3.Top := lbl2.Top +lbl2.Height + 12;
     cb3.Width := 120;
-    cb3.Caption := ' Disable label coloring';
+    cb3.Caption := lang.Values['sDisableLabelColoring'];
     cb3.ShowHint := true;
-    cb3.Hint := 
-      'Changing this option will require a restart of the script to take effect.'#13
-      'Check this if you can''t see any of the filenames in the main merge window.'#13
-      'NOTE: Another fix for this issue is to enable Windows Aero in windows'#13
-      'personalization settings.';
+    cb3.Hint := lang.Values['sDisableLabelColoringHint'];
     cb3.Checked := disableColoring;
     
     cb4 := TCheckBox.Create(gb2);
@@ -732,13 +683,9 @@ begin
     cb4.Left := cb3.Left;
     cb4.Top := cb3.Top + cb3.Height + 8;
     cb4.Width := 120;
-    cb4.Caption := ' Extract BSAs';
+    cb4.Caption := lang.Values['sExtractBSAs'];
     cb4.ShowHint := true;
-    cb4.Hint :=
-      'If this is checked, the script will extract all BSAs associated with the'#13
-      'plugins being merged into the asset destination directory.  You don''t need'#13
-      'to use this option if you''re using Mod Organizer, but should use it if'#13
-      'you''re using Nexus Mod Manager.';
+    cb4.Hint := lang.Values['sExtractBSAsHint'];
     cb4.Checked := extractBSAs;
     
     cb5 := TCheckBox.Create(gb2);
@@ -746,31 +693,25 @@ begin
     cb5.Left := cb3.Left;
     cb5.Top := cb4.Top + cb4.Height + 8;
     cb5.Width := 130;
-    cb5.Caption := ' Batch copy assets';
+    cb5.Caption := lang.Values['sBatchCopy'];
     cb5.ShowHint := true;
-    cb5.Hint :=
-      'If this is checked, assets will be copied via a batch script after xEdit'#13
-      'is done merging the plugins.  You want to use this if you''re merging plugins'#13
-      'which have a lot of assets.  E.g. fully voiced followers.  You should have this'#13
-      'enabled for all of your merges, to be safe.';
+    cb5.Hint := lang.Values['sBatchCopyHint'];
     cb5.Checked := batCopy;
     
     btnSave := TButton.Create(ofrm);
     btnSave.Parent := ofrm;
-    btnSave.Caption := 'Save';
+    btnSave.Caption := lang.Values['sSave'];
     btnSave.ShowHint := true;
-    btnSave.Hint :=
-      'Click to save these options for this merge and all future merges.';
+    btnSave.Hint := lang.Values['sSaveHint'];
     btnSave.ModalResult := mrOk;
     btnSave.Left := ofrm.Width div 2 - btnSave.Width - 8;
     btnSave.Top := gb2.Top + gb2.Height + 15;
     
     btnDiscard := TButton.Create(ofrm);
     btnDiscard.Parent := ofrm;
-    btnDiscard.Caption := 'Discard';
+    btnDiscard.Caption := lang.Values['sDiscard'];
     btnDiscard.ShowHint := true;
-    btnDiscard.Hint :=
-      'Click to discard changes to options.';
+    btnDiscard.Hint := lang.Values['sDiscardHint'];
     btnDiscard.ModalResult := mrCancel;
     btnDiscard.Left := btnSave.Left + btnSave.Width + 16;
     btnDiscard.Top := btnSave.Top;
@@ -819,16 +760,12 @@ begin
   Result := true;
   if (astPath = DataPath) then begin
     if firstrun then 
-      Result := (MessageDlg(
-        'You''re using Skyrim''s data directory as the destination directory '+
-        'for assets copied by the script.  This will make your data directory '+
-        'very messy over time, and isn''t recommended.  Are you sure you '+
-        'want to continue?',  mtCustom, [mbYes,mbNo], 0) = mrYes);
+      Result := (MessageDlg(lang.Values['sDataDirectoryContinue'],  mtCustom, [mbYes,mbNo], 0) = mrYes);
   end
   else if not IsDirectoryEmpty(astPath) then begin
     afrm := TForm.Create(nil);
     try
-      afrm.Caption := 'Asset Destination Helper';
+      afrm.Caption := lang.Values['sAssetHelper'];
       afrm.Width := 300;
       afrm.Position := poScreenCenter;
       afrm.Height := 130;
@@ -840,32 +777,32 @@ begin
       lbl1.Height := 30;
       lbl1.AutoSize := False;
       lbl1.Wordwrap := True;
-      lbl1.Caption := 'Your asset destination directory isn''t empty.  You should clear it before proceeding.';
+      lbl1.Caption := lang.Values['sNotEmpty'];
       lbl1.Left := 8;
       
       btnOk := TButton.Create(afrm);
       btnOk.Parent := afrm;
-      btnOk.Caption := 'Proceed';
+      btnOk.Caption := lang.Values['sProceed'];
       btnOk.ShowHint := true;
-      btnOk.Hint := 'Proceed with the merge';
+      btnOk.Hint := lang.Values['sProceedHint'];
       btnOk.ModalResult := mrOk;
       btnOk.Left := (afrm.Width - 10) div 2 - (btnOk.Width * 1.5 + 8);
       btnOk.Top := lbl1.Top + lbl1.Height + 16;
       
       btnBrowse := TButton.Create(afrm);
       btnBrowse.Parent := afrm;
-      btnBrowse.Caption := 'Explore';
+      btnBrowse.Caption := lang.Values['sExplore'];
       btnBrowse.ShowHint := true;
-      btnBrowse.Hint := 'Opens the asset destination directory in Windows Explorer.';
+      btnBrowse.Hint := lang.Values['sExploreHint'];
       btnBrowse.OnClick := AssetHelperBrowse;
       btnBrowse.Left := btnOk.Left + btnOk.Width + 8;
       btnBrowse.Top := btnOk.Top;
       
       btnCancel := TButton.Create(afrm);
       btnCancel.Parent := afrm;
-      btnCancel.Caption := 'Cancel';
+      btnCancel.Caption := lang.Values['sCancel'];
       btnCancel.ShowHint := true;
-      btnCancel.Hint := 'Cancel the merge';
+      btnCancel.Hint := lang.Values['sCancelHint'];
       btnCancel.ModalResult := mrCancel;
       btnCancel.Left := btnBrowse.Left + btnBrowse.Width + 8;
       btnCancel.Top := btnOk.Top;
@@ -906,19 +843,19 @@ begin
     pfrm.Position := poScreenCenter;
     
     // construct labels
-    lbl := cLabel(pfrm, pfrm, 8, 8, 0, 300, 'Filename: '+fn, '');
+    lbl := cLabel(pfrm, pfrm, 8, 8, 0, 300, lang.Values['sFilename']+fn, lang.Values['sFilenameHint']);
     lbl := cLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
-      'Records in plugin: '+IntToStr(RecordCount(f)), '');
+      lang.Values['sRecordsInPlugin']+IntToStr(RecordCount(f)), lang.Values['sRecordsInPluginHint']);
     lbl := cLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
-      'Script version: '+vs, 'The version of the Merge Plugins script you''re using.');
+      lang.Values['sScriptVersion']+vs, lang.Values['sScriptVersionHint']);
     lbl := cLabel(pfrm, pfrm, lbl.Top + lbl.Height + 8, lbl.Left, 0, 300, 
-      'Reports: ', '');
+      lang.Values['sReports'], lang.Values['sReportsHint']);
     
     sb := TScrollBox.Create(pfrm);
     sb.Parent := pfrm;
     sb.Top := lbl.Top + lbl.Height + 16;
     sb.Align := alBottom;
-    sb.Height := 320;
+    sb.Height := 310;
     
     slDefinitions := TStringList.Create;
     slDefinitions.StrictDelimiter := true;
@@ -933,17 +870,17 @@ begin
     i := 0;
     while i + 6 <= slDefinitions.Count - 1 do begin
       lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 12, 8, 0, 360, 
-        'Filename:   '+slDefinitions[i], '');
+        lang.Values['sFilename']+'  '+slDefinitions[i], '');
       lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Number of records:   '+slDefinitions[i+1], '');
+        lang.Values['sNumRecords']+'  '+slDefinitions[i+1], '');
       lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Script version:   '+slDefinitions[i+2], '');
+        lang.Values['sScriptVersion']+'  '+slDefinitions[i+2], '');
       lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Average rating:   '+slDefinitions[i+3], '');
+        lang.Values['sAvgRating']+'  '+slDefinitions[i+3], '');
       lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Number of reports:   '+slDefinitions[i+4], '');
+        lang.Values['sNumReports']+'  '+slDefinitions[i+4], '');
       lbl := cLabel(sb, sb, lbl.Top + lbl.Height + 4, 8, 0, 360, 
-        'Notes:'#13'    '+ StringReplace(slDefinitions[i+5], '@13', #13'    ', [rfReplaceall]), '');
+        lang.Values['sNotes']+#13'    '+ StringReplace(slDefinitions[i+5], '@13', #13'    ', [rfReplaceall]), '');
       i := i + 6;
     end;
     
@@ -972,7 +909,7 @@ begin
   LoadSettings;
   mfrm := TForm.Create(nil);
   try
-    mfrm.Caption := 'Merge Plugins';
+    mfrm.Caption := lang.Values['sMergePlugins'];
     mfrm.Width := 425;
     mfrm.Position := poScreenCenter;
     for i := 0 to FileCount - 1 do begin
@@ -1002,7 +939,7 @@ begin
     lbl1.Wordwrap := True;
     lbl1.Width := 300;
     lbl1.Height := 50;
-    lbl1.Caption := 'Select the plugins you want to merge.';
+    lbl1.Caption := lang.Values['sSelectPlugins'];
     
     // create file list
     for i := 0 to FileCount - 1 do begin
@@ -1070,21 +1007,21 @@ begin
     imgOptions.Width := 24;
     imgOptions.Height := 24;
     imgOptions.ShowHint := true;
-    imgOptions.Hint := 'Advanced Options';
+    imgOptions.Hint := lang.Values['sImgOptionsHint'];
     imgOptions.OnClick := AdvancedOptions;
     imgOptions.Left := mfrm.Width - 50;
     imgOptions.Top := pnl.Height - 40;
     
     btnOk := TButton.Create(mfrm);
     btnOk.Parent := pnl;
-    btnOk.Caption := 'OK';
+    btnOk.Caption := lang.Values['sOK'];
     btnOk.ModalResult := mrOk;
     btnOk.Left := 120;
     btnOk.Top := pnl.Height - 40;
     
     btnCancel := TButton.Create(mfrm);
     btnCancel.Parent := pnl;
-    btnCancel.Caption := 'Cancel';
+    btnCancel.Caption := lang.Values['sCancel'];
     btnCancel.ModalResult := mrCancel;
     btnCancel.Left := btnOk.Left + btnOk.Width + 16;
     btnCancel.Top := btnOk.Top;
@@ -1799,6 +1736,13 @@ begin
   OldForms := TList.Create;
   NewForms := TList.Create;
   
+  // language loading
+  lang := TStringList.Create;
+  lang.StrictDelimiter := true;
+  lang.Delimiter := ';';
+  lang.LoadFromFile(ScriptsPath + 'mp\assets\' + language);
+  lang.DelimitedText := StringReplace(lang.Text, ';'#13#10, ';', [rfReplaceAll]);
+  
   // load gui elements
   gear := TPicture.Create;
   gear.LoadFromFile(ProgramPath + 'Edit Scripts\mp\assets\gear.png');
@@ -1905,10 +1849,7 @@ begin
   done := False;
   mgf := nil;
   AddMessage(#13#10+'Preparing merged file...');
-  mgf := FileSelectM('Choose the file you want to merge into below, or '+
-    #13#10+'choose creat new file to create a new one.'+
-    #13#10#13#10+'NOTE: merging into an existing file isn''t a good'+
-    #13#10+'idea, and can cause instability.');
+  mgf := FileSelectM(lang.Values['sFileSelectText']);
 
   // merge file confirmation or termination
   if not Assigned(mgf) then begin
@@ -1927,7 +1868,7 @@ begin
   // display progress bar
   frm := TForm.Create(nil);
   try
-    frm.Caption := 'Merging plugins...';
+    frm.Caption := lang.Values['sMergingPlugins'];
     frm.Width := 700;
     frm.Position := poScreenCenter;
     frm.Height := 150;
@@ -1966,7 +1907,7 @@ begin
     btnDetails.Parent := frm;
     btnDetails.Top := pb.Top + pb.Height + 8;
     btnDetails.Left := pb.Left;
-    btnDetails.Caption := 'Show Details';
+    btnDetails.Caption := lang.Values['sShowDetails'];
     btnDetails.Width := 100;
     btnDetails.OnClick := ShowDetails;
     
@@ -2184,9 +2125,7 @@ begin
     if (slFails.Count > 0) then begin
       ShowDetails;
       Application.processmessages;
-      MessageDlg('Some records failed to copy, so your merged file is incomplete.  '
-      'Please refer to the message log so you can address these records manually.  '
-      '(the merged file likely will not work without these records!)', mtConfirmation, [mbOk], 0);
+      MessageDlg(lang.Values['sSomeRecordsFailed'], mtConfirmation, [mbOk], 0);
       LogMessage('The following records failed to copy: ');
       for i := 0 to slFails.Count - 1 do 
         LogMessage('    '+slFails[i]);

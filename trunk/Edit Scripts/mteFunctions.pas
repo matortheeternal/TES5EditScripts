@@ -2463,9 +2463,10 @@ begin
   lb.Left := left;
   lb.AutoSize := false;
   lb.WordWrap := true;
+  if (height = 0) and (width = 0) then lb.AutoSize := true;
+  if (height = 0) and (Pos(#13, s) > 0) then lb.AutoSize := true;
   if height > 0 then lb.Height := height;
   if width > 0 then lb.Width := width;
-  if (height = 0) and (width = 0) then lb.AutoSize := true;
   lb.Caption := s;
   if (t <> '') then begin
     lb.ShowHint := true;

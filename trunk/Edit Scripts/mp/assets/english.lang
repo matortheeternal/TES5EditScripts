@@ -1,0 +1,133 @@
+sHello=Greetings, user!;
+sNoReports=No user reports for this plugin have been submitted.;
+sAvgRating=Average rating: ;
+sNumRatings=Number of ratings: ;
+sUserNotes=User notes: ;
+sSelectFile=Select File;
+sCreateNewFile=-- CREATE NEW FILE --;
+sCouldntFindFile=The script couldn't find the file you entered.;
+sInvalidMO=Your Mod Organizer path is invalid. Either enter a valid path or uncheck "I'm using Mod Organizer".;
+sInvalidAssetPath=Your asset destination directory is invalid. Please enter a valid path.;
+sSelectDir=Select a directory;
+sSearching=Searching ;
+sDetectMOFail=Couldn't automatically detect Mod Organizer's file path.  Please enter it manually.;
+sFirstTime=It seems this is the first time you're running the script.  Please set up your advanced options for future merges.  The window will come up automatically, and you can get back to it at any time by clicking the gear in the bottom right corner of the script window.;
+sAdvancedOptions=Advanced Options;
+sMOOptions=Mod Organizer options;
+sUsingMO= I'm using Mod Organizer;
+sUsingMOHint=You must check this for asset copying to work correctly if you're
+using Mod Organizer.  This must not be checked if you're not using
+Mod Organizer.;
+sMODir=Mod Organizer directory;
+sMODirHint=The path to the folder containing ModOrganizer.exe.  This path must be entered
+if you checked the "I'm using Mod Organizer" checkbox.;
+sBrowseForMOHint=Browse for Mod Organizer;
+sDetect=Detect;
+sDetectHint=Have the script attempt to find Mod Organizer on your hard drive by searching
+locations where it is usually installed.  If MO is found, directories will be
+automatically updated.;
+sCopyGeneral= Copy general assets;
+sCopyGeneralHint=Have the script copy general assets from the Mod Organizer mod folders associated
+with the ESPs you're merging.  This will make it so you have to do no file copying
+in Mod Organizer after merging.  This option only works with Mod Organizer!;
+sRenumberingOptions=Renumbering options;
+sDontRenumber=Don't renumber FormIDs;
+sDontRenumberHint=WARNING! Do not use this option unless you know what you''re doing!  If you use this
+option and any records in the files you''re merging have the same local FormIDs, they
+will conflict and make the merged plugin non-functional!;
+sRenumberConflicting=Renumber conflicting FormIDs;
+sRenumberConflictingHint=This is the best option for you to use.  Only FormIDs that conflict are renumbered
+when you use this option.;
+sRenumberAll=Renumber all FormIDs;
+sRenumberAllHint=This will make sure there are no conflicts in any FormIDs by renumbering all of
+them.  Resort to this option only if using Renumber conflicting FormIDs isn't
+creating a functioning merged plugin.;
+sCopyingOptions=Copying options;
+sCopyRecords=Copy records;
+sCopyRecordsHint=LEGACY OPTION: This option will copy every record in the files to be merged to the
+merged file.  Because some records actually hold other records (e.g. Cells), this
+can lead to the same records being copied twice.  This might cause issues in certain
+extremely specific circumstances.;
+sCopyIntelligently=Copy intelligently;
+sCopyIntelligentlyHint=This option will recursively traverse the record groups in the files to be merged,
+copying found records to the merged file.  The recursion will stop at records that
+hold other records (e.g. Cells), so no record will be copied twice.;
+sCopyGroups=Copy groups;
+sCopyGroupsHint=LEGACY OPTION: This option will copy the record groups from the files to be merged to
+the merged file.  The issue with this option is if something goes wrong copying any
+record in a group, the entire record group will fail to copy and you will have trouble
+finding the record responsible for the failure.;
+sSecondPassOptions=Second pass copying options;
+sNoSecondPass=No second pass;
+sNoSecondPassHint=Second pass copying used to be necessary to create functioning merged plugins with
+certain records.  Recent xEdit updates have made it unnecessary, but it remains here
+as a legacy option, just in case.;
+sSecondPassSame=Second pass same as first;
+sSecondPassSameHint=LEGACY OPTION: This second pass method will use the same copying method you
+selected above.  I recommend using no second pass, though.;
+sSecondPassCopyByGroups=Second pass copy by groups;
+sSecondPassCopyByGroupsHint=LEGACY OPTION: The original second pass copying routine.  It's main downfall
+is if a single record in a record group fails to copy, the entire record group
+will fail to copy.;
+sOtherOptions=Other options;
+sAssetDestination=Asset destination directory: ;
+sAssetDestinationHint=Destination folder for assets that are copied by the script.  If you're using
+Mod Organizer this should be the overwrite folder in Mod Organizer's
+directory.  If you're not using Mod Organizer this should be your Skyrim
+data folder or another location you''ve decided on for holding assets.;
+sAssetDestinationBrowseHint=Browse for asset destination directory;
+sDisableLabelColoring= Disable label coloring;
+sDisableLabelColoringHint=Changing this option will require a restart of the script to take effect.
+Check this if you can't see any of the filenames in the main merge window.
+NOTE: Another fix for this issue is to enable Windows Aero in windows
+personalization settings.;
+sExtractBSAs= Extract BSAs;
+sExtractBSAsHint=If this is checked, the script will extract all BSAs associated with the
+plugins being merged into the asset destination directory.  You don't need
+to use this option if you're using Mod Organizer, but should use it if
+you're using Nexus Mod Manager.;
+sBatchCopy= Batch copy assets;
+sBatchCopyHint=If this is checked, assets will be copied via a batch script after xEdit
+is done merging the plugins.  You want to use this if you''re merging plugins
+which have a lot of assets.  E.g. fully voiced followers.  You should have this
+enabled for all of your merges, to be safe.;
+sSave=Save;
+sSaveHint=Click to save these options for this merge and all future merges.;
+sDiscard=Discard;
+sDiscardHint=Click to discard changes to options.;
+sDataDirectoryContinue=You're using Skyrim's data directory as the destination directory for assets copied by the script.  This will make your data directory very messy over time, and isn't recommended.  Are you sure you       want to continue?;
+sHelper=Asset Destination Helper;
+sNotEmpty=Your asset destination directory isn't empty.  You should clear it before proceeding.;
+sProceed=Proceed;
+sProceedHint=Proceed with the merge;
+sExplore=Explore;
+sExploreHint=Opens the asset destination directory in Windows Explorer.;
+sCancel=Cancel;
+sCancelHint=Cancel the merge;
+sFilename=Filename: ;
+sFilenameHint=;
+sRecordsInPlugin=Records in plugin: ;
+sRecordsInPluginHint=;
+sScriptVersion=Script version: ;
+sScriptVersionHint=The version of the Merge Plugins script you're using.;
+sReports=Reports: 
+;
+sReportsHint=;
+sNumRecords=Number of records: ;
+sAverageRating=Average rating: ;
+sNumReports=Number of reports: ;
+sNotes=Notes: ;
+sMergePlugins=Merge Plugins;
+sSelectPlugins=Select the plugins you want to merge.;
+sImgOptionsHint=Advanced Options;
+sOK=OK;
+sFileSelectText=Choose the file you want to merge into below, or 
+choose create new file to create a new one.
+
+NOTE: merging into an existing file isn't a good
+idea, and can cause instability.;
+sMergeing=Mergeing...;
+sShowDetails=Show Details;
+sSomeRecordsFailed=Some records failed to copy, so your merged file is incomplete.  
+Please refer to the message log so you can address these records manually.  
+(the merged file likely will not work without these records!);
