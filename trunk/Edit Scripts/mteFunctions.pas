@@ -2039,7 +2039,7 @@ begin
     cb3.Text := '';
     
     // construct ok and cancel buttons
-    ConstructOkCancelButtons(frm, frm, 70);
+    cModal(frm, frm, 70);
     
     // set up form based on input variables
     if cb1.Items.IndexOf(sFile) > -1 then begin
