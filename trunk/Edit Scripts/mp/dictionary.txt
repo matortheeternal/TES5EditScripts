@@ -253,7 +253,7 @@ BetterQuestObjectives-ThievesGuildRequirementsPatch.esp;2;1.7;4.0;1;[Thalioden] 
 CCO_Frostfall_Patch.esp;139;1.7;4.0;1;[Thalioden] @13no issues found@13@13
 CCO_WAFTrueWeapons_Patch.esp;24;1.7;4.0;1;[Thalioden] @13No issues found@13@13
 Grass_On_Steroids_SFO-SHORT.esp;53;1.7;4.0;1;[Thalioden] @13Merges without errors@13@13
-GuardAnimationsGDO.esp;31;1.5;0.0;1;[Thalioden] @13xEdit 3.033 says the merge comleted and was unable to copy records from this mod (even though they appear to have been copied), but the merged plugin cannot be saved.@13@13
+GuardAnimationsGDO.esp;31;1.7;0.0;1;[Thalioden] @13xEdit 3.033 says the merge comleted and was unable to copy records from this mod (even though they appear to have been copied), but the merged plugin cannot be saved.@13@13
 RRR_3DNPC-Patch.esp;87;1.7;4.0;1;[Thalioden] @13Merges without errors@13@13
 RRR_ELFX-Patch.esp;811;1.7;4.0;1;[Thalioden] @13Merges without errors@13@13
 RSChildren_PatchNEC.esp;5;1.7;3.5;2;[Thalioden] @13Merges without errors@13@13[afonik] @13m24-Merged Children RS P&P - credits RedIrishLord/EProctor@13@13
@@ -274,7 +274,7 @@ ETaC - Complete CRF Patch.esp;47;1.7;4.0;1;[keithinhanoi] @13Patch from REGS v4.
 ETaC - Complete EWDR Patch.esp;617;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
 ETaC - Complete LoS Patch.esp;269;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
 ETaC - Complete NSutR Patch.esp;191;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
-ETaC - Complete ORS Patch.esp;27;1.7;4.0;1;[keithinhanoi] @13Patch from REGS v4.0.1@13@13
+ETaC - Complete ORS Patch.esp;27;1.7;2.0;2;[keithinhanoi] @13Patch from REGS v4.0.1@13@13[Lakan] @13Cannot be merged, has errors.@13@13
 ETaC - Complete Taverns Patch.esp;99;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
 ETaC - Complete TK Children Patch.esp;9;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
 ETaC - Complete WC Holidays Patch.esp;362;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
@@ -393,9 +393,9 @@ ABT - Faster Arrows Improved +50%.esp;15;1.7;4.0;1;[koumooo] @13All4 plugins mer
 ABT - Loot Arrows -25%.esp;16;1.7;4.0;1;[koumooo] @13All4 plugins merged, seemingly without errors, I played two long sessions with no problem whatsoever.@13@13
 ABT - Progressive Damage (with Nord Hero Arrow).esp;13;1.7;4.0;1;[koumooo] @13All4 plugins merged, seemingly without errors, I played two long sessions with no problem whatsoever.@13@13
 ABT - Recover 25% Less Arrows.esp;2;1.7;4.0;1;[koumooo] @13All4 plugins merged, seemingly without errors, I played two long sessions with no problem whatsoever.@13@13
-SOS - Smurf Average Addon.esp;88; 2.05.034;4.0;1;[Necrionet] @13didnt tried to merge even the shop esp.@13@13
-SOS - VectorPlexus Muscular Addon.esp;88; 2.05.034;4.0;1;[Necrionet] @13didnt tried to merge even the shop esp.@13@13
-SOS - VectorPlexus Regular Addon.esp;88; 2.05.034;4.0;1;[Necrionet] @13didnt tried to merge even the shop esp.@13@13
+SOS - Smurf Average Addon.esp;88;1.7;4.0;1;[Necrionet] @13didnt tried to merge even the shop esp.@13@13
+SOS - VectorPlexus Muscular Addon.esp;88;1.7;4.0;1;[Necrionet] @13didnt tried to merge even the shop esp.@13@13
+SOS - VectorPlexus Regular Addon.esp;88;1.7;4.0;1;[Necrionet] @13didnt tried to merge even the shop esp.@13@13
 BS-TheHag_Overlays.esp;1;1.7;4.0;1;[Astakos] @13Extract BSA. Merges Perfecty@13@13
 The Coenaculi.esp;1;1.7;4.0;1;[Astakos] @13Extract BSA. Merges Perfecty@13@13
 The Eyes Of Beauty - Elves Edition.esp;77;1.7;4.0;3;[Astakos] @13Merges Perfecty@13@13[afonik] @13m29-Merged Face - no issues although Battle Hardened Warpaints (BHWarpaints.esp) has 2 conflicting scripts (racemenubase.pex, racemenuload.pex) that should be overwritten by racemenu or set to hidden in MO@13@13[LuvianSkyrim] @13Merges perfectly.@13@13
@@ -532,7 +532,7 @@ WeaponsArmorFixes_ImmersiveWeapons_Patch.esp;529;1.7;4.0;1;[Thalioden] @13no iss
 wizDynamicThings.esp;248;1.7;4.0;1;[Thalioden] @13no issues found@13@13
 AlwaysPickUpBooks.esp;2;1.7;1.0;1;[avantesma] @13Behaviour untested.  MCM bugs completely and becomes illegible.@13@13
 TKDodge.esp;1;1.7;1.0;1;[avantesma] @13Behaviour seems to work fine, but some MCM options bug.@13@13
-Apocalypse - The Spell Package.esp;2467;5.15;1.0;1;[delgathar] @13XCLR Regions in worldspace 00000D74 need to be manually carried over to keep compatable with Dawnguard@13@13
+Apocalypse - The Spell Package.esp;2467;1.7;1.0;1;[delgathar] @13XCLR Regions in worldspace 00000D74 need to be manually carried over to keep compatable with Dawnguard@13@13
 JKs Markarth.esp;926;1.7;4.0;1;[ualexen92] @13 Notes  It semms to merges perfectly.@13@13
 JKs Riften.esp;1437;1.7;4.0;1;[ualexen92] @13 Notes  It semms to merges perfectly.@13@13
 JKs Solitude.esp;1462;1.7;4.0;1;[ualexen92] @13 Notes  It semms to merges perfectly.@13@13
@@ -830,9 +830,9 @@ WiccaHunterOutfit.esp;9;1.75;4.0;1;[hotemup] @13Appears to work.  Didn't test ar
 wjun28.esp;40;1.75;4.0;1;[hotemup] @13Appears to work.  Didn't test armor in game.@13@13
 wjunlady.esp;24;1.75;4.0;1;[hotemup] @13Appears to work.  Didn't test armor in game.@13@13
 XXheijunHH.esp;17;1.75;4.0;1;[hotemup] @13Appears to work.  Didn't test armor in game.@13@13
-Hunterborn_Frostfall-Patch.esp;54;1.4;4.0;1;[TehKaoZ] @13No Issues Encountered@13@13
-Hunterborn_WearableLantern-Patch.esp;5;1.4;4.0;1;[TehKaoZ] @13No Issues Encountered@13@13
-EMCompViljaSkyrimBodyPatch.esp;13;;4.0;1;[TehKaoZ] @13No Issues Encountered. Did not merge with main plugin.@13@13
+Hunterborn_Frostfall-Patch.esp;54;1.7;4.0;1;[TehKaoZ] @13No Issues Encountered@13@13
+Hunterborn_WearableLantern-Patch.esp;5;1.7;4.0;1;[TehKaoZ] @13No Issues Encountered@13@13
+EMCompViljaSkyrimBodyPatch.esp;13;1.7;4.0;1;[TehKaoZ] @13No Issues Encountered. Did not merge with main plugin.@13@13
 AOS2_CoT3_1_patch.esp;26;1.75;4.0;1;[Jammen] @13Merges perfectly, no issues encountered.@13@13
 AOS2_SkyRe Patch.esp;17;1.75;4.0;1;[Jammen] @13Merges perfectly, no issues encountered.@13@13
 Apocalypse - More Apocalypse - SkyRe Compatibility Patch.esp;56;1.75;4.0;1;[Jammen] @13Merges perfectly, no issues encountered.@13@13
@@ -951,7 +951,7 @@ SnowElfCrown.esp;9;1.75;3.5;2;[M1GU31] @13Merges fine, no ctd in game.@13@13[Wra
 Soul Collector.esp;29;1.75;4.0;1;[M1GU31] @13Merges fine, no ctd in game.@13@13
 Tera Armor Level List.esp;479;1.75;4.0;1;[M1GU31] @13Merges fine, no ctd in game.@13@13
 TERAArmors.esm;1024;1.75;3.5;2;[M1GU31] @13Merges fine, no ctd in game.@13@13[FallenDarkAngel] @13Merges no ctds@13@13
-Immersive Weapons.esp;1065;1.5;0.0;1;[KingYama] @13Cannot be merged@13@13
+Immersive Weapons.esp;1065;1.7;0.0;1;[KingYama] @13Cannot be merged@13@13
 DemonHunterArmor.esp;12;1.75;4.0;1;[Melody] @13Merges perfectly,no issues encountered.@13@13
 DemonHunterV2armor.esp;12;1.75;4.0;1;[Melody] @13Merges perfectly,no issues encountered.@13@13
 DemonHunter_Scarf.esp;3;1.75;4.0;1;[Melody] @13Merges perfectly,no issues encountered.@13@13
@@ -1019,7 +1019,7 @@ Blacksmithforge water fix HF.esp;7;1.75;4.0;1;[keithinhanoi] @13Merged all 4 Bla
 Blacksmithforge water fix Vanilla.esp;61;1.75;4.0;1;[keithinhanoi] @13Merged all 4 Blacksmithforge water fix plugins together. Works great, but DON'T turn off re-number FormIDs unless you want ODD things to happen (4 records with the exact duplicate FormID!!)@13@13
 Gwelda Armor Pack.esp;90;1.75;4.0;1;[jwise17] @13marges perfectiy no issues work great in game@13@13
 kuzak-bodyandstockings.esp;350;1.75;4.0;1;[jwise17] @13marges perfectiy no issues work great in game@13@13
-DawnofSolitude.esp;764;3.0.33;1.0;1;[OrethTheCentaur] @13Notes Your merged file has been created successfully.  It has 1279 records.  The following records failed to copy      GRUP Exterior Cell Block 0, -1 from file DawnofSolitude.esp      GRUP Top "WRLD" from file DawnofSolitude.esp@13@13
+DawnofSolitude.esp;764;1.7;1.0;1;[OrethTheCentaur] @13Notes Your merged file has been created successfully.  It has 1279 records.  The following records failed to copy      GRUP Exterior Cell Block 0, -1 from file DawnofSolitude.esp      GRUP Top "WRLD" from file DawnofSolitude.esp@13@13
 JKs Solitude.esp;1098;1.75;4.0;3;[OrethTheCentaur] @13Notes None@13@13[ThePerformer] @13Merge's just fine.@13@13[SkyrimCliff] @13Merged version of the individual standalone Dawn of Skyrim compatible JK series plugins. Merged perfectly, no errors.@13@13
 BarenziahQuestMarkers.esp;1;1.75;3.5;2;[Ardox89] @13No error after merging found yet@13@13[wettson] @13no problem encountered@13@13
 Cartographers Map Markers.esp;582;1.75;3.0;1;[Ardox89] @13No error after merging found yet@13@13
@@ -1028,7 +1028,7 @@ Unmarked Places - Dragon Mounds.esp;55;1.75;1.0;1;[Ardox89] @13Errors found in t
 Unmarked Places - Shrines.esp;55;1.75;3.0;1;[Ardox89] @13No error after merging found yet@13@13
 DragonPriestMaskQuestMarkers.esp;17;1.75;3.0;1;[Ardox89] @13No error found as of yet@13@13
 Abigail.esp;48;1.75;3.0;1;[coldwave101] @13Merges  Perfectly No CTD@13@13
-AnnaNPCs.esp;23841;;0.0;1;[coldwave101] @13Crashed Tes5Edit When merged@13@13
+AnnaNPCs.esp;23841;1.7;0.0;1;[coldwave101] @13Crashed Tes5Edit When merged@13@13
 ArmyOfFollowers.esp;250;1.75;3.0;1;[coldwave101] @13Merges  Perfectly No CTD@13@13
 azelfollower.esp;9;1.75;3.0;1;[coldwave101] @13Merges  Perfectly No CTD@13@13
 GCE Follower All In One.esp;54;1.75;3.0;1;[coldwave101] @13Merges  Perfectly No CTD@13@13
@@ -1374,7 +1374,7 @@ Tribunal Maskes by Zairaam.esp;24;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS.
 Tribunal Robes by Zairaam.esp;232;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS.    Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
 WarmongerArmory_DLC.esp;115;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS. CLEANING REQUIRED      Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
 WarmongerArmory_LeveledList.esp;280;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS. CLEANING REQUIRED      Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
-WarmongerArmory_Vanilla.esp;204;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS. CLEANING REQUIRED      Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
+WarmongerArmory_Vanilla.esp;204;1.7;2.0;2;[budgieboy87] @13NO ERRORS, NO CTDS. CLEANING REQUIRED      Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13[ChiefZigZag] @13I have experienced errors when combining this mods with others. Particularly ImmersiveWeapons.esp and Chesko_WearbleLantern.esp.@13@13
 BowAdd.esp;450;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS    Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
 DaedricCrossbow.esp;32;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS    Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
 ElementalArrows.esp;142;1.7;3.0;1;[budgieboy87] @13NO ERRORS, NO CTDS    Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
@@ -1482,8 +1482,7 @@ ReadingTakesTime.esp;3;1.8;1.0;1;[ChiefZigZag] @13This mod merges however the MC
 SkyrimCoinReplacerRedux.esp;668;1.8;3.0;2;[ChiefZigZag] @13Merged fine, more testing required.@13@13[JADEBOND] @13Notes  VERY CLEAN MERGE@13@13
 TradeBarterLite.esp;242;1.8;3.0;1;[ChiefZigZag] @13Merged fine, more testing required.@13@13
 You Hunger.esp;15868;1.8;3.0;1;[ChiefZigZag] @13Merged fine, more testing required.@13@13
-SPTConsistentOlderPeople.esp;22;1.8b;1.0;1;[ChiefZigZag] @13This mod appers to merge fine. However there are errors which cause crtical problems within gameplay. Errors experienced with merging with BYOD and/or diverpriests.esp@13@13
-WarmongerArmory_Vanilla.esp;204;1.87;1.0;1;[ChiefZigZag] @13I have experienced errors when combining this mods with others. Particularly ImmersiveWeapons.esp and Chesko_WearbleLantern.esp.@13@13
+SPTConsistentOlderPeople.esp;22;1.7;1.0;1;[ChiefZigZag] @13This mod appers to merge fine. However there are errors which cause crtical problems within gameplay. Errors experienced with merging with BYOD and/or diverpriests.esp@13@13
 JK's Ivarstead.esp;956;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
 JK's Riverwood.esp;1047;1.8;4.0;3;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13[MissNet] @13Merged without errors, tested in game ~20h playtime. Found no problems, no ctd.@13@13[steveling] @13Fast Travell works so I guess everything works, xD.@13@13
 JK's Rorikstead.esp;2021;1.8;4.0;1;[Mator] @13No issues encountered.  No grey faces if you set up asset copying correctly in v1.8.@13@13
@@ -1789,7 +1788,6 @@ witchplate.esp;31;1.75;4.0;1;[Legolas442003] @13Merges perfektly and works fine.
 Wuwong_weapon.esp;5;1.75;4.0;1;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)    NOTE: Tryed to merge "Immersive Armors" in to that did not work, format ID errors.@13@13
 yukikaze.esp;16;1.75;4.0;1;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)@13@13
 Yzandra.esp;17;1.75;4.0;3;[Legolas442003] @13Merges perfektly and works fine. (Versions used 20-01-2015)@13@13[FallenDarkAngel] @13Merges Perfectly@13@13[bloodstone2008] @13build #5 pack, all files have no errors before pack, and no errors after pack rebuild is due to pack 4 having errows with textures.@13@13
-ETaC - Complete ORS Patch.esp;27;;0.0;1;[Lakan] @13Cannot be merged, has errors.@13@13
 Chesko_LoreBasedLoadingScreens.esp;166;1.8;4.0;2;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
 fFastTravelSpeedMult_4.esp;1;1.8;3.75;4;[littleraskol] @13Unsure of in-game effect, not about to bust out a stopwatch, etc.@13@13[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13Notes  THEY WORK WELL@13@13[Dreighen] @13Merged perfectly with no errors in TES5Edit, but I have not tested in game yet.@13@13
 More Salt Please - Dragonborn Addon.esp;1;1.8;4.0;1;[littleraskol] @13Honestly forgot to visit a vender to test, but the merge works.@13@13
@@ -2560,10 +2558,10 @@ ethereal_elven_overhaul.esp;454;1.8;4.0;1;[Cheeka] @13No problems after several 
 MIDFollowMeEvenCloser.esp;6;1.8;4.0;1;[Cheeka] @13No problems after several months use.@13@13
 No Breathing Sound.esp;22;1.8;4.0;1;[Cheeka] @13No problems after several months use.@13@13
 SPTConsistentOlderPeople.esp;22;1.8;3.75;4;[Cheeka] @13No problems after several months use.@13@13[Shroom10] @13Merges perfectly, no errors encountered.@13@13[JADEBOND] @13Notes  THEY WORK WELL@13@13[Dreighen] @13Merged perfectly with no errors in TES5Edit, but I have not tested in game yet.@13@13
-Follower - Chantez.esp;12;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
-Follower - Chelsea.esp;17;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
-Follower - Hotaru.esp;12;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
-Follower - Phey.esp;12;1;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Chantez.esp;12;1.7;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Chelsea.esp;17;1.7;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Hotaru.esp;12;1.7;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
+Follower - Phey.esp;12;1.7;4.0;1;[Rodlah] @13Merged fine, no errors@13@13
 ClimatesOfTamriel Falskaar.esp;5;1.8;4.0;1;[Leebob] @13  merges perfectly@13@13
 ClimatesOfTamriel-Dawnguard-Patch.esp;24;1.8;4.0;1;[Leebob] @13  merges perfectly@13@13
 ClimatesOfTamriel-Dragonborn-Patch.esp;14;1.8;4.0;1;[Leebob] @13  merges perfectly@13@13
@@ -2969,7 +2967,7 @@ FancyDress.esp;15;1.8;4.0;1;[Spork] @13Works ingame@13@13
 FF6CelesArmor.esp;6;1.8;4.0;1;[Spork] @13Confirmed ingame.@13@13
 FF6TinaOutfit.esp;8;1.8;4.0;1;[Spork] @13Confirmed ingame.@13@13
 FollowerEleonora.esp;23;1.8;3.0;1;[Spork] @13Unconfirmed ingame@13@13
-Followers pack 5.esp;462;1.8.8;4.0;1;[Spork] @13Perfect in every way.@13@13
+Followers pack 5.esp;462;1.7;4.0;1;[Spork] @13Perfect in every way.@13@13
 Follower_Ingenu.esp;27;1.8;3.0;1;[Spork] @13Unconfirmed ingame.@13@13
 ggx.esp;2;1.8;3.0;1;[Spork] @13Unconfirmed ingame.@13@13
 GraveStrider.esp;25;1.8;3.0;1;[Spork] @13Works ingame@13@13
@@ -3044,18 +3042,168 @@ HelmetToggle2.02b.esp;6;1.9;1.0;1;[Mator] @13There's an issue with the VMAD on a
 ImmersiveFP.esp;1;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, no issues encountered.@13@13
 JaxonzDiagnostics.esp;4;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame.  If you're using Mod Organizer, make sure the BSA is marked as active in the Archives tab.@13@13
 SIDT - Complete.esp;81;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, no issues encountered.@13@13
-SkyComplete.esp;11;1.9;4.0;1;[Mator] @13Merged perfectly, no issues encountered.@13@13
-SkyCompleteDawnguard.esp;1;1.9;4.0;1;[Mator] @13Merged perfectly, no issues encountered.@13@13
-SkyCompleteDragonborn.esp;1;1.9;4.0;1;[Mator] @13Merged perfectly, no issues encountered.@13@13
+SkyComplete.esp;11;1.9;4.0;2;[Mator] @13Merged perfectly, no issues encountered.@13@13[InMyBestInterest] @13Merges with no problems@13@13
+SkyCompleteDawnguard.esp;1;1.9;4.0;2;[Mator] @13Merged perfectly, no issues encountered.@13@13[InMyBestInterest] @13Merges with no problems@13@13
+SkyCompleteDragonborn.esp;1;1.9;4.0;2;[Mator] @13Merged perfectly, no issues encountered.@13@13[InMyBestInterest] @13Merges with no problems@13@13
 SkyrimConfigMenu.esp;1;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame.  If you're using Mod Organizer, make sure the BSA is marked as active in the Archives tab.@13@13
 Uncle Sheo does Climates of Tamriel.esp;8;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, and all load screens are working flawlessly.@13@13
 Uncle Sheo does Dawnguard.esp;18;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, and all load screens are working flawlessly.@13@13
 Uncle Sheo does Dragonborn.esp;30;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, and all load screens are working flawlessly.@13@13
 Uncle Sheo does Hearthfire.esp;4;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, and all load screens are working flawlessly.@13@13
 Uncle Sheo.esp;307;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, and all load screens are working flawlessly.@13@13
-UnreadBooksGlow.esp;46;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, no issues encountered.@13@13
+UnreadBooksGlow.esp;46;1.9;3.66667;3;[Mator] @13Merges perfectly.  Tested ingame, no issues encountered.@13@13[arrioch] @13Perfect merge, no issues.@13@13[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
 VendorSaleDelay-Gone.esp;60;1.9;4.0;1;[Mator] @13Merged perfectly, no issues encountered.@13@13
-iHUD.esp;29;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame.  If you're using Mod Organizer, make sure the BSA is marked as active in the archives tab.@13@13
+iHUD.esp;29;1.9;3.5;2;[Mator] @13Merges perfectly.  Tested ingame.  If you're using Mod Organizer, make sure the BSA is marked as active in the archives tab.@13@13[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
 Model Manager.esp;493;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame, no issues encountered.@13@13
 SkyTweak.esp;211;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame.  If you're using Mod Organizer, make sure the BSA is marked as active in the Archives tab.@13@13
 towPov.esp;37;1.9;4.0;1;[Mator] @13Merges perfectly.  Tested ingame.  If you're using Mod Organizer, make sure the BSA is marked as active in the Archives tab.@13@13
+Chesko_Step418.esp;10;1.9;4.0;1;[arrioch] @13Merges perfectly, works in game.@13@13
+RND_HerbalTea-Patch.esp;65;1.9;4.0;1;[arrioch] @13Clean merge, no errors, no CTDs, and items show up properly.@13@13
+Signs_of_Skyrim.esp;80;1.9;4.0;1;[arrioch] @13Merges perfectly, works in game.@13@13
+AK- Boethiah Alternate.esp;5;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+BarenziahQuestMarkers_Droppable.esp;1;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+DG and DB Axe Perks merged.esp;6;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+DragonPriestMaskQuestMarkers.esp;17;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+ExpandedEnchantingLessSlots.esp;6;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+Faction Crossbows.esp;155;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+JiubQuestMarkers.esp;1;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+RingOfCraft-100.esp;5;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+SkyCompleteFalskaar.esp;1;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+SkyCompleteWyrmstooth.esp;1;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+The Paarthurnax Dilemma.esp;67;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+Vampire Lord Serana Fixed.esp;5;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+Vampirelordroyal.esp;75;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+ViewableFactionRanksBothDLC.esp;1;1.9;4.0;1;[InMyBestInterest] @13Merges with no problems@13@13
+BosmericDrunkenHuntsmanReborn.esp;470;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+Farmers Sell Produce - Skyrim.esp;110;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+iWil_Arcadias Shop.esp;732;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+iWil_BelethorsGoodStore.esp;627;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+MineVendors.esp;90;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+Potions.esp;473;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+RealWarMaiden.esp;205;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+RGMsAlchemistsCompendium.esp;5;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+SolitudeBoozeMerchant.esp;287;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+Unique BOOZE Bottles.esp;12;1.9;4.0;1;[arrioch] @13Perfect merge, no issues.@13@13
+AMatterOfTime.esp;8;1.9;3.0;1;[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
+Auto Unequip Helmet.esp;1;1.9;3.0;1;[Phreeon] @13No Issues@13@13
+BFSEffects.esp;75;1.9;3.0;1;[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
+BlockSparkles.esp;8;1.9;3.0;1;[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
+Chesko_LoreBasedLoadingScreens.esp;166;1.9;3.0;1;[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
+DawnguardRuneWeaponsFXSReplacer.esp;3;1.9;3.0;1;[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
+dD-No Spinning Death Animation Merged.esp;11;1.9;3.0;1;[Phreeon] @13No Issues@13@13
+DeadlySpellImpacts.esp;63;1.9;3.0;1;[Phreeon] @13Move Translation files to newly created Mod folder so MCM populates correctly.@13@13
+Nausicaa's Tweaker.esp;9;1.9;3.0;1;[Phreeon] @13No Issues@13@13
+SDO Full-LOD - Giant Campfires.esp;13;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SDO Full-LOD - The Morthal Swamp Complete.esp;1073;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SDO Full-LOD - Waterfall Effects.esp;170;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SDO Full-LOD - Whiterun Trundra Creeks.esp;102;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SMIM-DragonbornTernFix.esp;3;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SMIM-DungeonsCliffsIceSkirts.esp;9;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SMIM-FarmhouseFlickeringFix.esp;12;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SMIM-FurnitureChestSnowFix.esp;1;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SMIM-ShackRoofFixes.esp;85;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+SMIM-ShackRoofFixesDragonborn.esp;13;1.9;3.0;1;[Phreeon] @13Appears to work well after a few in game checks.@13@13
+imp_helm_legend.esp;195;1.9;3.0;1;[Phreeon] @13There's a wieght issue with one of the dwarven helmets. Didn't effect the game test.@13@13
+Dual Wield Parrying_SKSE.esp;4;1.9;3.0;1;[Phreeon] @13No Issues@13@13
+Reduced Distance NPC Greetings.esp;1;1.9;3.0;1;[Phreeon] @13No Issues@13@13
+Run For Your Lives.esp;147;1.9;3.0;1;[Phreeon] @13No Issues@13@13
+RavenRockExpanded.esp;1614;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+RiverwoodEnhancedPlugin.esp;566;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+SaturationBoost.esp;186;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+TAVERiften.esp;1109;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+TAVESolitude.esp;1135;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+TAVEWindhelm.esp;906;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+TownsAndCitiesEnhanced.esp;1928;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+WhiterunInEnhanced.esp;1531;1.9;4.0;1;[InMyBestInterest] @13Merges without any problems@13@13
+BirdsHFclean.esp;370;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Dark Dungeons for Dawnguard.esp;12;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Dark Dungeons for Dragonborn.esp;28;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+EnhancedWetnessandPuddles.esp;9487;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Expanded Skyrim Weather - RCRN.esp;19;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Further Dark Dungeons for ENB.esp;155;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+mintylightningmod.esp;161;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Natural Skyrim Rain.esp;39;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Real Clouds.esp;537;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+RealisticNights.esp;79;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+RealisticNightsDB.esp;9;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+RealisticNightsDG.esp;8;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+SplashofRain.esp;35;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+Supreme Fog.esp;6;1.9;3.0;1;[phreeon] @13No Problems so far.@13@13
+HDTPhysicsWeaponSling.esp;167;1.9;1.0;1;[SturmBrightblade] @13Successful merge but not able to select any options in MCM.@13@13
+backpackfrankdema.esp;6;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Blue Telvanni Mage Robes.esp;34;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+BosmerHeaddresses-LeveledList.esp;3;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+BosmerHeaddresses.esp;37;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+DAO Morrigan's Robes.esp;13;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+EliteRogueArmour.esp;80;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+FA Hide Armor.esp;8;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+FS_UltimateAssortment.esp;183;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Hentai_mixed_Armor.esp;12;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Inquisitor Set.esp;19;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+isilNarsil.esp;118;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+kimono's witcher silver swords.esp;9;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+LightBladesArmor.esp;23;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Neo's Mandu Armours.esp;50;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+NightingaleArrows.esp;7;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Northgirl.esp;92;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Omegared99-WeaponSets.esp;35;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Rise of the Legend - Ysgramor.esp;24;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+SleekSteel_StandAlone.esp;36;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Soul Collector.esp;31;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Sovngarde Steel Armor and Weapons.esp;32;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+SVS LadyTemplar.esp;65;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Tembtra Thief Armor.esp;67;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+TheHermit.esp;16;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+True Thief Armor.esp;15;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Ursine Armor Pack.esp;119;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+WestWindAssault.esp;60;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+WestWindMisfit.esp;62;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+ProperPotionNames.esp;2;1.9;1.0;1;[mikeynexus] @13Merges successfully but does not function in game after merging.@13@13
+GamEngagementrings.esp;9;1.9;4.0;1;[Astakos] @13No issues encountered. Works in-game@13@13
+Better Vampires.esp;681;1.9;0.0;1;[kassane23] @13Error in unit 'mergeplugins' on line 222: Undeclared Identifier 'COnstructOkCancelButton@13@13
+ELE_Legendary_Fs_Wt_Lite.esp;2338;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+ELFX - ELE - UselessShopOverhaul patch.esp;104;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+FantasySoundtrackProjectCombatMusic.esp;18;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+FSP - Unique Towns & Locations.esp;36;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+RelightingSkyrim-FULL.esp;302;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+Skysan_ELFX_SMIM_Fix.esp;76;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+TrueStorms.esp;73;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+Vividian - Torches Preset.esp;2;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+Vividian - Wearable Lanterns Preset.esp;10;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+Vividian - Weather Patch CoT - ESS.esp;545;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+WAO-NL+TS+CRF+ISC+RWT.esp;850;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+WAO-TS+SS.esp;35;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+WAO-WeatherAndAmbienceOverhaul.esp;1387;1.9;4.0;1;[Hishutup] @13Merges fine. No issues encounted.@13@13
+AOS.esp;2067;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+Celtic Music in Skyrim - Dungeons.esp;10;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+Celtic Music in Skyrim 2.0.esp;64;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+IHSS.esp;36;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+NSM Low.esp;1;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+RealisticHuskySounds.esp;9;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+SoS - The Dungeons.esp;986;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+Thundering Shouts.esp;1;1.9;4.0;1;[sluvsj] @13No issues found@13@13
+PreventsAccidentPickUp.esp;42;1.9;1.0;1;[SturmBrightblade] @13Have attempted to merge twice now in different load orders.  Both times it merges fine but does not work in game.  Menus work but does not prevent pickup of items.@13@13
+CobbEncumbrance.esp;56;1.7;0.0;1;[Guy] @13No MCM menu@13@13
+Avelyn Follower.esp;19;1.9;4.0;1;[Spork] @13No issues in-game.@13@13
+gmbear.esp;10;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+gmcharlotte.esp;11;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+GMdaisy.esp;20;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+GMDebbie.esp;21;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully.@13@13
+GMeir.esp;22;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully.@13@13
+gmLia.esp;11;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+gmniem.esp;10;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+gmoonlight.esp;19;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully.@13@13
+Gmsandra.esp;19;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+gmshery.esp;11;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+GMSiner.esp;19;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully.@13@13
+GmTeresa.esp;22;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+GMXillia.esp;16;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully if necessary.@13@13
+HDTTailsEquipable.esp;256;1.9;4.0;1;[Spork] @13No issues in-game using HDT.@13@13
+Hikari.esp;40;1.9;4.0;1;[Spork] @13No issues.@13@13
+Karlina Follower.esp;22;1.9;4.0;1;[Spork] @13No issues in-game.@13@13
+Nara.esp;20;1.9;4.0;1;[Spork] @13No issues in-game.@13@13
+sera.esp;19;1.9;3.0;1;[Spork] @13Corrupt eyebrow and eye texture references in head parts must be fixed to merge successfully. Eye and eyebrow head part editor IDs need to be renamed to avoid overwriting. Facegeom .nif references must match new head part names to avoid gray face bug.@13@13
+Sonia Follower.esp;18;1.9;4.0;1;[Spork] @13No issues.@13@13
+XDFollower_Lira.esp;24;1.9;4.0;1;[Spork] @13No issues in-game.@13@13
+Yami.esp;131;1.9;4.0;1;[Spork] @13No issues.@13@13
+ETaC - Complete.esp;31506;1.9;3.0;1;[ganelorm] @13Merges okay but even though my assest dirrectory is correct I still get dark faces on the ETAC NPCs.@13@13

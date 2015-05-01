@@ -1615,7 +1615,7 @@ end;
   Extracts assets from a BSA that match a specified path.
   
   Example usage:
-  ExtractPathBSA(DataPath + 'SkyUI.esp', TempPath, 'interface\translations');
+  ExtractPathBSA(DataPath + 'SkyUI.bsa', TempPath, 'interface\translations');
 } 
 procedure ExtractPathBSA(aContainerName, aPath, aSubPath: string);
 var
