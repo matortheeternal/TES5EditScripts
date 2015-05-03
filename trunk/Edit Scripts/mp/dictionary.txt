@@ -3206,9 +3206,9 @@ hmkHotkeys.esp;3;1.9;3.0;1;[ganelorm] @13It merges without error but in game you
 Dawnguard.esm;94780;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
 Dragonborn.esm;178541;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
 HearthFires.esm;17303;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
-HighResTexturePack01.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack01.bsa.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
-HighResTexturePack02.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack01.bsa.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
-HighResTexturePack03.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack01.bsa.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
+HighResTexturePack01.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack BSA.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
+HighResTexturePack02.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack BSA.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
+HighResTexturePack03.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack BSA.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
 Skyrim.esm;869692;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
 SkyUI.esp;7;2.0;-1.0;1;[Mator] @13Merging this stops most MCMs from functioning properly.@13@13
 Update.esm;1164;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
