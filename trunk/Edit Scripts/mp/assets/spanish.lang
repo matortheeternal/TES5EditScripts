@@ -1,132 +1,132 @@
-sHello=Saludos, usuario!;
-sNoReports=No hay informes de los usuarios de este plugin se han presentado.;
-sAvgRating=Nota media: ;
-sNumRatings=Número de valoraciones: ;
-sUserNotes=Usuario notas: ;
-sSelectFile=Seleccionar archivo;
-sCreateNewFile=- Crear nuevo archivo -;
-sCouldntFindFile=El script no pudo encontrar el archivo que ha introducido.;
-sInvalidMO=Su trayectoria Mod Organizador no es válido. O bien introducir una ruta válida o desmarque "Estoy usando Mod Organizador".;
-sInvalidAssetPath=Su directorio de destino de los activos no es válido. Por favor introduzca una ruta válida.;
+sHello=¡Saludos, usuario!;
+sNoReports=No se han entregado informes de usuario para este "plugin".;
+sAvgRating=Puntuación Media: ;
+sNumRatings=Número de Puntuaciones: ;
+sUserNotes=Notas de Usuario: ;
+sSelectFile=Seleccionar Archivo;
+sCreateNewFile=-- CREAR ARCHIVO NUEVO --;
+sCouldntFindFile=El "script" no pudo encontrar el archivo introducido.;
+sInvalidMO=Su ruta hacia "Mod Organizer" no es válida. Introduzca una ruta correcta o desmarque "Estoy usando Mod Organizer".;
+sInvalidAssetPath=Su directorio de destino de recursos no es válido. Por favor, introduzca una ruta correcta.;
 sSelectDir=Seleccione un directorio;
-sSearching=Searching;
-sDetectMOFail=No se pudo detectar automáticamente la ruta del archivo de Mod Organizador. Por favor ingrese manualmente.;
-sFirstTime=Parece que esta es la primera vez que se está ejecutando la secuencia de comandos. Por favor, configurar las opciones avanzadas para las fusiones futuras. La ventana se van a plantear de forma automática, y se puede volver a ella en cualquier momento haciendo clic en el engranaje en la esquina inferior derecha de la ventana de script.;
-sAdvancedOptions=Opciones avanzadas;
-sMOOptions=Mod Organizador Opciones;
-sUsingMO=Estoy usando Mod Organizador;
-sUsingMOHint=Debe comprobar esto para copiar activo para que funcione correctamente si estás
-usando Mod Organizador. Esto no se debe comprobar si usted no está usando
-Mod Organizador.;
-sMODir=Mod Organizador directorio: ;
-sMODirHint=La ruta de la carpeta que contiene ModOrganizer.exe. Este camino se debe introducir
-si ha marcado la casilla "Estoy usando Mod Organizador".;
-sBrowseForMOHint=Navegar por Mod Organizador;
+sSearching=Buscando ;
+sDetectMOFail=No se pudo detectar automáticamente la ruta del archivo de "Mod Organizer". Por favor, introdúzcala manualmente.;
+sFirstTime=Parece que es la primera vez que está ejecutando el "script". Por favor, configure sus opciones avanzadas para futuras "fusiones". La ventana se mostrará automáticamente, y puede volver a ella en cualquier momento, haciendo clic en la herramienta de la esquina inferior derecha de la ventana del "script".;
+sAdvancedOptions=Opciones Avanzadas;
+sMOOptions=Opciones de "Mod Organizer";
+sUsingMO=Estoy usando "Mod Organizer";
+sUsingMOHint=Debe marca esto, para que la copia de recursos funcione correctamente, si está
+usando "Mod Organizer". No debe estar marcado, si no está usando
+"Mod Organizer".;
+sMODir=Directorio de "Mod Organizer": ;
+sMODirHint=La ruta hacia la carpeta que contiene "ModOrganizer.exe". Esta ruta debe ser introducida
+si marcó la casilla "Estoy usando Mod Organizer".;
+sBrowseForMOHint=Buscando el "Mod Organizer";
 sDetect=Detectar;
-sDetectHint=Tener el intento de guión para encontrar Mod Organizador en su disco duro mediante la búsqueda
-lugares donde se instala normalmente. Si se encuentra MO, directorios serán
-actualizada automáticamente.;
-sCopyGeneral=Copiar activos generales;
-sCopyGeneralHint=Tienes el guión copia activos generales de las carpetas mod Mod Organizador asociados
-con los ESP que estés fusión. Esto hará que sea lo que tiene que hacer ninguna copia de archivos
-en Mod Organizador después de la fusión. Esta opción sólo funciona con Mod Organizador!;
-sRenumberingOptions=Opciones renumeración;
-sDontRenumber=No cambia la numeración FormIDs;
-sDontRenumberHint=¡ADVERTENCIA! No use esta opción a menos que sepa lo que you''re haciendo! Si utiliza este
-opción y ningún registro en los archivos you''re fusionadas tienen las mismas FormIDs locales,
-entrará en conflicto y hacer el plugin fusionada no funcional!;
-sRenumberConflicting=Renumérense FormIDs conflictivos;
-sRenumberConflictingHint=esta es la mejor opción para que usted utilice. Sólo FormIDs que el conflicto se vuelven a numerar
+sDetectHint=El "script" intentará encontrar el "Mod Organizer" en su disco duro, buscando los
+lugares donde normalmente es instalado. Si lo encontrara, los directorios serían
+automáticamente actualizados.;
+sCopyGeneral=Copiar Recursos Generales;
+sCopyGeneralHint=El "script" copia los recursos generales de las carpetas de mods de "Mod Organizer", asociados
+a los archivos ESP que esté fusionando. Esto hará que no tenga que estar copiando archivos
+en "Mod Organizer" tras la fusión. ¡Esta opción sólo funciona con "Mod Organizer"!;
+sRenumberingOptions=Opciones de Renumeración;
+sDontRenumber=No renumerar las "FormIDs";
+sDontRenumberHint=¡ADVERTENCIA! ¡No use esta opción a menos que sepa lo que está haciendo! ¡Si usa esta
+opción, y los registros, en los archivos que está fusionando, tienen las mismas "FormIDs" locales,
+entrarán en conflicto y harán que el plugin resultante fusionado, no funcione!;
+sRenumberConflicting=Renumerar "FormIDs" Conflictivas;
+sRenumberConflictingHint=Esta es la mejor opción a usar. Sólo las "FormIDs" conflictivas son renumeradas,
 cuando se utiliza esta opción.;
-sRenumberAll=Volver a numerar todos FormIDs;
-sRenumberAllHint=Esto se asegurará de que no hay conflictos en cualquier FormIDs por renumerar todos
-ellos. El recurso a esta opción sólo si el uso Renumérense FormIDs en conflicto no es
-la creación de un funcionamiento fusionó Plugin.;
-sCopyingOptions=Copiando Opciones;
-sCopyRecords=Copiar registros;
-sCopyRecordsHint=LEGADO OPCIÓN: Esta opción copiará todos los registros de los archivos que se fusionó a la
-archivo fusionado. Debido a que algunos registros en realidad sostienen otros registros (como las células), esta
-puede conducir a los mismos registros que se copian en dos ocasiones. Esto podría causar problemas en cierta
-circunstancias muy específicas.;
-sCopyIntelligently=Copia inteligente;
-sCopyIntelligentlyHint=Esta opción recursiva atravesar los grupos de documentos en los archivos que se fusionen,
-copia encontraron registros en el archivo fusionado. La recursividad se detendrá en los registros que
-mantener otros registros (como las células), por lo que hay constancia se copiará dos veces.;
-sCopyGroups=Copiar grupos;
-sCopyGroupsHint=LEGADO OPCIÓN: Esta opción copiará los grupos de documentos de los archivos que se fusionaron para
-el archivo fusionado. El problema de esta opción es que si algo sale mal cualquier copia
-registro de un grupo, el grupo de registro completo dejará de copiar y usted tendrá problemas
-encontrar el registro responsable del fracaso.;
-sSecondPassOptions=Segundas opciones de copia de paso;
-sNoSecondPass=n segundo paso;
-sNoSecondPassHint=Copia Segundo pase solía ser necesaria la creación de funcionamiento se fusionó con plugins
-ciertos registros. Actualizaciones recientes XEDIT han hecho innecesario, pero sigue siendo aquí
-como una opción de herencia, por si acaso.;
-sSecondPassSame=segunda pasada mismo que la primera;
-sSecondPassSameHint=LEGADO OPCIÓN: Este segundo método pase utilizará el mismo método de copia que
-seleccionada anteriormente. Recomiendo el uso de ningún segundo pase, aunque.;
-sSecondPassCopyByGroups=Copia Segundo pase por grupos;
-sSecondPassCopyByGroupsHint=LEGADO OPCIÓN: La segunda rutina original, copia pase. Es la caída principal
-es si un único registro en un grupo de registro no puede copiar, el grupo de registro completo
-dejará de copiar.;
-sOtherOptions=Otras opciones;
-sAssetDestination=Activos directorio de destino: ;
-sAssetDestinationHint=Carpeta de destino para los activos que se copian por el guión. Si estás usando
-Mod Organizador esta debería ser la carpeta de sobreescritura en Mod Organizador de
-directorio. Si usted no está usando Mod Organizador este debe ser su Skyrim
-carpeta de datos o en otro lugar you''ve decidió por tenencia de activos.;
-sAssetDestinationBrowseHint=Navegar por el directorio de destino de los activos;
-sDisableLabelColoring=Colorear etiqueta desactivar;
-sDisableLabelColoringHint=Cambiar esta opción requerirá un reinicio de la secuencia de comandos para entrar en vigor.
-Compruebe esto si usted no puede ver cualquiera de los nombres de archivo en la ventana principal de combinación.
-NOTA: Otra solución para este problema es permitir que Windows Aero en Windows
-configuración de personalización.;
-sExtractBSAs=Extracto de BSA;
-sExtractBSAsHint=Si se marca esta opción, el guión extraerá todos BSAs asociados con la
-plugins que se fusionaron en el directorio de destino de los activos. No es necesario
-Para usar esta opción si está usando Mod Organizador, pero debería usarlo si
-está utilizando el Nexus Mod Manager.;
-sBatchCopy=Copia por lotes activos;
-sBatchCopyHint=Si se marca esta opción, los activos se copiará a través de una escritura de la hornada después XEDIT
-se realiza la fusión de los plugins. Desea utilizar esto si you''re fusión plugins
-que tienen una gran cantidad de activos. Por ejemplo seguidores manifestado plenamente. Usted debe tener presente
-habilitada para todas sus fusiones, para estar seguro.;
+sRenumberAll=Renumerar Todas las "FormIDs";
+sRenumberAllHint=Esto asegurará que no haya conflictos en ninguna "FormID", renumerándolas todas.
+Recurre a esta opción, SOLO, si usando "Renumerar "FormIDs" Conflictivas", NO está creando
+un "plugin" fusionado, que sea funcional.;
+sCopyingOptions=Opciones de Copiado;
+sCopyRecords=Copiar Registros;
+sCopyRecordsHint=OPCIÓN HEREDADA: Esta opción copiará cada registro de los archivos que se van a fusionar, al
+archivo fusionado. Debido a que algunos registros, en realidad contienen otros registros (Ej: Celdas del mundo),
+puede ocasionar, que los mismos registros sean copiados dos veces. Esto podría causar problemas, en ciertas
+circunstancias extremadamente específicas.;
+sCopyIntelligently=Copiar Inteligentemente;
+sCopyIntelligentlyHint=Esta opción, recorrerá recursivamente, los grupos de registro de los archivos a fusionar,
+copiando los registros encontrados al archivo fusionado. La recursividad, se detendrá en los registros que
+contienen otros registros (Ej: Celdas del mundo), por lo que ningún registro se copiará dos veces.;
+sCopyGroups=Copiar Grupos;
+sCopyGroupsHint=OPCIÓN HEREDADA: Esta opción, copiará los grupos de registro de los archivos a fusionar,
+al archivo fusionado. El problema de esta opción, es que si algo sale mal copiando cualquier
+registro de un grupo, el grupo de registro al completo, fallará en la copia, y usted tendrá problemas
+para encontrar el registro responsable del fallo.;
+sSecondPassOptions=Opciones de Copiado de Segundo Pase;
+sNoSecondPass=Sin Segundo Pase;
+sNoSecondPassHint=Hacer un segundo pase en la copia, solía ser necesario para crear "plugins" fusionados y funcionales,
+con ciertos registros. Las recientes actualizaciones de "xEdit", lo han hecho innecesario, pero esta opción permanece
+aquí, como una opción heredada, por si acaso.;
+sSecondPassSame=Segundo Pase igual que el Primero;
+sSecondPassSameHint=OPCIÓN HEREDADA: Este método de segundo pase, utilizará el mismo método de copiado, que el
+seleccionado más arriba. Aunque recomiendo, no usar ningún segundo pase.;
+sSecondPassCopyByGroups=Copia de Segundo Pase por Grupos;
+sSecondPassCopyByGroupsHint=OPCIÓN HEREDADA: La rutina original, de copia de segundo pase. Su principal defecto,
+es que si un solo registro en un grupo de registros, falla en la copia, el grupo de registros al completo,
+fallará en la copia.;
+sOtherOptions=Otras Opciones;
+sAssetDestination=Directorio de Destino de Recursos: ;
+sAssetDestinationHint=Carpeta de destino para los recursos que son copiados por el "script". Si está usando el
+"Mod Organizer", esta debería ser la carpeta de sobreescritura, en el directorio del "Mod Organizer".
+Si usted no está usando el "Mod Organizer", entonces esta debería ser su carpeta "Data"
+del Skyrim, o cualquier otra ubicación en la que haya decidido tener los recursos.;
+sAssetDestinationBrowseHint=Navegando por el Directorio de destino de los Recursos;
+sDisableLabelColoring=Deshabilitar el Coloreado de Etiqueta;
+sDisableLabelColoringHint=Cambiar esta opción, requerirá un reinicio del "script", para que haga efecto.
+Marque esta opción, si no ve ningún nombre de archivo en la ventana principal de fusionamiento.
+NOTA: Otra solución para este problema, es habilitar Windows Aero en las opciones
+de personalización de Windows.;
+sExtractBSAs=Extraer de los BSAs;
+sExtractBSAsHint=Si se marca esta opción, el "script" extraerá todos los archivos de los BSAs, que estén
+asociados con los "plugins", al directorio de destino de los recursos. Usted no necesita usar
+esta opción, si está utilizando el "Mod Organizer", pero debería usarla, si
+está utilizando el "Nexus Mod Manager".;
+sBatchCopy=Copia de Recursos en Tandas;
+sBatchCopyHint=Si se marca esta opción, los recursos se copiarán mediante un "script", en tandas, después de que "xEdit",
+haya terminado la fusión de los "plugins". Querrás usar esto, si estás fusionando "plugins"
+que tienen una gran cantidad de recursos. Ej: Seguidores con muchos archivos de voz. Debería tener esta opción
+habilitada para todas sus fusiones, por seguridad.;
 sSave=Guardar;
-sSaveHint=Haga clic para guardar estas opciones para esta fusión y todas las fusiones futuras.;
+sSaveHint=Haga clic para guardar estas opciones, para esta fusión, y para todas las fusiones futuras.;
 sDiscard=Descartar;
-sDiscardHint=Haga clic para descartar cambios en las opciones.;
-sDataDirectoryContinue=Usted está utilizando el directorio de datos de Skyrim como el directorio de destino para los activos copiados por el guión. Esto hará que su directorio de datos muy desordenado con el tiempo, y no se recomienda. Estás seguro de que quieres continuar?;
-sHelper=Activos Destino ayudante;
-sNotEmpty=Su directorio de destino activo no está vacío. Usted debe desactivarla antes de proceder.;
-sProceed=Proceda;
-sProceedHint=Proceda con la fusión;
-sExplore=Explore;
-sExploreHint=Abre el directorio de destino de los activos en el Explorador de Windows.;
+sDiscardHint=Haga clic para descartar los cambios en las opciones.;
+sDataDirectoryContinue=Usted está utilizando el directorio "Data" del Skyrim, como el directorio de destino para los recursos copiados por el "script". Esto hará que su carpeta "Data", se vaya desordenando con el tiempo, y no se recomienda. ¿Está seguro de que quiere continuar?;
+sHelper=Ayudante del Destino de los Recursos;
+sNotEmpty=Su directorio de destino de los recursos no está vacío. Debería limpiarlo antes de proceder.;
+sProceed=Proceder;
+sProceedHint=Proceder con la fusión;
+sExplore=Explorar;
+sExploreHint=Abre el directorio de destino de los recursos en el Explorador de Windows.;
 sCancel=Cancelar;
 sCancelHint=Cancelar la fusión;
 sfilename=Nombre del archivo: ;
 sFilenameHint =;
-sRecordsInPlugin=Graba en el plugin: ;
+sRecordsInPlugin=Registros en el plugin: ;
 sRecordsInPluginHint=;
-sScriptVersion=Guión versión: ;
-sScriptVersionHint=La versión de la secuencia de comandos Combinar Plugins está utilizando.;
-sReports=Reportes de usuarios: ;
+sScriptVersion=Versión del Script: ;
+sScriptVersionHint=La versión del "script" de Fusión de Plugins que está utilizando.;
+sReports=Informes de usuarios: ;
 sReportsHint =;
 sNumRecords=Número de registros: ;
-sAverageRating=Nota media: ;
+sAverageRating=Puntuación media: ;
 sNumReports=Número de informes: ;
 sNotes=Notas: ;
-sMergePlugins=Combinar Plugins;
+sMergePlugins=Fusionar Plugins;
 sSelectPlugins=Seleccione los plugins que desea fusionar.;
 sImgOptionsHint=Opciones avanzadas;
 sOK=OK;
-sFileSelectText=Elija el archivo que desea combinar en adelante, o
-elija Crear nuevo archivo para crear una nueva.
+sFileSelectText=Elija el archivo con el que desea fusionar a continuación, o
+elija "Crear Nuevo Archivo", para crear una nuevo.
 
-NOTA: la fusión en un archivo existente no es un buen
+NOTA: Fusionar en un archivo existente, no es una buena
 idea, y puede causar inestabilidad.;
-sMerging=Fusión de...;
-sShowDetails=Mostrar detalles;
-sSomeRecordsFailed=Algunos registros no pudieron copiar, por lo que el archivo resultante de la fusión es incompleta.
-Por favor, consulte el registro de mensajes para que pueda hacer frente a estos registros de forma manual.
-(El archivo combinado probablemente no va a funcionar sin estos registros!);
+sMerging=Fusionando...;
+sShowDetails=Mostrar Detalles;
+sSomeRecordsFailed=Algunos registros fallaron al copiarse, por lo que su archivo fusionado está incompleto.
+Por favor, consulte el registro de mensajes, para que pueda localizar estos registros de forma manual.
+(¡El archivo fusionado probablemente no funcionará sin estos registros!);

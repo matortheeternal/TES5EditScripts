@@ -264,9 +264,6 @@ Weapons & Armor_TrueOrcish&DaedricWeapons.esp;1576;1.7;4.0;1;[Thalioden] @13Merg
 WetandCold - Ashes.esp;124;1.7;3.5;2;[Thalioden] @13Merges without errors@13@13[avantesma] @13Merged with W&C Main and Holiday.  No CTDs, but MCM mildly bugged (some odd characters appearing, e.g. tilde before main title).  Further testing needed to determine if MCM options apply correctly and if the mod itself works.@13@13
 HeroicDwarven.esp;53;1.7;4.0;1;[Mator] @13Merges perfectly, no issues encountered.@13@13
 MultiGlass.esp;558;1.7;3.5;2;[Mator] @13Merges perfectly, no issues encountered.@13@13[budgieboy87] @13NO ERRORS, NO CTDS    Starts up fine, merged as part of larger merging process. Unable to fully test.@13@13
-HighResTexturePack01.esp;1;1.7;2.0;2;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13[DubhMacTire] @13Merges with no issues@13@13
-HighResTexturePack02.esp;1;1.7;2.0;2;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13[DubhMacTire] @13Merges with no issues@13@13
-HighResTexturePack03.esp;1;1.7;2.0;2;[Mator] @13ESP doesn't need to be merged, just extract BSA.@13@13[DubhMacTire] @13Merges with no issues@13@13
 Unofficial High Resolution Patch.esp;1;1.7;4.0;1;[skyrimhitsta] @13Notes Works Fine 16 hrs gameplay@13@13
 ETaC - BDS Patch.esp;162;1.7;4.0;1;[keithinhanoi] @13Patch v13.0@13@13
 ETaC - Complete BFT Patch.esp;45;1.7;4.0;1;[keithinhanoi] @13Patch v12.1@13@13
@@ -1413,7 +1410,6 @@ LC_immersiveLoot.esp;348;1.75;4.0;1;[PCGaming247] @13Merged perfict. Note: if me
 RaceMenu.esp;3;1.75;3.66667;3;[PCGaming247] @13Merged perfict. Note: if meging this with other files must remove old esps and BSA files. Decomply BSAs with BSAopt and remake BSA for all the included merged ESPs and call the new BSA the same thing you call your Merged ESP.@13@13[chintsu_kun] @13For racemenu 3.0 don't see sliders on Etra and Expressions@13@13[BigFood97] @13Had no issues@13@13
 RaceMenuOverlays.esp;1;1.75;4.0;1;[PCGaming247] @13Merged perfict. Note: if meging this with other files must remove old esps and BSA files. Decomply BSAs with BSAopt and remake BSA for all the included merged ESPs and call the new BSA the same thing you call your Merged ESP.@13@13
 RaceMenuPlugin.esp;1;1.75;4.0;2;[PCGaming247] @13Merged perfict. Note: if meging this with other files must remove old esps and BSA files. Decomply BSAs with BSAopt and remake BSA for all the included merged ESPs and call the new BSA the same thing you call your Merged ESP.@13@13[BigFood97] @13Had no issues@13@13
-SkyUI.esp;7;1.75;4.0;1;[PCGaming247] @13Merged perfict. Note: if meging this with other files must remove old esps and BSA files. Decomply BSAs with BSAopt and remake BSA for all the included merged ESPs and call the new BSA the same thing you call your Merged ESP.@13@13
 wizDynamicThings.esp;205;1.75;4.0;1;[PCGaming247] @13Merged perfict. Note: if meging this with other files must remove old esps and BSA files. Decomply BSAs with BSAopt and remake BSA for all the included merged ESPs and call the new BSA the same thing you call your Merged ESP.@13@13
 Ket_3DLoadscreens.esp;73;1.75;4.0;2;[ChiefZigZag] @13This simple mod merges perfectly.@13@13[BigFood97] @13Had no issues@13@13
 Waterbreathing Breathless Emerge.esp;4;1.75;4.0;1;[ChiefZigZag] @13These work great!@13@13
@@ -2634,7 +2630,6 @@ NoxUE2.00.esp;47;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered
 RaceMenu.esp;3;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
 RaceMenuOverlays.esp;1;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
 RaceMenuPlugin.esp;1;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
-SkyUI.esp;7;1.8;4.0;1;[Shroom10] @13Merges perfectly, no errors encountered.@13@13
 Distant DetailHF.esp;329;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
 FarmhouseChimneys.esp;241;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
 FarmhouseChimneysCRF.esp;46;1.8;2.0;1;[Shroom10] @13Merges perfectly, but CTDs when loading old saves. New saves seem to work fine.@13@13
@@ -3207,3 +3202,13 @@ Sonia Follower.esp;18;1.9;4.0;1;[Spork] @13No issues.@13@13
 XDFollower_Lira.esp;24;1.9;4.0;1;[Spork] @13No issues in-game.@13@13
 Yami.esp;131;1.9;4.0;1;[Spork] @13No issues.@13@13
 ETaC - Complete.esp;31506;1.9;3.0;1;[ganelorm] @13Merges okay but even though my assest dirrectory is correct I still get dark faces on the ETAC NPCs.@13@13
+hmkHotkeys.esp;3;1.9;3.0;1;[ganelorm] @13It merges without error but in game you receive an error stating that the dll file that comes with this mod cannot be loaded.@13@13
+Dawnguard.esm;94780;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
+Dragonborn.esm;178541;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
+HearthFires.esm;17303;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
+HighResTexturePack01.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack01.bsa.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
+HighResTexturePack02.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack01.bsa.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
+HighResTexturePack03.esp;0;2.0;-1.0;1;[Mator] @13Empty ESP, only exists to load HighResTexturePack01.bsa.  If you are using Mod Organizer, just disable this ESP.  Alternatively, you can modify your Skyrim.ini [Archive] section and add the HighResTexturePack BSAs to it.@13@13
+Skyrim.esm;869692;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
+SkyUI.esp;7;2.0;-1.0;1;[Mator] @13Merging this stops most MCMs from functioning properly.@13@13
+Update.esm;1164;2.0;-1.0;1;[Mator] @13Can't merge Bethesda files.@13@13
