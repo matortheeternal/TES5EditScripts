@@ -315,7 +315,7 @@ end;
 // DetectModOrganizer: searches for ModOrganizer.exe
 procedure ofrm.DetectModOrganizer;
 var
-  i: int;
+  i: integer;
   modOrganizerPath, paths, v: string;
   pathList, ignore: TStringList;
   rec: TSearchRec;
