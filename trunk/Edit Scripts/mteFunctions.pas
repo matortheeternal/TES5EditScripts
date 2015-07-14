@@ -1,15 +1,8 @@
 {
   matortheeternal's Functions
-  edited 4/3/2015
+  edited 7/14/2015
   
   A set of useful functions for use in TES5Edit scripts.
-  
-  **IMPORTANT NOTE #2!**
-  As of 3/31/2015 the construct functions have been adjusted to support hints.  This
-  includes ConstructLabel, ConstructEdit and ConstructCheckBox.  Scripts that used these
-  functions will need to be changed to reflect this (just add an extra parameter
-  to these function calls that's an empty string).  This also applies to the shortened
-  versions of these functions (cLabel, cEdit, cCheckBox).
   
   **LIST OF INCLUDED FUNCTIONS**
   - [GetVersionString]: gets TES5Edit's version as a string.
@@ -47,6 +40,9 @@
   - [SetChar]: Sets a character in a string to a different character and returns the
     resulting string.
   - [GetChar]: Gets a character in a string and returns it.
+  - [DelimitedTextBetween]: Gets the delimited text of a stringlist between two indexes,
+    including the entries at those indices.
+  - [GetTextIn]: Gets a substring from a string between two characters.
   - [RecordByHexFormID]: Gets a record by a hexadecimal FormID string.
   - [FileByName]: gets a file from a filename.
   - [OverrideByFile]: gets the override for a particular record in a particular file,
@@ -60,6 +56,8 @@
   - [IsOverrideRecord]: returns true for override records.
   - [SmallName]: gets the FormID and editor ID as a string.
   - [ElementByIP]: loads an element by an indexed path.
+  - [ElementsByMIP]: provides an array of elements matching an indexed path (with [*] meaning
+    any index).
   - [IndexedPath]: gets the indexed path of an element.
   - [ElementPath]: gets the path of an element that can then be used in ElementByPath.
   - [SetListEditValues]: sets the edit values in a list of elements to the values 
@@ -70,6 +68,8 @@
   - [ebp]: ElementByPath shortened function name.
   - [ebi]: ElementByIndex shortened function name.
   - [ebip]: ElementByIP shortened function name.
+  - [mgeev]: Produces a stringlist of element edit values from a list of elements.  Use with
+    ElementsByMIP.
   - [geev]: GetElementEditValues enhanced with ElementByIP.
   - [genv]: GetElementNativeValues enhanced with ElementByIP.
   - [seev]: SetElementEditValues enhanced with ElementByIP.
@@ -839,15 +839,10 @@ end;
   AddMessage(s); //'a cool g'
 }
 function CopyFromTo(s: string; p1: integer; p2: integer): string;
-var
-  i: integer;
 begin
   Result := '';
   if p1 > p2 then exit; 
-  for i := 1 to Length(s) do begin
-    if i >= p1 then Result := Result + Copy(s, i, 1);
-    if i = p2 then exit;
-  end;
+  Result := Copy(s, p1, p2 - p1 + 1);
 end;
   
 {
@@ -880,6 +875,58 @@ end;
 function GetChar(const s: string; n: integer): char;
 begin
   Result := Copy(s, n, 1);
+end;
+
+{
+  DelimitedTextBetween:
+  Gets the delimited text from a stringlist @sl between index 
+  @first and ending at index @last.
+  
+  Example usage:
+  s := 'Items\[0]\CNTO - Item\Item';
+  path := TStringList.Create;
+  path.Delimiter := '\';
+  path.StrictDelimiter := true;
+  path.DelimitedText := s;
+  AddMessage(Delimitedtext(path, 2, Pred(path.count)));
+  // prints 'CNTO - Item\Item'
+}
+function DelimitedTextBetween(var sl: TStringList; first, last: integer): string;
+var
+  i: integer;
+begin
+  Result := '';
+  for i := first to last do begin
+    Result := Result + sl[i];
+    if i < last then Result := Result + sl.Delimiter;
+  end;
+end;
+
+{
+  GetTextIn:
+  Returns a substring of @str between characters @open and @close.
+  
+  Example usage:
+  s := 'Hello [test] world';
+  AddMessage(GetTextIn(s, '[', ']')); // prints 'test'
+}
+function GetTextIn(str: string; open, close: char): string;
+var
+  i, openIndex: integer;
+  bOpen: boolean;
+begin
+  Result := '';
+  bOpen := false;
+  for i := 0 to Length(str) do begin
+    if not bOpen and (GetChar(str, i) = open) then begin
+      openIndex := i;
+      bOpen := true;
+    end;
+    if bOpen and (GetChar(str, i) = close) then begin
+      Result := CopyFromTo(str, openIndex + 2, i - 1);
+      break;
+    end;
+  end;
 end;
 
 {
@@ -1126,32 +1173,79 @@ end;
 }
 function ElementByIP(e: IInterface; ip: string): IInterface;
 var
-  subpath: string;
   i, index: integer;
-  subelement: IInterface;
+  path: TStringList;
 begin
+  // replace forward slashes with backslashes
   ip := StringReplace(ip, '/', '\', [rfReplaceAll]);
-  subelement := e;
-  While (Pos('[', ip) > 0) do begin
-    if Pos('\', ip) > 0 then
-      subpath := CopyFromTo(ip, 1, Pos('\', ip) - 1)
-    else
-      subpath := ip;
-    if Pos('[', subpath) > 0 then begin 
-      index := StrToInt(CopyFromTo(subpath, Pos('[', ip) + 1, Pos(']', ip) - 1));
-      subelement := ElementByIndex(subelement, index);
+  
+  // prepare path stringlist delimited by backslashes
+  path := TStringList.Create;
+  path.Delimiter := '\';
+  path.StrictDelimiter := true;
+  path.DelimitedText := ip;
+  
+  // traverse path
+  for i := 0 to Pred(path.count) do begin
+    if Pos('[', path[i]) > 0 then begin
+      index := StrToInt(GetTextIn(path[i], '[', ']'));
+      e := ElementByIndex(e, index);
     end
     else
-      subelement := ElementByPath(subelement, subpath);
-    if Pos('\', ip) > 0 then
-      ip := CopyFromTo(ip, Pos('\', ip) + 1, Length(ip))
-    else
-      ip := '';
+      e := ElementByPath(e, path[i]);
   end;
-  if not SameText(ip, '') then 
-    Result := ElementByPath(subelement, ip)
-  else
-    Result := subelement;
+  
+  // set result
+  Result := e;
+end;
+
+{
+  ElementsByMIP
+  This is a function that builds on ElementByIP by allowing the usage of the mult *
+  character as a placeholder representing any valid index.  It returns through @lst
+  a list of all elements in @e that match the input path @ip.
+  
+  Example usage:
+  lst := TList.Create;
+  ElementsByMIP(lst, e, 'Items\[*]\CNTO - Item\Item');
+  for i := 0 to Pred(lst.Count) do begin
+    AddMessage(GetEditValue(ObjectToElement(lst[i])));
+  end; 
+  lst.Free;
+}
+procedure ElementsByMIP(var lst: TList; e: IInterface; ip: string);
+var
+  xstr: string;
+  i, j, index: integer;
+  path: TStringList;
+  bMult: boolean;
+begin
+  // replace forward slashes with backslashes
+  ip := StringReplace(ip, '/', '\', [rfReplaceAll]);
+  
+  // prepare path stringlist delimited by backslashes
+  path := TStringList.Create;
+  path.Delimiter := '\';
+  path.StrictDelimiter := true;
+  path.DelimitedText := ip;
+  
+  // traverse path
+  bMult := false;
+  for i := 0 to Pred(path.count) do begin
+    if Pos('[', path[i]) > 0 then begin
+      xstr := GetTextIn(path[i], '[', ']');
+      if xstr = '*' then begin
+        for j := 0 to Pred(ElementCount(e)) do
+          ElementsByMIP(lst, ElementByIndex(e, j), DelimitedTextBetween(path, i + 1, Pred(path.count)));
+        bMult := true;
+      end
+      else
+        e := ElementByIndex(e, index);
+    end
+    else
+      e := ElementByPath(e, path[i]);
+  end;
+  if not bMult then lst.Add(TObject(e));
 end;
 
 {
@@ -1297,6 +1391,25 @@ end;
 function ebip(e: IInterface; ip: string): IInterface;
 begin
   Result := ElementByIP(e, ip);
+end;
+
+{
+  mgeev:
+  Uses GetEditValues on each element in a list of elements to
+  produce a stringlist of element edit values.  Use with ElementsByMIP.
+  
+  Example usage:
+  lst := TList.Create;
+  // setup an arrray in lst with ElementsByMIP
+  sl := TStringList.Create;
+  mgeev(sl, lst);
+}
+procedure mgeev(sl: TStringList; lst: TList);
+var
+  i: integer;
+begin
+  for i := 0 to Pred(lst.Count) do
+    sl.Add(GetEditValue(ObjectToElement(lst[i])));
 end;
 
 {
@@ -1615,7 +1728,7 @@ end;
   Extracts assets from a BSA that match a specified path.
   
   Example usage:
-  ExtractPathBSA(DataPath + 'SkyUI.bsa', TempPath, 'interface\translations');
+  ExtractPathBSA(DataPath + 'SkyUI.esp', TempPath, 'interface\translations');
 } 
 procedure ExtractPathBSA(aContainerName, aPath, aSubPath: string);
 var
