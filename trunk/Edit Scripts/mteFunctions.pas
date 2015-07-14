@@ -1405,7 +1405,7 @@ end;
   sl := TStringList.Create;
   mgeev(sl, lst);
 }
-procedure mgeev(sl: TStringList; lst: TList);
+procedure mgeev(var sl: TStringList; var lst: TList);
 var
   i: integer;
   e: IInterface;
