@@ -1238,6 +1238,7 @@ begin
         for j := 0 to Pred(ElementCount(e)) do
           ElementsByMIP(lst, ElementByIndex(e, j), DelimitedTextBetween(path, i + 1, Pred(path.count)));
         bMult := true;
+        break;
       end
       else
         e := ElementByIndex(e, index);
@@ -1404,7 +1405,7 @@ end;
   sl := TStringList.Create;
   mgeev(sl, lst);
 }
-procedure mgeev(sl: TStringList; lst: TList);
+procedure mgeev(var sl: TStringList; var lst: TList);
 var
   i: integer;
 begin
