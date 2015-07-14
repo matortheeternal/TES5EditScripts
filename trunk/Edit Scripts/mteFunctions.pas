@@ -1405,12 +1405,18 @@ end;
   sl := TStringList.Create;
   mgeev(sl, lst);
 }
-procedure mgeev(var sl: TStringList; var lst: TList);
+procedure mgeev(sl: TStringList; lst: TList);
 var
   i: integer;
+  e: IInterface;
 begin
-  for i := 0 to Pred(lst.Count) do
-    sl.Add(GetEditValue(ObjectToElement(lst[i])));
+  for i := 0 to Pred(lst.Count) do begin
+    e := ObjectToElement(lst[i]);
+    if Assigned(e) then
+      sl.Add(GetEditValue(e))
+    else
+      sl.Add('');
+  end;
 end;
 
 {
