@@ -1,5 +1,5 @@
 {
-  Perk Tree Visual User Interface v1.2
+  Perk Tree Visual User Interface v1.5
   created by matortheeternal
   
   ** Description **
@@ -65,12 +65,15 @@ uses mteFunctions;
 const
   ColorTransparent = $000001; // transparent color for overlay
   gridScale = 70; // size of a grid square
+  aHeadLength = 15; // arrow head length
+  aHeadWidth = 6; // arrow head width
+  bShowArrowHeads = true;
 
 var
   Form1, Form2: TForm1;
   nodeList: TList;
   i, j, k, cv, nct, cct, xOffset, yOffset, xSave, ySave: integer;
-  slPerks, slBethesdaFiles: TStringList;
+  slPerks, slBethesdaFiles, slDeletions: TStringList;
   background, yPog, gPog: TPicture;
   proceed, ShowConnections, ShowGrid, SnapToGrid, SecondPerk, MouseDown, 
   DisableMovement, bethFile: boolean;
@@ -133,6 +136,43 @@ begin
 end;
 
 //=========================================================================
+// Draw arrow head procedure
+procedure Form1.DrawArrowHead(n1, n2: TImage);
+var
+  halfX, halfY, vecX, vecY, sideAX, sideAY, sideBX, sideBY: integer;
+  unitX, unitY, orthX, orthY, backX, backY, mag: real;
+begin
+  // get the vector from one node to the next
+  vecX := n2.Left - n1.Left;
+  vecY := n2.Top - n1.Top;
+  // calculate magnitude of the vector and use it to get a unit vector
+  mag := sqrt(vecX*vecX + vecY*vecY);
+  unitX := vecX/mag;
+  unitY := vecY/mag;
+  // get a point halfway between the nodes, and moved up half the length of
+  // the arrowhead so the arrowhead is centered
+  halfX := ((n1.Left - 5) + (n2.Left - 5))/2 + aHeadLength*unitX*0.5;
+  halfY := ((n1.Top - 5) + (n2.Top - 5))/2 + aHeadLength*unitY*0.5;
+  // get a vector orthogonal to the unit vector
+  orthX := -unitY;
+  orthY := unitX;
+  // move back from the halfway point a distance equal to the arrow head length
+  backX := halfX - aHeadLength*unitX;
+  backY := halfY - aHeadLength*unitY;
+  // move orthogonally (sideways) a distance equal to the arrow head width
+  // we calculate "sideA" and "sideB" for both sides of the arrow head / and \
+  sideAX := backX + orthX*aHeadWidth;
+  sideAY := backY + orthY*aHeadWidth; 
+  sideBX := backX - orthX*aHeadWidth;
+  sideBY := backY - orthY*aHeadWidth;
+  // draw the arrowhead lines
+  Image2.Canvas.MoveTo(halfX, halfY);
+  Image2.Canvas.LineTo(sideAX, sideAY);
+  Image2.Canvas.MoveTo(halfX, halfY);
+  Image2.Canvas.LineTo(sideBX, sideBY);
+end;
+
+//=========================================================================
 // Draw Connections procedure
 procedure Form1.DrawConnections;
 var
@@ -147,6 +187,8 @@ begin
     eImg := ConnectionsArray[1,i];
     Image2.Canvas.MoveTo(sImg.Left - 5, sImg.Top - 5);
     Image2.Canvas.LineTo(eImg.Left - 5, eImg.Top - 5);
+    if bShowArrowHeads then 
+      DrawArrowHead(sImg, eImg);
   end;
 
   MakeNodesOnTop;
@@ -295,6 +337,7 @@ begin
         Break;
       end;
     end;
+    slDeletions.Add(TImage(NodeArray[perkIndex]).Hint);
     TImage(NodeArray[perkIndex]).Free;
     for i := perkIndex to nct - 2 do begin
       nodeArray[i] := nodeArray[i+1];
@@ -537,7 +580,7 @@ var
   xGrid, yGrid, maxGrid, xPos, yPos, index: Integer;
   hnam, vnam: real;
 begin
-  AddMessage('GridScale = '+IntToStr(gridScale));
+  //AddMessage('GridScale = '+IntToStr(gridScale));
   maxGrid := 0;
   tree := ElementByPath(sp, 'Perk Tree');
   for i := 1 to ElementCount(tree) - 1 do begin
@@ -650,7 +693,7 @@ begin
           Break;
         // if no matching perk found, use perk at nodeArray index
         if j = ElementCount(tree) - 1 then
-          perk := ElementByIndex(tree, i);
+          perk := ElementByIndex(tree, i + 1);
       end;
     end;
     
@@ -745,6 +788,15 @@ begin
             Remove(connection);
         end;
       end;
+    end;
+  end;
+  
+  // remove perks that were deleted
+  for i := 0 to slDeletions.Count - 1 do begin
+    for j := ElementCount(tree) - 1 downto 1 do begin
+      perk := ElementByIndex(tree, j);
+      if (geev(perk, 'PNAM') = slDeletions[i]) then
+        RemoveElement(tree, perk);
     end;
   end;
 end;
@@ -1043,6 +1095,7 @@ begin
   slPerks := TStringList.Create;
   slPerks.Sorted := true;
   slBethesdaFiles := TStringList.Create;
+  slDeletions := TStringList.Create;
   
   // bethesda files
   slBethesdaFiles.Add('Skyrim.esm');
