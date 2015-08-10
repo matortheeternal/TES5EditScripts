@@ -1,0 +1,132 @@
+﻿sHello=Hallo, Nutzer!;
+sNoReports=Für dieses Plugin gibt es noch keine Nutzer Wertungen.;
+sAvgRating=Durchschnittliche Wertung: ;
+sNumRatings=Anzahl der Bewertungen: ;
+sUserNotes=Nutzer Anmerkungen: ;
+sSelectFile=Datei auswählen;
+sCreateNewFile=-- NEUE DATEI ERSTELLEN --;
+sCouldntFindFile=Das Script konnte die angegebene Datei nicht finden.;
+sInvalidMO=Der angegeben Pfad zu Mod Organizer ist ungültig, gib einen gültigen an oder demarkiere "Ich benutze Mod Organizer".;
+sInvalidAssetPath=Der Pfad zum asset Ordern ist ungültig. Gib bitte einen gültigen an.;
+sSelectDir=Wähle einen Ordner aus;
+sSearching=Suche ;
+sDetectMOFail=Pfad zu Mod Organizer konnte nicht automatisch gefunden werden, bitte gib in manuell ein.;
+sFirstTime=Es scheint als führst du dieses Script zum ersten mal aus.  Bitte stelle die erweiterten Optionen ein.  Das Fenster erscheint automatisch, und über das Zahnrad unten rechts kannst du sie jederzeit erreichen.;
+sAdvancedOptions=Erweiterte Optionen;
+sMOOptions=Mod Organizer Optionen;
+sUsingMO= Ich benutze Mod Organizer;
+sUsingMOHint=Du musst dies markieren um assets ordnungsgemäß zu kopieren
+wenn du Mod Organizer benutzt. Benutzt du MO nicht, wähle dies
+nicht aus.;
+sMODir=Mod Organizer Ordner;
+sMODirHint=Der Pfad zu dem Ordner in dem sich ModOrganizer.exe befindet.  Muss angegeben
+wenn du "Ich benutze Mod Organizer" ausgewählt hast.;
+sBrowseForMOHint=Den Mod Organizer Pfad auswählen;
+sDetect=Erkennen;
+sDetectHint=Das Script versuchen lassen Mod Organizer selber zu finden. Es werden typische
+Installationsorte durchsucht.  Wenn Mod Organizer gefunden wurde, werden alle Pfade
+automatisch eingestellt.;
+sCopyGeneral= Assets kopieren;
+sCopyGeneralHint=Das Script kann die Assets (Texturen, Meshes...) aus den mit den ESP's verknüpften
+Ordnern kopieren.  Dies erspart dir das kopieren von Hand nach dem Kombinieren.
+Funktioniert nur mit Mod Organizer!;
+sRenumberingOptions=FormID Neuordnung;
+sDontRenumber=FormIDs nicht neuordnen;
+sDontRenumberHint=WARNUNG! Benutz diese Option nur wenn du weißt was du tust!  Wenn zwei Einträge
+in den Plugins die du kombinierst die selbe lokale FormID haben werden sie in Konflikt
+stehen und das Plugin nicht funktionieren!;
+sRenumberConflicting=FormIDs in Konflikt neuordnen;
+sRenumberConflictingHint=Dies ist die beste Option.  So Nur FormIDs in Konflikt werden
+neu geordnet.;
+sRenumberAll=Alle FormIDs neuordnen;
+sRenumberAllHint=Dies sorgt für garantiert keine Konflikte in dem alle FormIDs neu geordnet
+werden.  Benutz dies nur, wenn "FormIDs in Konflikt neuordnen" kein funktionierendes
+Plugin erzeugt.;
+sCopyingOptions=Kopieren;
+sCopyRecords=Einträge kopieren;
+sCopyRecordsHint=VERALTETE OPTION: Diese Option kopiert jeden Eintrag in das kombinierte
+Plugin.  Weil manche Einträge andere Einträge (z.B Zellen) beinhalten, kann dies dazu
+führen, dass manche Einträge zweimal kopiert werden.  Unter sehr speziellen
+Bedinungen kann dies zu Problemen führen.;
+sCopyIntelligently=Intelligentes kopieren;
+sCopyIntelligentlyHint=Diese Option geht alle Einträge in den zu kombinierenden Plugins durch,
+kopiert aber Einträge, die andere Einträge enthalten (z.B Zellen), nicht.
+So wird kein Eintrag doppelt kopiert.;
+sCopyGroups=Gruppen kopieren;
+sCopyGroupsHint=VERALTETE OPTION: Dies Option kopiert die Eintragsgruppen.
+Das Problem mit dieser Option ist, dass bei einem kleinen Fehler die ganze Gruppe
+nicht kopiert werden kann und du den fehlerhaften Eintrag selber finden und
+bereinigen musst.;
+sSecondPassOptions=Zweiter Kopierdurchgang;
+sNoSecondPass=Kein zweiter Durchgang;
+sNoSecondPassHint=Zwei Kopierdurchgänge waren früher nötig, um bei gewissen Einträgen funktionierende
+Plugins zu erstellen.  Neuere xEdit Versionen machen dies unnötig, aber für
+den Fall der Fälle bleibt diese Option hier.;
+sSecondPassSame=Wie Erster;
+sSecondPassSameHint=VERALTETE OPTION: Diese Option verwendet für den zweiten Durchgang die selbe
+Methode wie ür den ersten. Kein zweiter Durchgang ist aber empfohlen.;
+sSecondPassCopyByGroups=Nach Gruppen;
+sSecondPassCopyByGroupsHint=VERALTETE OPTION: Die originale zweiter Durchgang Methode.  Hauptproblem
+ist dass der ganze Kopiervorgang scheitert, wenn ein einzelner Eintrag beim
+kopieren scheitert.;
+sOtherOptions=Andere Optionen;
+sAssetDestination=Asset Zielpfad: ;
+sAssetDestinationHint=Zielpfad für kopierte Assets (z.B. Texturen, Meshes, ...).  Wenn du 
+Mod Organizer benutzt sollte dies der "overwrite" Ordner in deinem MO
+Ordner sein.  Wenn du nicht Mod Organizer benutzt sollte dies der Skyrim
+data Ordner sein oder ein andere in dem du die Assets speichern willst.;
+sAssetDestinationBrowseHint=Asset Zielpfad auswählen;
+sDisableLabelColoring= Keine Label Färbung;
+sDisableLabelColoringHint=Das Ändern dieser Option macht einen Neustart des Scriptes nötig.
+Aktiviere dies wenn du im Hauptfenster keine Dateinamen siehst.
+BEMERKE: Windows Aero  in den Windows Einstellungen aktivieren
+löst dieses Problem auch.;
+sExtractBSAs= BSAs extrahieren;
+sExtractBSAsHint=Ist diese Option ausgewählt, wird das Script alle mit den kombinierten
+Plugins verknüpften BSAs in den Asset Ordner extrahieren. Du brauchst diese Option
+nicht wenn du Mod Organizer benutzt, solltest sie aber aktivieren wenn
+du Nexus Mod Manager benutzt.;
+sBatchCopy= Per batch kopieren;
+sBatchCopyHint=Wenn diese Option aktiviert ist werden Assets nach dem Kombinieren
+per Batch Script kopiert. Du solltest dies benutzen wenn du Plugins kombinierst,
+die viele Assets haben, beispielsweise vertonte Begleiter. Um sicher
+zu gehen, solltest du dies immer aktiviert haben.;
+sSave=Speichern;
+sSaveHint=Klicke hier um diese Einstellungen zu speichern.;
+sDiscard=Verwerfen;
+sDiscardHint=Klicke hier um diese Einstellungen zu verwerfen.;
+sDataDirectoryContinue=Du benutzt Skyrims data Ordner als Ziel für kopierte Assets.  Dies kann den Ordner sehr unübersichtlich machen.  Sicher, dass du fortfahren willst?;
+sHelper=Asset Zielpfad Helfer;
+sNotEmpty=Dein Asset Ordner ist nicht leer. Du solltest ihn leeren bevor zu fortfährst.;
+sProceed=Fortfahren;
+sProceedHint=Mit dem Kombinieren fortfahren;
+sExplore=Anezigen;
+sExploreHint=Öffnet den gewählten Asset Ordner im Windows Explorer.;
+sCancel=Abbrechen;
+sCancelHint=Das Kombinieren abbrechen;
+sFilename=Dateiname: ;
+sFilenameHint=;
+sRecordsInPlugin=Einträge im Plugin: ;
+sRecordsInPluginHint=;
+sScriptVersion=Script Version: ;
+sScriptVersionHint=Die Version dieses Merge Scriptes die du benutzt.;
+sReports=Nutzerberichte: ;
+sReportsHint=;
+sNumRecords=Anzahl der Einträge: ;
+sAverageRating=Durchschnittswertung: ;
+sNumReports=Anzahl der Bewertungen: ;
+sNotes=Bemerkungen: ;
+sMergePlugins=Plugins Kombinieren;
+sSelectPlugins=Wähle die Plugins, die du kombinieren möchtest.;
+sImgOptionsHint=Erweiterte Optionen;
+sOK=OK;
+sFileSelectText=Lass entweder ein neues Plugin erstellen, oder gib das 
+Plugin an in dem du die Plugins kombinieren möchtest.
+
+ACHTUNG: in einem vorhandenem Plugin zu kombinieren
+ist keine gute Idee.;
+sMerging=Kombiniere...;
+sShowDetails=Details zeigen;
+sSomeRecordsFailed=Einige Einträge konnten nicht kopiert werden, und dein  
+kombiniertes Plugin ist unvollständig. Schau bitte in der Ausgabe nach
+damit du diese Probleme von Hand bereinigen kannst.;
