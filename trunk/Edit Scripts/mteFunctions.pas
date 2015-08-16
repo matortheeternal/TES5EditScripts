@@ -27,6 +27,8 @@
     Returns the path of the first file matching the given filename, if it is found.
   - [SanitizeFileName]: removes characters not allowed in filenames from a string.
   - [BoolToStr]: converts a boolean value to a string.
+  - [TimeStr]: returns a time string from a TDateTime.
+  - [FileDateTimeStr]: returns a filename-safe DateTime string from a TDateTime.
   - [ReverseString]: reverses a string.
   - [StrEndsWith]: checks if a string ends with a substring.
   - [RemoveFromEnd]: removes a substring from the end of a string, if found.
@@ -44,7 +46,10 @@
     including the entries at those indices.
   - [GetTextIn]: Gets a substring from a string between two characters.
   - [RecordByHexFormID]: Gets a record by a hexadecimal FormID string.
+  - [GetAuthor]: Gets the author of a file.
+  - [SetAuthor]: Sets the author of a file.
   - [FileByName]: gets a file from a filename.
+  - [FileByAuthor]: gets a file from an author.
   - [OverrideByFile]: gets the override for a particular record in a particular file,
     if it exists.
   - [OverrideRecordCount]: gets the number of override records in a file or record group.
@@ -102,6 +107,8 @@
     NOTE: This function can be dangerous if used improperly.
   - [FileSelect]: creates a window from which the user can select or create a file.
     Doesn't include bethesda master files.  Outputs selected file as IInterface.
+  - [MultiFileSelect]: allows the user to select multiple files, returning them through
+    a TStringList.
   - [RecordSelect]: creates a window from which the user can choose a record.
   - [EditOutOfDate]: alerts the user that their xEdit is out of date, and provides them
     with a button they can click to go to the AFKMods page to download an updated version.
@@ -678,6 +685,30 @@ begin
 end;
 
 {
+  TimeStr:
+  Converts the time portion of a TDateTime to a string.
+  
+  Example usage:
+  AddMessage(TimeStr(Now)); // 02:50:54
+}
+function TimeStr(t: TDateTime): string;
+begin
+  Result := FormatDateTime('hh:nn:ss', t);
+end;
+
+{
+  FileDateTimeStr:
+  Converts a TDateTime to a file-safe string.
+  
+  Example usage:
+  AddMessage(FileDateTimeStr(Now)); // 
+}
+function FileDateTimeStr(t: TDateTime): string;
+begin
+  Result := FormatDateTime('mmddyy_hhnnss', t);
+end;
+
+{
   BoolToStr:
   Converts a boolean value into a string.
   
@@ -946,6 +977,38 @@ begin
 end;
 
 {
+  GetAuthor:
+  Gets the author field from a file.
+  
+  Example usage:
+  f := FileByName('Dragonborn.esm');
+  AddMessage(GetAuthor(f)); // rsalvatore
+}
+function GetAuthor(f: IInterface): string;
+var
+  fileHeader: IInterface;
+begin
+  fileHeader := ElementByIndex(f, 0);
+  Result := geev(fileHeader, 'CNAM - Author');
+end;
+
+{
+  SetAuthor:
+  Sets the author field of a file.
+  
+  Example usage:
+  f := FileByName('Dragonborn.esm');
+  SetAuthor(f, 'George');
+}
+procedure SetAuthor(f: IInterface; author: string);
+var
+  fileHeader: IInterface;
+begin
+  fileHeader := ElementByIndex(f, 0);
+  seev(fileHeader, 'CNAM - Author', author);
+end;
+
+{
   FileByName:
   Gets a file from a filename.
   
@@ -959,6 +1022,26 @@ begin
   Result := nil;
   for i := 0 to FileCount - 1 do begin
     if GetFileName(FileByIndex(i)) = s then begin
+      Result := FileByIndex(i);
+      break;
+    end;
+  end;
+end;
+
+{
+  FileByAuthor:
+  Gets a file by an author.
+  
+  Example usage:
+  f := FileByAuthor('rsalvatore'); 
+}
+function FileByAuthor(s: string): IInterface;
+var
+  i: integer;
+begin
+  Result := nil;
+  for i := 0 to FileCount - 1 do begin
+    if GetAuthor(FileByIndex(i)) = s then begin
       Result := FileByIndex(i);
       break;
     end;
@@ -1976,6 +2059,86 @@ begin
             Result := FileSelect(prompt);
           end;
         end;
+      end;
+    end;
+  finally
+    frm.Free;
+  end;
+end;
+
+{
+  MultiFileSelect:
+  Gives the user a dialog from which they can select one or more files.
+  
+  Example usage:
+  files := TStringList.Create;
+  MultiFileSelect(files, 'Select some files');
+  AddMesage(files.Text); // The files the user selected
+  files.Free;
+}
+procedure MultiFileSelect(var sl: TStringList; prompt: string);
+const
+  spacing = 24;
+var
+  frm: TForm;
+  pnl: TPanel;
+  lastTop, contentHeight: Integer;
+  cbArray: Array[0..255] of TCheckBox;
+  lbl: TLabel;
+  sb: TScrollBox;
+  i: Integer;
+  f: IInterface;
+begin
+  frm := TForm.Create(nil);
+  try
+    frm.Position := poScreenCenter;
+    frm.Width := 300;
+    frm.Height := 600;
+    frm.BorderStyle := bsDialog;
+    frm.Caption := 'Multiple file selection';
+    
+    // create scrollbox
+    sb := TScrollBox.Create(frm);
+    sb.Parent := frm;
+    sb.Align := alTop;
+    sb.Height := 500;
+    
+    // create label
+    lbl := TLabel.Create(sb);
+    lbl.Parent := sb;
+    lbl.Caption := prompt;
+    lbl.Left := 8;
+    lbl.Top := 8;
+    lbl.Width := 280;
+    lbl.WordWrap := true;
+    lastTop := lbl.Top + lbl.Height + 8 - spacing;
+    
+    // create checkboxes
+    for i := 0 to FileCount - 2 do begin
+      f := FileByLoadOrder(i);
+      cbArray[i] := TCheckBox.Create(sb);
+      cbArray[i].Parent := sb;
+      cbArray[i].Caption := Format(' [%s] %s', [IntToHex(i, 2), GetFileName(f)]);
+      cbArray[i].Top := lastTop + spacing;
+      cbArray[i].Width := 260;
+      lastTop := lastTop + spacing;
+      cbArray[i].Left := 12;
+      cbArray[i].Checked := sl.IndexOf(GetFileName(f)) > -1;
+    end;
+    
+    contentHeight := spacing*(i + 2) + 100;
+    if frm.Height > contentHeight then
+      frm.Height := contentHeight;
+    
+    // create modal buttons
+    cModal(frm, frm, frm.Height - 70);
+    sl.Clear;
+    
+    if frm.ShowModal = mrOk then begin
+      for i := 0 to FileCount - 2 do begin
+        f := FileByLoadOrder(i);
+        if (cbArray[i].Checked) and (sl.IndexOf(GetFileName(f)) = -1) then
+          sl.Add(GetFileName(f));
       end;
     end;
   finally
