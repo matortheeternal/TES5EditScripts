@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 7/14/2015
+  edited 8/28/2015
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -13,6 +13,7 @@
     and outputs a string.
   - [ConflictAllString]: uses ConflictAllForNode or ConflictAllForMainRecord 
     and outputs a string.
+  - [FreeAndNil]: frees and nils an object reference.
   - [IsDirectoryEmpty]: returns true if a directory is empty.  False otherwise.
   - [Matches]: returns true or false on whether or not an input string matches a
     basic regular expression (e.g. *.esp)
@@ -392,6 +393,23 @@ begin
 end;
 
 {
+  FreeAndNil:
+  Frees and nils an object reference.
+  
+  Usage:
+  sl := TStringList.Create;
+  sl.Add('Hi');
+  FreeAndNil(sl);
+}
+procedure FreeAndNil(var ObjectReference: TObject);
+begin
+  if Assigned(ObjectReference) then begin
+    ObjectReference.Free;
+    ObjectReference := nil;
+  end;
+end;
+
+{
   IsDirectoryEmpty:
   Checks if a given directory is empty.
   
@@ -698,7 +716,7 @@ end;
 
 {
   FileDateTimeStr:
-  Converts a TDateTime to a file-safe string.
+  Converts a TDateTime to a filename-safe string.
   
   Example usage:
   AddMessage(FileDateTimeStr(Now)); // 
