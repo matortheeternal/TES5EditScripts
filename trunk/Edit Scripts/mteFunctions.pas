@@ -29,6 +29,7 @@
     Returns the path of the first file matching the given filename, if it is found.
   - [SanitizeFileName]: removes characters not allowed in filenames from a string.
   - [BoolToStr]: converts a boolean value to a string.
+  - [StrToBool]: converts a string into a boolean value;
   - [TimeStr]: returns a time string from a TDateTime.
   - [FileDateTimeStr]: returns a filename-safe DateTime string from a TDateTime.
   - [ReverseString]: reverses a string.
@@ -758,6 +759,21 @@ begin
     Result := 'True'
   else
     Result := 'False';
+end;
+
+{
+  StrToBool:
+  Converts a case-insensive "True" or a "1" string into a bool.
+  Any other input will result in False
+  
+  Example usage:
+  s := 'TruE';
+  if StrToBool(s) then
+    AddMessage('True');
+}
+function StrToBool(s: string): Boolean;
+begin
+  result := (LowerCase(s) = 'true') OR (s = '1'); 
 end;
 
 {
