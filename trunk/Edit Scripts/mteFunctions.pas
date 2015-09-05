@@ -5,6 +5,7 @@
   A set of useful functions for use in TES5Edit scripts.
   
   **LIST OF INCLUDED FUNCTIONS**
+  - [CheckMteVersion]: compares a required version of mteFunctions to the current one.
   - [GetVersionString]: gets TES5Edit's version as a string.
   - [ColorToInt]: gets an integer value representing a color from a TColor record.
   - [ElementTypeString]: uses ElementType and outputs a string.
@@ -145,6 +146,7 @@
 unit mteFunctions;
 
 const
+  Ver=1.0;
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'HearthFires.esm'#13
   'Dragonborn.esm'#13'Fallout3.esm'#13'FalloutNV.esm'#13'Oblivion.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
@@ -160,6 +162,22 @@ type
 
 var
   sFiles, sGroups, sRecords: string;
+  
+{
+  CheckMteVersion
+  Compares an input float to the current version of mteFunctions. 
+  If the input is greater than or equal to the current version then return true otherwise return False.
+  
+  Example usage:
+  if CheckMteVersion(1.0) then
+    AddMessage('Up-to-date')
+  else
+    raise Exception.Create('Please update your version of mteFunctions.pas');
+}
+function CheckMteVersion(flt: float): Boolean;
+begin
+  Result := flt >= Ver;
+end;
 
 {
   GetVersionString:
