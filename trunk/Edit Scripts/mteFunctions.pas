@@ -2490,7 +2490,7 @@ end;
   code more compact.
   
   Example usage:
-  group := ConstructGroup(frm, frm, 8, 8, 300, 300, 'My Group');
+  group := ConstructGroup(frm, frm, 8, 8, 300, 300, 'My Group', '');
 }
 function ConstructGroup(h, p: TObject; top, left, height, 
   width: Integer; caption, t: string): TGroupBox;
@@ -2519,7 +2519,7 @@ end;
   Shortened version of ConstructGroup
   
   Example usage:
-  group := cGroup(frm, frm, 8, 8, 300, 300, 'My Group');
+  group := cGroup(frm, frm, 8, 8, 300, 300, 'My Group', '';
 }
 function cGroup(h, p: TObject; top, left, height, 
   width: Integer; caption, t: string): TGroupBox;
@@ -2726,7 +2726,7 @@ end;
   
   Example usage:
   cb1 := ConstructCheckBox(frm, pnlBottom, 8, 8, 160, 
-    'Remove persistent references', cbChecked);
+    'Remove persistent references', cbChecked, '');
 }
 function ConstructCheckBox(h, p: TObject; top, left, width: Integer; 
   s: String; state: TCheckBoxState; t: string): TCheckBox;
@@ -2754,7 +2754,7 @@ end;
   
   Example usage:
   cb1 := cCheckBox(frm, pnlBottom, 8, 8, 160, 
-    'Remove persistent references', cbChecked);
+    'Remove persistent references', cbChecked, '');
 }
 function cCheckBox(h, p: TObject; top, left, width: Integer; 
   s: String; state: TCheckBoxState; t: string): TCheckBox;
@@ -2769,7 +2769,7 @@ end;
   
   Example usage:
   lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 0, 0, 
-    'Reference removal options:');
+    'Reference removal options:', '');
 }
 function ConstructLabel(h, p: TObject; top, left, height, 
   width: Integer; s, t: String): TLabel;
@@ -2801,7 +2801,7 @@ end;
   
   Example usage:
   lbl3 := cLabel(frm, pnlBottom, 65, 8, 0, 0, 
-    'Reference removal options:');
+    'Reference removal options:', '');
 }
 function cLabel(h, p: TObject; top, left, height, 
   width: Integer; s, t: String): TLabel;
