@@ -5,6 +5,7 @@
   A set of useful functions for use in TES5Edit scripts.
   
   **LIST OF INCLUDED FUNCTIONS**
+  - [CheckMteVersion]: compares a required version of mteFunctions to the current one.
   - [GetVersionString]: gets TES5Edit's version as a string.
   - [ColorToInt]: gets an integer value representing a color from a TColor record.
   - [ElementTypeString]: uses ElementType and outputs a string.
@@ -28,6 +29,7 @@
     Returns the path of the first file matching the given filename, if it is found.
   - [SanitizeFileName]: removes characters not allowed in filenames from a string.
   - [BoolToStr]: converts a boolean value to a string.
+  - [StrToBool]: converts a string into a boolean value;
   - [TimeStr]: returns a time string from a TDateTime.
   - [FileDateTimeStr]: returns a filename-safe DateTime string from a TDateTime.
   - [ReverseString]: reverses a string.
@@ -145,6 +147,7 @@
 unit mteFunctions;
 
 const
+  Ver=1.0;
   bethesdaFiles = 'Skyrim.esm'#13'Update.esm'#13'Dawnguard.esm'#13'HearthFires.esm'#13
   'Dragonborn.esm'#13'Fallout3.esm'#13'FalloutNV.esm'#13'Oblivion.esm'#13
   'Skyrim.Hardcoded.keep.this.with.the.exe.and.otherwise.ignore.it.I.really.mean.it.dat'#13
@@ -160,6 +163,22 @@ type
 
 var
   sFiles, sGroups, sRecords: string;
+  
+{
+  CheckMteVersion
+  Compares an input float to the current version of mteFunctions. 
+  If the input is greater than or equal to the current version then return true otherwise return False.
+  
+  Example usage:
+  if CheckMteVersion(1.0) then
+    AddMessage('Up-to-date')
+  else
+    raise Exception.Create('Please update your version of mteFunctions.pas');
+}
+function CheckMteVersion(flt: float): Boolean;
+begin
+  Result := flt >= Ver;
+end;
 
 {
   GetVersionString:
@@ -740,6 +759,21 @@ begin
     Result := 'True'
   else
     Result := 'False';
+end;
+
+{
+  StrToBool:
+  Converts a case-insensive "True" or a "1" string into a bool.
+  Any other input will result in False
+  
+  Example usage:
+  s := 'TruE';
+  if StrToBool(s) then
+    AddMessage('True');
+}
+function StrToBool(s: string): Boolean;
+begin
+  result := (LowerCase(s) = 'true') OR (s = '1'); 
 end;
 
 {
@@ -2472,7 +2506,7 @@ end;
   code more compact.
   
   Example usage:
-  group := ConstructGroup(frm, frm, 8, 8, 300, 300, 'My Group');
+  group := ConstructGroup(frm, frm, 8, 8, 300, 300, 'My Group', '');
 }
 function ConstructGroup(h, p: TObject; top, left, height, 
   width: Integer; caption, t: string): TGroupBox;
@@ -2501,7 +2535,7 @@ end;
   Shortened version of ConstructGroup
   
   Example usage:
-  group := cGroup(frm, frm, 8, 8, 300, 300, 'My Group');
+  group := cGroup(frm, frm, 8, 8, 300, 300, 'My Group', '';
 }
 function cGroup(h, p: TObject; top, left, height, 
   width: Integer; caption, t: string): TGroupBox;
@@ -2708,7 +2742,7 @@ end;
   
   Example usage:
   cb1 := ConstructCheckBox(frm, pnlBottom, 8, 8, 160, 
-    'Remove persistent references', cbChecked);
+    'Remove persistent references', cbChecked, '');
 }
 function ConstructCheckBox(h, p: TObject; top, left, width: Integer; 
   s: String; state: TCheckBoxState; t: string): TCheckBox;
@@ -2736,7 +2770,7 @@ end;
   
   Example usage:
   cb1 := cCheckBox(frm, pnlBottom, 8, 8, 160, 
-    'Remove persistent references', cbChecked);
+    'Remove persistent references', cbChecked, '');
 }
 function cCheckBox(h, p: TObject; top, left, width: Integer; 
   s: String; state: TCheckBoxState; t: string): TCheckBox;
@@ -2751,7 +2785,7 @@ end;
   
   Example usage:
   lbl3 := ConstructLabel(frm, pnlBottom, 65, 8, 0, 0, 
-    'Reference removal options:');
+    'Reference removal options:', '');
 }
 function ConstructLabel(h, p: TObject; top, left, height, 
   width: Integer; s, t: String): TLabel;
@@ -2783,7 +2817,7 @@ end;
   
   Example usage:
   lbl3 := cLabel(frm, pnlBottom, 65, 8, 0, 0, 
-    'Reference removal options:');
+    'Reference removal options:', '');
 }
 function cLabel(h, p: TObject; top, left, height, 
   width: Integer; s, t: String): TLabel;
