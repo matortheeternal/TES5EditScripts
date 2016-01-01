@@ -285,7 +285,8 @@ begin
     Result := -1;
     
   // skip header records
-  if SameText(Signature(e), 'TES4') then Continue;
+  if SameText(Signature(e), 'TES4') then 
+    exit;
   
   // load masters
   if slMasters.IndexOf(GetFileName(GetFile(e))) = -1 then begin
