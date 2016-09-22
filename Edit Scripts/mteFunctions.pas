@@ -972,7 +972,7 @@ begin
       bOpen := true;
     end;
     if bOpen and (GetChar(str, i) = close) then begin
-      Result := CopyFromTo(str, openIndex + 2, i - 1);
+      Result := CopyFromTo(str, openIndex + 1, i - 1);
       break;
     end;
   end;
