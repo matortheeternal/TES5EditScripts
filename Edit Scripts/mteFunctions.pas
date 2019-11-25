@@ -966,7 +966,7 @@ var
 begin
   Result := '';
   bOpen := false;
-  for i := 0 to Length(str) do begin
+  for i := 1 to Length(str) do begin
     if not bOpen and (GetChar(str, i) = open) then begin
       openIndex := i;
       bOpen := true;
