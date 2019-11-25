@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 8/28/2015
+  edited 11/24/2019
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -61,7 +61,7 @@
   - [IsLocalRecord]: returns false for override and injected records.
   - [IsOverrideRecord]: returns true for override records.
   - [SmallName]: gets the FormID and editor ID as a string.
-  - [ElementByIP]: loads an element by an indexed path.
+  - [ElementByIP]: Depreciated.
   - [ElementsByMIP]: provides an array of elements matching an indexed path (with [*] meaning
     any index).
   - [IndexedPath]: gets the indexed path of an element.
@@ -1264,20 +1264,11 @@ end;
   ElementByIP:
   Element by Indexed Path
   
-  This is a function to help with getting at elements that are inside 
-  lists.  It allows you to use an "indexed path" to get at these elements
-  that would otherwise be inaccessible without multiple lines of code.
-  
-  Example usage:
-  element0 := ElementByIP(e, 'Conditions\[0]\CTDA - \Function');
-  element1 := ElementByIP(e, 'Conditions\[1]\CTDA - \Function');
+  This function is Depreciated. Use ElementByPath
 }
 function ElementByIP(e: IInterface; ip: string): IInterface;
-var
-  i, index: integer;
-  path: TStringList;
 begin
-  Result := ElementByPath(e, ip);
+    Result := ElementByPath(e, ip);
 end;
 
 {
