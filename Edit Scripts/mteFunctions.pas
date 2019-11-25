@@ -1277,27 +1277,7 @@ var
   i, index: integer;
   path: TStringList;
 begin
-  // replace forward slashes with backslashes
-  ip := StringReplace(ip, '/', '\', [rfReplaceAll]);
-  
-  // prepare path stringlist delimited by backslashes
-  path := TStringList.Create;
-  path.Delimiter := '\';
-  path.StrictDelimiter := true;
-  path.DelimitedText := ip;
-  
-  // traverse path
-  for i := 0 to Pred(path.count) do begin
-    if Pos('[', path[i]) > 0 then begin
-      index := StrToInt(GetTextIn(path[i], '[', ']'));
-      e := ElementByIndex(e, index);
-    end
-    else
-      e := ElementByPath(e, path[i]);
-  end;
-  
-  // set result
-  Result := e;
+  Result := ElementByPath(e, ip);
 end;
 
 {
