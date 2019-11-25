@@ -1,6 +1,6 @@
 {
   matortheeternal's Functions
-  edited 8/28/2015
+  edited 11/24/2019
   
   A set of useful functions for use in TES5Edit scripts.
   
@@ -61,7 +61,7 @@
   - [IsLocalRecord]: returns false for override and injected records.
   - [IsOverrideRecord]: returns true for override records.
   - [SmallName]: gets the FormID and editor ID as a string.
-  - [ElementByIP]: loads an element by an indexed path.
+  - [ElementByIP]: Depreciated.
   - [ElementsByMIP]: provides an array of elements matching an indexed path (with [*] meaning
     any index).
   - [IndexedPath]: gets the indexed path of an element.
@@ -73,13 +73,13 @@
   - [ebn]: ElementByName shortened function name.
   - [ebp]: ElementByPath shortened function name.
   - [ebi]: ElementByIndex shortened function name.
-  - [ebip]: ElementByIP shortened function name.
+  - [ebip]: ElementByPath shortened function name.
   - [mgeev]: Produces a stringlist of element edit values from a list of elements.  Use with
     ElementsByMIP.
-  - [geev]: GetElementEditValues enhanced with ElementByIP.
-  - [genv]: GetElementNativeValues enhanced with ElementByIP.
-  - [seev]: SetElementEditValues enhanced with ElementByIP.
-  - [senv]: SetElementNativeValues enhanced with ElementByIP.
+  - [geev]: GetElementEditValues enhanced with ElementByPath.
+  - [genv]: GetElementNativeValues enhanced with ElementByPath.
+  - [seev]: SetElementEditValues enhanced with ElementByPath.
+  - [senv]: SetElementNativeValues enhanced with ElementByPath.
   - [slev]: SetListEditValues shortened function name.
   - [slnv]: SetListNativeValues shortened function name.
   - [gav]: GetAllValues returns a string of all of the values in an element.
@@ -966,7 +966,7 @@ var
 begin
   Result := '';
   bOpen := false;
-  for i := 0 to Length(str) do begin
+  for i := 1 to Length(str) do begin
     if not bOpen and (GetChar(str, i) = open) then begin
       openIndex := i;
       bOpen := true;
@@ -1264,25 +1264,16 @@ end;
   ElementByIP:
   Element by Indexed Path
   
-  This is a function to help with getting at elements that are inside 
-  lists.  It allows you to use an "indexed path" to get at these elements
-  that would otherwise be inaccessible without multiple lines of code.
-  
-  Example usage:
-  element0 := ElementByIP(e, 'Conditions\[0]\CTDA - \Function');
-  element1 := ElementByIP(e, 'Conditions\[1]\CTDA - \Function');
+  This function is Depreciated. Use ElementByPath
 }
 function ElementByIP(e: IInterface; ip: string): IInterface;
-var
-  i, index: integer;
-  path: TStringList;
 begin
-  Result := ElementByPath(e, ip);
+    Result := ElementByPath(e, ip);
 end;
 
 {
   ElementsByMIP
-  This is a function that builds on ElementByIP by allowing the usage of the mult *
+  This is a function that builds on ElementByPath by allowing the usage of the mult *
   character as a placeholder representing any valid index.  It returns through @lst
   a list of all elements in @e that match the input path @ip.
   
@@ -1335,7 +1326,7 @@ end;
   Gets the indexed path of an element.
   
   Example usage:
-  element := ElementByIP(e, 'Conditions\[3]\CTDA - \Comparison Value');
+  element := ElementByPath(e, 'Conditions\[3]\CTDA - \Comparison Value');
   AddMessage(IndexedPath(element)); //Conditions\[3]\CTDA - \Comparison Value
 }
 function IndexedPath(e: IInterface): string;
@@ -1392,7 +1383,7 @@ begin
   // exit if values is empty
   if values.Count = 0 then exit;
   
-  list := ElementByIP(e, ip);
+  list := ElementByPath(e, ip);
   // clear element list except for one element
   While ElementCount(list) > 1 do
     RemoveByIndex(list, 0, true);
@@ -1424,7 +1415,7 @@ begin
   // exit if values is empty
   if values.Count = 0 then exit;
   
-  list := ElementByIP(e, ip);
+  list := ElementByPath(e, ip);
   
   // clear element list except for one element
   While ElementCount(list) > 1 do
@@ -1468,11 +1459,11 @@ end;
 
 {
   ebip:
-  ElementByIP shortened function name.
+  ElementByPath shortened function name.
 }
 function ebip(e: IInterface; ip: string): IInterface;
 begin
-  Result := ElementByIP(e, ip);
+  Result := ElementByPath(e, ip);
 end;
 
 {
@@ -1502,7 +1493,7 @@ end;
 
 {
   geev:
-  GetElementEditValues, enhanced with ElementByIP.
+  GetElementEditValues, enhanced with ElementByPath.
   
   Example usage:
   s1 := geev(e, 'Conditions\[3]\CTDA - \Function');
@@ -1510,12 +1501,12 @@ end;
 }
 function geev(e: IInterface; ip: string): string;
 begin
-  Result := GetEditValue(ElementByIP(e, ip));
+  Result := GetEditValue(ElementByPath(e, ip));
 end;
 
 {
   genv:
-  GetElementNativeValues, enhanced with ElementByIP.
+  GetElementNativeValues, enhanced with ElementByPath.
   
   Example usage:
   f1 := genv(e, 'KWDA\[3]');
@@ -1523,12 +1514,12 @@ end;
 }
 function genv(e: IInterface; ip: string): variant;
 begin
-  Result := GetNativeValue(ElementByIP(e, ip));
+  Result := GetNativeValue(ElementByPath(e, ip));
 end;
 
 {
   seev:
-  SetElementEditValues, enhanced with ElementByIP.
+  SetElementEditValues, enhanced with ElementByPath.
   
   Example usage:
   seev(e, 'Conditions\[2]\CTDA - \Type', '10000000');
@@ -1536,19 +1527,19 @@ end;
 }
 procedure seev(e: IInterface; ip: string; val: string);
 begin
-  SetEditValue(ElementByIP(e, ip), val);
+  SetEditValue(ElementByPath(e, ip), val);
 end;
 
 {
   senv:
-  SetElementNativeValues, enhanced with ElementByIP.
+  SetElementNativeValues, enhanced with ElementByPath.
   
   Example usage:
   senv(e, 'KWDA\[1]', $0006C0EE); // $0006C0EE is ArmorHelmet keyword
 }
 procedure senv(e: IInterface; ip: string; val: variant);
 begin
-  SetNativeValue(ElementByIP(e, ip), val);
+  SetNativeValue(ElementByPath(e, ip), val);
 end;
 
 {
@@ -1579,7 +1570,7 @@ begin
   // exit if values is empty
   if values.Count = 0 then exit;
   
-  list := ElementByIP(e, ip);
+  list := ElementByPath(e, ip);
   
   // clear element list except for one element
   While ElementCount(list) > 1 do
