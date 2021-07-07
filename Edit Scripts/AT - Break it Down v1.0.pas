@@ -1,10 +1,9 @@
 {
-  Break It Down v1.0
+  Break It Down v1.1
   created by matortheeternal
   
   * CHANGES *
-  - Fixed trailing OR in conditions for comaptibility with the CCOR 
-    Compatibility Script.
+  - Fixed conditions for latest xEdit definitions
   
   * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
