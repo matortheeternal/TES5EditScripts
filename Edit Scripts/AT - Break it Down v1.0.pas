@@ -4,6 +4,7 @@
   
   * CHANGES *
   - Fixed conditions for latest xEdit definitions
+  - Fixed skyforge recipes being ignored
   
   * DESCRIPTION *
   This script creates break-down recipes for armors, weapons, and other
@@ -254,7 +255,7 @@ begin
   // skip recipes that aren't created at CraftingSmithingForge
   bnam := ElementByPath(e, 'BNAM');
   s := geev(LinksTo(bnam), 'EDID');
-  if (s <> 'CraftingSmithingForge') and (s <> 'CraftingSmithingSkyForge') then
+  if (s <> 'CraftingSmithingForge') and (s <> 'CraftingSmithingSkyforge') then
     exit;
   
   // add master file names
