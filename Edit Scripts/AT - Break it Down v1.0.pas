@@ -15,7 +15,7 @@ unit UserScript;
 uses mteFunctions;
 
 const
-  vs = '1.0';
+  vs = '1.1';
   removesingle = true; 
   // set to false to not attempt to create breakdown recipes at the 
   // tanning rack for items that have a only a single ingot type item
