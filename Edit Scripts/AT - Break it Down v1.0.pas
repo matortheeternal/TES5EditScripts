@@ -43,22 +43,22 @@ begin
   end
   else
     condition := ElementAssign(conditions, HighInteger, nil, False);
-  seev(condition, 'CTDA - \Type', '11000000'); // Greater than or equal to
-  seev(condition, 'CTDA - \Comparison Value', '1.0');
-  seev(condition, 'CTDA - \Function', 'GetItemCount');
-  seev(condition, 'CTDA - \Inventory Object', s);
+  seev(condition, 'CTDA\Type', '11000000'); // Greater than or equal to
+  seev(condition, 'CTDA\Comparison Value', '1.0');
+  seev(condition, 'CTDA\Function', 'GetItemCount');
+  seev(condition, 'CTDA\Inventory Object', s);
   
   if eqc then begin
     condition := ElementAssign(conditions, HighInteger, nil, False);
-    seev(condition, 'CTDA - \Type', '10010000'); // Equal to / OR
-    seev(condition, 'CTDA - \Comparison Value', '0.0');
-    seev(condition, 'CTDA - \Function', 'GetEquipped');
-    seev(condition, 'CTDA - \Inventory Object', s);
+    seev(condition, 'CTDA\Type', '10010000'); // Equal to / OR
+    seev(condition, 'CTDA\Comparison Value', '0.0');
+    seev(condition, 'CTDA\Function', 'GetEquipped');
+    seev(condition, 'CTDA\Inventory Object', s);
     condition := ElementAssign(conditions, HighInteger, nil, False);
-    seev(condition, 'CTDA - \Type', '11000000'); // Greater than or equal to
-    seev(condition, 'CTDA - \Comparison Value', '2.0');
-    seev(condition, 'CTDA - \Function', 'GetItemCount');
-    seev(condition, 'CTDA - \Inventory Object', s);
+    seev(condition, 'CTDA\Type', '11000000'); // Greater than or equal to
+    seev(condition, 'CTDA\Comparison Value', '2.0');
+    seev(condition, 'CTDA\Function', 'GetItemCount');
+    seev(condition, 'CTDA\Inventory Object', s);
   end;
 end;
 
